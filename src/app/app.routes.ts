@@ -1,14 +1,14 @@
 import { Routes } from '@angular/router';
 import { JoinRoom } from './join-room/join-room';
-import { GamePage } from './game-page/game-page';
+import { QuizPage } from './quiz-page/quiz-page';
 
 export const routes: Routes = [
   {
-    path: 'game',
-    component: GamePage,
-  },
-  {
     path: '',
     component: JoinRoom,
+  },
+  {
+    path: 'quiz',
+    component: QuizPage,
   },
 ];
