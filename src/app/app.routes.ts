@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { Login } from './login/login';
+import { JoinRoom } from './join-room/join-room';
 
 export const routes: Routes = [
   {
     path: '',
-    component: Login,
+    component: JoinRoom,
   },
 ];

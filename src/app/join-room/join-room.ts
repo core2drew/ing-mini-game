@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { LucideZap } from '@lucide/angular';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-join-room',
   imports: [LucideZap],
-  templateUrl: './login.html',
-  styleUrl: './login.css',
+  templateUrl: './join-room.html',
+  styleUrl: './join-room.css',
 })
-export class Login {}
+export class JoinRoom {}
