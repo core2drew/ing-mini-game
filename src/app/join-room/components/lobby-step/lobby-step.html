@@ -1,0 +1,21 @@
+<div class="bg-slate-800/60 backdrop-blur border border-slate-700 rounded-2xl p-8 shadow-2xl">
+  <h2 class="text-xl font-semibold text-white mb-1">The Calm Before the Brainstorm</h2>
+  <p class="text-slate-300 text-sm mb-6">
+    Stretch those mental muscles while the host gets things ready.
+  </p>
+
+  <div class="card">
+    <p-table [value]="players" [tableStyle]="{ 'min-width': '50rem' }">
+      <ng-template #header>
+        <tr>
+          <th>Name</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-player>
+        <tr>
+          <td>{{ player.name }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
