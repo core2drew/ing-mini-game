@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { TableModule } from 'primeng/table';
 
 @Component({
@@ -9,6 +10,7 @@ import { TableModule } from 'primeng/table';
   standalone: true,
 })
 export class LobbyStep {
+  private router = inject(Router);
   players = [
     {
       name: 'John Doe',
@@ -17,4 +19,8 @@ export class LobbyStep {
       name: 'Jane Doe',
     },
   ];
+
+  ngOnInit() {
+    // this.router.navigate(['/game']);
+  }
 }
