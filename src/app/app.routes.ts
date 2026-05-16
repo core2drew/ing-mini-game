@@ -8,7 +8,7 @@ export const routes: Routes = [
     component: JoinRoom,
   },
   {
-    path: 'quiz',
+    path: 'quiz-blitz',
     component: QuizPage,
   },
 ];
