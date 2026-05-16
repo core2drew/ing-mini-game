@@ -2,8 +2,20 @@
   class="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4"
 >
   <div class="w-full max-w-xl">
-    <app-quiz-progress></app-quiz-progress>
-    <app-question></app-question>
-    <app-question-options></app-question-options>
+    <app-quiz-progress [progress]="progressPercent"></app-quiz-progress>
+    <app-question-text [question]="currentQuestion.text"></app-question-text>
+    <div class="grid grid-cols-2 gap-3 mb-6">
+      @for (option of currentQuestion.options; track $index; let i = $index) {
+        <app-question-option-button
+          [option]="option"
+          [index]="i"
+          [isSelected]="(selected$ | async) === i"
+          [isCorrect]="i === currentQuestion.correctIndex"
+          [isRevealed]="(revealed$ | async)!"
+          (click)="!isRevealed && onSelectOption(i)"
+          [ngClass]="{ 'cursor-pointer': !isRevealed }"
+        ></app-question-option-button>
+      }
+    </div>
   </div>
 </div>
