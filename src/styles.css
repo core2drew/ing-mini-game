@@ -1,3 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+:host ::ng-deep p-toast .p-toast-message {
+  background-color: rgba(30, 41, 59, 0.6) !important; /* Tailwind's slate-800 with 60% opacity */
+  border: none !important; /* Remove default border */
+}
