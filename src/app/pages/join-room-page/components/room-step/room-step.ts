@@ -48,6 +48,13 @@ export class RoomStep {
           });
         }
       })
+      .catch((error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: error.message || 'Failed to join room. Please try again.',
+        });
+      })
       .finally(() => {
         this.loading = false;
       });
