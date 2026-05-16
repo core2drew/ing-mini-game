@@ -1,3 +1,4 @@
+<p-toast position="top-center" />
 <div class="bg-slate-800/60 backdrop-blur border border-slate-700 rounded-2xl p-8 shadow-2xl">
   <h2 class="text-xl font-semibold text-white mb-1">Jump In!</h2>
   <p class="text-slate-300 text-sm mb-6">Type the room ID and get your buzzer finger ready.</p>
@@ -24,12 +25,8 @@
           <p class="text-red-400 text-sm">{error}</p>
         )} -->
 
-    <button
-      type="button"
-      class="w-full bg-blue-800 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-400/30 active:scale-95"
-      (click)="joinRoom()"
-    >
+    <p-button type="button" class="join-button" (click)="joinRoom()" [loading]="loading">
       Enter room
-    </button>
+    </p-button>
   </form>
 </div>
