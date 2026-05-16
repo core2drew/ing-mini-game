@@ -2,7 +2,11 @@
   class="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4"
 >
   <div class="w-full max-w-xl">
-    <app-quiz-progress [progress]="progressPercent"></app-quiz-progress>
+    <app-quiz-progress
+      [currentQuestionNumber]="((currentQuestion$ | async) || 0) + 1"
+      [questionLength]="questions.length"
+      [progress]="progressPercent"
+    ></app-quiz-progress>
     <app-question-text [question]="currentQuestion.text"></app-question-text>
     <div class="grid grid-cols-2 gap-3 mb-6">
       @for (option of currentQuestion.options; track $index; let i = $index) {

@@ -4,7 +4,8 @@ import { QuestionOptionButton } from './components/question-option-button/questi
 import { QuizProgress } from './components/quiz-progress/quiz-progress';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
-import { Question } from './models/question.model';
+import { Question } from '@models/quiz/question.model';
+import { QuestionsService } from '@services/quiz/question.service';
 
 @Component({
   selector: 'app-quiz-page',
@@ -18,6 +19,12 @@ export class QuizPage {
   questions: Question[] = [];
   revealed$ = new BehaviorSubject(false);
   selected$ = new BehaviorSubject<number | null>(null);
+
+  constructor(private questionsService: QuestionsService) {}
+
+  ngOnInit(): void {
+    this.questions = this.questionsService.getQuestions();
+  }
 
   get progressPercent(): number {
     return (this.currentQuestion$.value / this.questions.length) * 100;
