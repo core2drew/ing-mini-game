@@ -4,7 +4,7 @@ import { Question } from '@models/quiz/question.model';
 @Injectable({
   providedIn: 'root',
 })
-export class QuestionsService {
+export class QuestionService {
   private questions: Question[] = [
     {
       id: 0,
