@@ -9,9 +9,12 @@ import {
   doc,
   onSnapshot,
   QuerySnapshot,
+  setDoc,
+  runTransaction,
 } from 'firebase/firestore';
-import { Observable } from 'rxjs';
+import { from, map, Observable, switchMap, take, throwError } from 'rxjs';
 import { Player } from '@models/quiz/player.model';
+import { playerStore } from '../../stores/player.store';
 
 @Injectable({
   providedIn: 'root',
@@ -20,27 +23,54 @@ export class PlayerService {
   constructor(private firebaseService: FirebaseService) {}
 
   createPlayer(name: string): Observable<Player> {
-    return new Observable((observer) => {
-      const db = this.firebaseService.getDb();
-      addDoc(collection(db, 'players'), {
-        name: name.trim(),
-        score: 0,
-        answers: [],
-        joined_at: new Date(),
-      })
-        .then((docRef) => {
-          const newPlayer: Player = {
-            id: docRef.id,
-            name: name.trim(),
-            score: 0,
-            answers: [],
-            joined_at: new Date(),
-          };
-          observer.next(newPlayer);
-          observer.complete();
-        })
-        .catch((err: any) => observer.error(err));
-    });
+    const db = this.firebaseService.getDb();
+    const cleanName = name.trim().toLowerCase();
+
+    // 1. Stream the current state from your Elf store
+    return playerStore.pipe(
+      // Select the roomId field from your store state
+      map((state) => state.roomId),
+      // Ensure we only take the current value and complete the store stream listener
+      take(1),
+      // Switch into the asynchronous Firestore operation
+      switchMap((roomId) => {
+        if (!roomId) {
+          return throwError(() => new Error('No active Room ID found in store.'));
+        }
+
+        // 2. Target the unique subcollection path: rooms/{roomId}/players/{cleanName}
+        const playerDocRef = doc(db, 'rooms', roomId, 'players', cleanName);
+        const playerData = {
+          name: name.trim(), // Keep original casing for display
+          score: 0,
+          answers: [],
+          joined_at: new Date(),
+        };
+
+        // 3. Wrap the Firestore Transaction in an RxJS Observable using from()
+        return from(
+          runTransaction(db, async (transaction) => {
+            const playerSnapshot = await transaction.get(playerDocRef);
+
+            // Transaction Checker: Block duplicates before writing
+            if (playerSnapshot.exists()) {
+              throw new Error('Player name is already taken.');
+            }
+
+            // Safe to write if it doesn't exist
+            transaction.set(playerDocRef, playerData);
+          }),
+        ).pipe(
+          // 4. If the transaction succeeds, map to your Player object payload
+          map(() => {
+            return {
+              id: cleanName,
+              ...playerData,
+            } as Player;
+          }),
+        );
+      }),
+    );
   }
 
   getPlayer(id: string): Observable<Player | undefined> {
