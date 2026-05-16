@@ -16,7 +16,8 @@
     "module": "preserve",
     "paths": {
       "@models/*": ["./src/app/models/*"],
-      "@services/*": ["./src/app/services/*"]
+      "@services/*": ["./src/app/services/*"],
+      "@environments/*": ["./src/environments/*"]
     }
   },
   "angularCompilerOptions": {
