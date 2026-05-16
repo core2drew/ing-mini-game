@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-quiz-progress',
@@ -7,4 +7,6 @@ import { Component } from '@angular/core';
   styleUrl: './quiz-progress.css',
   standalone: true,
 })
-export class QuizProgress {}
+export class QuizProgress {
+  @Input() progress: number = 0;
+}
