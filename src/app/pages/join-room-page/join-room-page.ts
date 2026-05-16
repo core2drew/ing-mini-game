@@ -2,12 +2,12 @@ import { Component } from '@angular/core';
 import { LucideZap } from '@lucide/angular';
 import { Stepper } from './components/stepper/stepper';
 @Component({
-  selector: 'app-join-room',
+  selector: 'app-join-room-page',
   imports: [LucideZap, Stepper],
-  templateUrl: './join-room.html',
-  styleUrl: './join-room.css',
+  templateUrl: './join-room-page.html',
+  styleUrl: './join-room-page.css',
   standalone: true,
 })
-export class JoinRoom {
+export class JoinRoomPage {
   value: string | undefined;
 }

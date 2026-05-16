@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { JoinRoom } from './join-room';
+import { JoinRoomPage } from './join-room-page';
 
-describe('JoinRoom', () => {
-  let component: JoinRoom;
-  let fixture: ComponentFixture<JoinRoom>;
+describe('JoinRoomPage', () => {
+  let component: JoinRoomPage;
+  let fixture: ComponentFixture<JoinRoomPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [JoinRoom],
+      imports: [JoinRoomPage],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(JoinRoom);
+    fixture = TestBed.createComponent(JoinRoomPage);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
