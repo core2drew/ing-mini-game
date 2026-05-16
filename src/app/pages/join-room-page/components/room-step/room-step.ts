@@ -36,8 +36,8 @@ export class RoomStep {
     this.loading = true;
     this.roomService
       .joinRoom(this.roomId!)
-      .then((exists) => {
-        if (exists) {
+      .then((canJoin) => {
+        if (canJoin) {
           this.nextStep.emit(2);
           playerStore.update((state) => ({ ...state, roomId: this.roomId }));
         } else {
