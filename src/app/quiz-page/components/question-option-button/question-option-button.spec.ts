@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { QuestionOptions } from './question-options';
+import { QuestionOptionButton } from './question-option-button';
 
-describe('QuestionOptions', () => {
-  let component: QuestionOptions;
-  let fixture: ComponentFixture<QuestionOptions>;
+describe('QuestionOptionButton', () => {
+  let component: QuestionOptionButton;
+  let fixture: ComponentFixture<QuestionOptionButton>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [QuestionOptions],
+      imports: [QuestionOptionButton],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(QuestionOptions);
+    fixture = TestBed.createComponent(QuestionOptionButton);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

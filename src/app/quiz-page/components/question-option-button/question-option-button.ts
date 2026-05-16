@@ -1,0 +1,42 @@
+import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
+import { OPTION_COLORS } from '../../constants/question-options-button.constant';
+
+@Component({
+  selector: 'app-question-option-button',
+  imports: [CommonModule],
+  templateUrl: './question-option-button.html',
+  styleUrl: './question-option-button.css',
+  standalone: true,
+})
+export class QuestionOptionButton {
+  @Input() option: string = '';
+  @Input() index: number = 0;
+  @Input() isSelected: boolean = false;
+  @Input() isCorrect: boolean = false;
+  @Input() isRevealed: boolean = false;
+
+  get colorConfig() {
+    return OPTION_COLORS[this.index];
+  }
+
+  get buttonClass(): string {
+    if (!this.isRevealed) {
+      return `${this.colorConfig.bg} text-white`;
+    }
+
+    if (this.isCorrect) {
+      return 'bg-green-500 text-white ring-2 ring-green-300';
+    }
+
+    if (this.isSelected && !this.isCorrect) {
+      return 'bg-red-500 text-white ring-2 ring-red-300';
+    }
+
+    return 'bg-slate-700 text-slate-400 cursor-default';
+  }
+
+  get disabled(): boolean {
+    return this.isRevealed;
+  }
+}
