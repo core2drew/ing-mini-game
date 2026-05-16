@@ -12,8 +12,10 @@
         </ng-template>
       </p-step-panel>
       <p-step-panel [value]="3">
-        <ng-template #content let-activateCallback="activateCallback">
-          <app-lobby-step></app-lobby-step>
+        <ng-template #content let-isActive="active">
+          @if (isActive) {
+            <app-lobby-step></app-lobby-step>
+          }
         </ng-template>
       </p-step-panel>
     </p-step-panels>
