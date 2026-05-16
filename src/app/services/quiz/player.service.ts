@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { FirebaseService } from '@services/firebase.service';
 import {
   collection,
@@ -20,7 +20,7 @@ import { playerStore } from '../../stores/player.store';
   providedIn: 'root',
 })
 export class PlayerService {
-  constructor(private firebaseService: FirebaseService) {}
+  private firebaseService = inject(FirebaseService);
 
   createPlayer(name: string): Observable<Player> {
     const db = this.firebaseService.getDb();

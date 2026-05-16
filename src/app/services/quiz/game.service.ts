@@ -1,11 +1,14 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { QuestionService } from './question.service';
+import { filter, map, Observable, take } from 'rxjs';
+import { FirebaseService } from '@services/firebase.service';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
-  constructor(private questionService: QuestionService) {}
+  private questionService = inject(QuestionService);
 
   calculateScore(answers: number[]): number {
     const questions = this.questionService.getQuestions();
