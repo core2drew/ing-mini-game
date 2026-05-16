@@ -21,6 +21,6 @@ export class LobbyStep {
   ];
 
   ngOnInit() {
-    // this.router.navigate(['/game']);
+    // this.router.navigate(['/quiz-blitz']);
   }
 }
