@@ -2,7 +2,7 @@
   type="button"
   [ngClass]="buttonClass"
   [disabled]="disabled"
-  class="relative flex items-center gap-3 p-4 rounded-xl font-medium transition-all duration-200 active:scale-95 disabled:active:scale-100"
+  class="relative flex items-center gap-3 p-4 rounded-xl font-medium transition-all duration-200 active:scale-95 disabled:active:scale-100 w-full"
 >
   <span
     class="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center text-xs font-bold shrink-0"
@@ -10,32 +10,24 @@
     {{ colorConfig.label }}
   </span>
   <span class="text-left text-sm leading-snug">{{ option }}</span>
-  <svg
-    *ngIf="isRevealed && isCorrect"
-    class="w-4 h-4 ml-auto shrink-0"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z"
-    ></path>
-  </svg>
-  <svg
-    *ngIf="isRevealed && isSelected && !isCorrect"
-    class="w-4 h-4 ml-auto shrink-0"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      d="M10 14l-2-2m0 0l-2-2m2 2l2-2m-2 2l-2 2m0 0l2 2m-2-2l2 2"
-    ></path>
-  </svg>
+  @if (isRevealed && isCorrect) {
+    <svg class="w-4 h-4 ml-auto shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z"
+      ></path>
+    </svg>
+  }
+  @if (isRevealed && isSelected && !isCorrect) {
+    <svg class="w-4 h-4 ml-auto shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M10 14l-2-2m0 0l-2-2m2 2l2-2m-2 2l-2 2m0 0l2 2m-2-2l2 2"
+      ></path>
+    </svg>
+  }
 </button>
