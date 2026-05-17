@@ -1,0 +1,55 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4"
+>
+  <div class="w-full max-w-md">
+    <div class="bg-slate-800/60 backdrop-blur border border-slate-700 rounded-2xl p-8 shadow-2xl">
+      <h2 class="text-xl font-semibold text-white mb-5">Log In</h2>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1.5"> Username </label>
+          <input
+            type="text"
+            formControlName="username"
+            placeholder="Enter your username"
+            class="w-full bg-slate-900/60 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            autofocus
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-1.5"> Password </label>
+          <input
+            type="password"
+            formControlName="password"
+            placeholder="Enter your password"
+            class="w-full bg-slate-900/60 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          />
+        </div>
+
+        <div
+          *ngIf="error"
+          class="text-red-400 text-sm bg-red-500/10 border border-red-500/30 rounded-lg p-3"
+        >
+          {{ error }}
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="!form.valid || loading"
+          class="w-full bg-blue-500 hover:bg-blue-400 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-xl transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-400/30 active:scale-95"
+        >
+          {{
+            loading
+              ? showSignUp
+                ? 'Creating account...'
+                : 'Logging in...'
+              : showSignUp
+                ? 'Create Account'
+                : 'Log In'
+          }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

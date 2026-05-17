@@ -1,22 +1,25 @@
 import { Routes } from '@angular/router';
-import { JoinRoomPage } from './pages/join-room-page/join-room-page';
-import { QuizPage } from './pages/quiz-page/quiz-page';
-import { CreateRoomPage } from './pages/create-room-page/create-room-page';
 import { roomGuard } from './guards/room-guard/room-guard';
 
 export const routes: Routes = [
   {
     path: 'join',
-    component: JoinRoomPage,
+    loadComponent: () =>
+      import('./pages/join-room-page/join-room-page').then((m) => m.JoinRoomPage),
   },
   {
     path: 'quiz-blitz',
-    component: QuizPage,
+    loadComponent: () => import('./pages/quiz-page/quiz-page').then((m) => m.QuizPage),
     canActivate: [roomGuard],
   },
   {
     path: 'create-room',
-    component: CreateRoomPage,
+    loadComponent: () =>
+      import('./pages/create-room-page/create-room-page').then((m) => m.CreateRoomPage),
+  },
+  {
+    path: 'login',
+    loadComponent: () => import('./pages/auth/login/login').then((m) => m.Login),
   },
   {
     path: '**',
