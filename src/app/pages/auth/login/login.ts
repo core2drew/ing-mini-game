@@ -1,23 +1,29 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 
-import { Subject, takeUntil, finalize } from 'rxjs';
+import { Subject } from 'rxjs';
+import { AuthService } from '@services/auth/auth.service';
+import { MessageService } from 'primeng/api';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, MessageModule],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
+  standalone: true,
 })
-export class Login implements OnInit, OnDestroy {
+export class Login {
   form!: FormGroup;
   showSignUp = false;
   loading = false;
   error = '';
+
   private destroy$ = new Subject<void>();
+  private authService = inject(AuthService);
+  private messageService = inject(MessageService);
 
   constructor(
     private fb: FormBuilder,
@@ -25,8 +31,6 @@ export class Login implements OnInit, OnDestroy {
   ) {
     this.createForm();
   }
-
-  ngOnInit(): void {}
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -52,23 +56,13 @@ export class Login implements OnInit, OnDestroy {
     const { username, password } = this.form.value;
     this.loading = true;
     this.error = '';
-
-    const auth$ = this.showSignUp;
-    //   ? this.supabase.signUp(username, password, 'player')
-    //   : this.supabase.signIn(username, password);
-
-    // auth$
-    //   .pipe(
-    //     takeUntil(this.destroy$),
-    //     finalize(() => (this.loading = false)),
-    //   )
-    //   .subscribe({
-    //     next: () => {
-    //       this.router.navigate(['/dashboard']);
-    //     },
-    //     error: (err) => {
-    //       this.error = err?.message || 'Authentication failed. Please try again.';
-    //     },
-    //   });
+    this.authService.signIn(username, password).catch((errCode) => {
+      this.loading = false;
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: errCode,
+      });
+    });
   }
 }
