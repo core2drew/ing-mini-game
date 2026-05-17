@@ -2,6 +2,7 @@
   class="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4"
 >
   <div class="w-full max-w-xl">
+    <app-quiz-timer [secondsLeft]="(timer$ | async) ?? 0"></app-quiz-timer>
     <app-quiz-progress
       [currentQuestionNumber]="((currentQuestion$ | async) || 0) + 1"
       [questionLength]="questions.length"
