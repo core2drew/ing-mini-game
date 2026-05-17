@@ -33,30 +33,32 @@ export class RoomStep {
   private roomService = inject(RoomService);
 
   joinRoom() {
-    this.loading = true;
-    this.roomService
-      .joinRoom(this.roomId!)
-      .then((canJoin) => {
-        if (canJoin) {
-          this.nextStep.emit(2);
-          playerStore.update((state) => ({ ...state, roomId: this.roomId }));
-        } else {
+    if (this.roomId) {
+      this.loading = true;
+      this.roomService
+        .joinRoom(this.roomId!)
+        .then((canJoin) => {
+          if (canJoin) {
+            this.nextStep.emit(2);
+            playerStore.update((state) => ({ ...state, roomId: this.roomId }));
+          } else {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Room does not exist',
+            });
+          }
+        })
+        .catch((error) => {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Room does not exist',
+            detail: error.message || 'Failed to join room. Please try again.',
           });
-        }
-      })
-      .catch((error) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: error.message || 'Failed to join room. Please try again.',
+        })
+        .finally(() => {
+          this.loading = false;
         });
-      })
-      .finally(() => {
-        this.loading = false;
-      });
+    }
   }
 }
