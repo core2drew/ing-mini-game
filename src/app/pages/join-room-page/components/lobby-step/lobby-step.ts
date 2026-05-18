@@ -1,13 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { Player } from '@models/quiz/player.model';
+import { PlayerService } from '@services/quiz/player.service';
 import { RoomService } from '@services/room/room.service';
 import { playerStore } from '@stores/player.store';
 import { TableModule } from 'primeng/table';
-import { Subscription } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-lobby-step',
-  imports: [TableModule],
+  imports: [TableModule, CommonModule],
   templateUrl: './lobby-step.html',
   styleUrl: './lobby-step.css',
   standalone: true,
@@ -15,16 +18,10 @@ import { Subscription } from 'rxjs';
 export class LobbyStep {
   private router = inject(Router);
   private roomService = inject(RoomService);
+  private playerService = inject(PlayerService);
 
   private gameStartSub!: Subscription;
-  players = [
-    {
-      name: 'John Doe',
-    },
-    {
-      name: 'Jane Doe',
-    },
-  ];
+  players$: Observable<Player[]> = of([]);
 
   ngOnInit(): void {
     // 1. Fetch the active roomId out of your Elf store
@@ -35,6 +32,8 @@ export class LobbyStep {
       this.router.navigate(['/']);
       return;
     }
+
+    this.players$ = this.playerService.getPlayersInRoom(currentRoomId!);
 
     // 2. Start watching for the host to click "Start Game"
     this.gameStartSub = this.roomService.waitUntilGameStarts(currentRoomId).subscribe({

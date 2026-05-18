@@ -3,7 +3,7 @@
   <p class="text-slate-300 text-sm mb-6">Sit back and relax while the lobby fills up.</p>
 
   <div class="card">
-    <p-table [value]="players" [tableStyle]="{ 'min-width': '50rem' }">
+    <p-table [value]="(players$ | async) ?? []" [tableStyle]="{ 'min-width': '50rem' }">
       <ng-template #header>
         <tr>
           <th>Name</th>
