@@ -1,19 +1,17 @@
 import { inject, Injectable } from '@angular/core';
-import { signInWithEmailAndPassword } from '@angular/fire/auth';
 import { Router } from '@angular/router';
-import { FirebaseService } from '@services/firebase.service';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private router = inject(Router);
-  private firebaseService = inject(FirebaseService);
+  private auth = inject(AngularFireAuth);
 
   async signIn(email: string, password: string) {
     try {
-      const auth = this.firebaseService.getAuth();
-      await signInWithEmailAndPassword(auth, email, password);
+      await this.auth.signInWithEmailAndPassword(email, password);
       this.router.navigate(['/dashboard']);
     } catch (error: unknown) {
       const err = error as { code: string };
@@ -23,16 +21,15 @@ export class AuthService {
   }
 
   getUser() {
-    return this.firebaseService.getCurrentUser();
+    return this.auth.currentUser;
   }
 
   getAuthState() {
-    return this.firebaseService.getAuthState();
+    return this.auth.authState;
   }
 
   async signOut() {
-    const auth = this.firebaseService.getAuth();
-    await auth.signOut();
+    await this.auth.signOut();
     this.router.navigate(['/login']);
   }
 }

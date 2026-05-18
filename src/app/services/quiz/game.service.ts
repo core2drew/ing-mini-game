@@ -1,14 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { QuestionService } from './question.service';
-import { filter, interval, map, Observable, of, startWith, switchMap, take } from 'rxjs';
-import { FirebaseService } from '@services/firebase.service';
+import { interval, map, Observable, of, startWith, switchMap, take } from 'rxjs';
 import { doc, onSnapshot, Timestamp } from 'firebase/firestore';
+import { AuthService } from '@services/auth/auth.service';
+import { Firestore } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
-  private firebaseService = inject(FirebaseService);
+  private fireStore = inject(Firestore);
   private questionService = inject(QuestionService);
 
   calculateScore(answers: number[]): number {
@@ -37,8 +38,7 @@ export class GameService {
    * Listens to the room's deadline and outputs the remaining seconds in real-time.
    */
   streamGameRoomTimer(roomCode: string): Observable<number> {
-    const db = this.firebaseService.getDb();
-    const roomRef = doc(db, 'rooms', roomCode);
+    const roomRef = doc(this.fireStore, 'rooms', roomCode);
 
     // 1. Establish a real-time stream of the Room document
     const roomStream$ = new Observable<Timestamp | null>((observer) => {

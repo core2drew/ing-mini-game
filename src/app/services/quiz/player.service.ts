@@ -1,18 +1,21 @@
 import { Injectable, inject } from '@angular/core';
-import { FirebaseService } from '@services/firebase.service';
+
 import {
   collection,
-  query,
   orderBy,
-  addDoc,
   updateDoc,
   doc,
   onSnapshot,
   QuerySnapshot,
-  setDoc,
   runTransaction,
-} from 'firebase/firestore';
+} from '@angular/fire/firestore';
 import { from, map, Observable, switchMap, take, throwError } from 'rxjs';
+import {
+  collectionData,
+  query,
+  collection as firestoreCollection,
+  Firestore,
+} from '@angular/fire/firestore';
 import { Player } from '@models/quiz/player.model';
 import { playerStore } from '../../stores/player.store';
 
@@ -20,10 +23,9 @@ import { playerStore } from '../../stores/player.store';
   providedIn: 'root',
 })
 export class PlayerService {
-  private firebaseService = inject(FirebaseService);
+  private fireStore = inject(Firestore);
 
   createPlayer(name: string): Observable<Player> {
-    const db = this.firebaseService.getDb();
     const cleanName = name.trim().toLowerCase();
 
     // 1. Stream the current state from your Elf store
@@ -37,9 +39,8 @@ export class PlayerService {
         if (!roomId) {
           return throwError(() => new Error('No active Room ID found in store.'));
         }
-
         // 2. Target the unique subcollection path: rooms/{roomId}/players/{cleanName}
-        const playerDocRef = doc(db, 'rooms', roomId, 'players', cleanName);
+        const playerDocRef = doc(this.fireStore, 'rooms', roomId, 'players', cleanName);
         const playerData = {
           name: name.trim(), // Keep original casing for display
           score: 0,
@@ -49,7 +50,7 @@ export class PlayerService {
 
         // 3. Wrap the Firestore Transaction in an RxJS Observable using from()
         return from(
-          runTransaction(db, async (transaction) => {
+          runTransaction(this.fireStore, async (transaction) => {
             const playerSnapshot = await transaction.get(playerDocRef);
 
             // Transaction Checker: Block duplicates before writing
@@ -75,8 +76,7 @@ export class PlayerService {
 
   getPlayer(id: string): Observable<Player | undefined> {
     return new Observable((observer) => {
-      const db = this.firebaseService.getDb();
-      const collRef = collection(db, 'players');
+      const collRef = collection(this.fireStore, 'players');
 
       const unsubscribe = onSnapshot(collRef, (snapshot: QuerySnapshot) => {
         const doc = snapshot.docs.find((d) => d.id === id);
@@ -92,9 +92,8 @@ export class PlayerService {
   }
 
   subscribeToPlayers(): Observable<Player[]> {
-    const db = this.firebaseService.getDb();
     const q = query(
-      collection(db, 'players'),
+      collection(this.fireStore, 'players'),
       orderBy('score', 'desc'),
       orderBy('joined_at', 'asc'),
     );
@@ -109,10 +108,23 @@ export class PlayerService {
     });
   }
 
+  getPlayersInRoom(roomId: string): Observable<Player[]> {
+    // Define the path to the subcollection
+    const playersCollectionPath = `rooms/${roomId}/players`;
+
+    // Create a reference to the collection
+    const playersColRef = firestoreCollection(this.fireStore, playersCollectionPath);
+
+    const playersQuery = query(playersColRef, orderBy('joined_at', 'asc'));
+
+    // Fetch the data as an observable.
+    // Passing { idField: 'id' } automatically maps the Firestore document ID to a property named 'id'
+    return collectionData(playersQuery, { idField: 'id' }) as Observable<Player[]>;
+  }
+
   updatePlayerScore(playerId: string, score: number, answers: number[]): Observable<void> {
     return new Observable((observer) => {
-      const db = this.firebaseService.getDb();
-      const playerRef = doc(db, 'players', playerId);
+      const playerRef = doc(this.fireStore, 'players', playerId);
 
       updateDoc(playerRef, {
         score,

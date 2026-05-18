@@ -1,16 +1,16 @@
 import { inject, Injectable } from '@angular/core';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { FirebaseService } from '@services/firebase.service';
 import { filter, Observable, take } from 'rxjs';
+import { Firestore } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoomService {
-  private firebaseService = inject(FirebaseService);
+  private fireStore = inject(Firestore);
 
   async joinRoom(roomCode: string): Promise<boolean> {
-    const roomRef = doc(this.firebaseService.getDb(), 'rooms', roomCode);
+    const roomRef = doc(this.fireStore, 'rooms', roomCode);
     const roomSnap = await getDoc(roomRef);
     // 1. If the room doesn't even exist, fail immediately
     if (!roomSnap.exists()) {
@@ -28,8 +28,7 @@ export class RoomService {
   }
 
   waitUntilGameStarts(roomId: string): Observable<boolean> {
-    const db = this.firebaseService.getDb();
-    const roomDocRef = doc(db, 'rooms', roomId);
+    const roomDocRef = doc(this.fireStore, 'rooms', roomId);
 
     return new Observable<boolean>((observer) => {
       console.log(`📡 Opening real-time listener for Room: ${roomId}`);
