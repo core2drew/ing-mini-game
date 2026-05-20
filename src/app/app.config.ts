@@ -10,6 +10,8 @@ import { environment } from '@environments/environment';
 import { provideFirebaseApp } from '@angular/fire/app';
 import { provideAuth } from '@angular/fire/auth';
 import { getAuth } from 'firebase/auth';
+import { FIREBASE_OPTIONS } from '@angular/fire/compat';
+import { getFunctions, provideFunctions } from '@angular/fire/functions';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,8 +22,10 @@ export const appConfig: ApplicationConfig = {
         preset: Aura,
       },
     }),
+    { provide: FIREBASE_OPTIONS, useValue: environment.firebase },
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFirestore(() => getFirestore()),
     provideAuth(() => getAuth()),
+    provideFunctions(() => getFunctions(undefined, 'asia-east2')),
   ],
 };
