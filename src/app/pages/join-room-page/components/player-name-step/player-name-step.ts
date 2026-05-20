@@ -24,6 +24,7 @@ export class PlayerNameStep {
 
   enterGame(form: any) {
     if (form.valid) {
+      this.loading = true;
       this.playerService.createPlayer(this.playerName!).subscribe({
         next: (player) => {
           playerStore.update((state) => ({ ...state, name: player.name }));
@@ -37,6 +38,9 @@ export class PlayerNameStep {
             summary: 'Error',
             detail: error.message,
           });
+        },
+        complete: () => {
+          this.loading = false;
         },
       });
     }
