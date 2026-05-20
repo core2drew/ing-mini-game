@@ -1,0 +1,38 @@
+import { inject, Injectable } from '@angular/core';
+import { Functions, httpsCallable } from '@angular/fire/functions';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AdminService {
+  private functions = inject(Functions);
+
+  async startQuizSession(roomId: string): Promise<any> {
+    // Reference your backend Cloud Function
+    const startSessionFn = httpsCallable<{ roomId: string }, { success: boolean }>(
+      this.functions,
+      'startQuiz',
+    );
+
+    // Fire and forget—the backend will take it from here
+    return await startSessionFn({ roomId });
+  }
+
+  async restartQuizSession(roomId: string): Promise<any> {
+    const restartSessionFn = httpsCallable<{ roomId: string }, { success: boolean }>(
+      this.functions,
+      'restartQuiz',
+    );
+
+    return await restartSessionFn({ roomId });
+  }
+
+  async endQuizSession(roomId: string): Promise<any> {
+    const endSessionFn = httpsCallable<{ roomId: string }, { success: boolean }>(
+      this.functions,
+      'endQuiz',
+    );
+
+    return await endSessionFn({ roomId });
+  }
+}
