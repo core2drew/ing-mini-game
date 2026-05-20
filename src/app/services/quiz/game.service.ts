@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { QuestionService } from './question.service';
 import { interval, map, Observable, of, startWith, switchMap, take } from 'rxjs';
 import { doc, onSnapshot, Timestamp } from 'firebase/firestore';
-import { AuthService } from '@services/auth/auth.service';
 import { Firestore } from '@angular/fire/firestore';
 
 @Injectable({
@@ -46,7 +45,7 @@ export class GameService {
         roomRef,
         (snapshot) => {
           const data = snapshot.data();
-          observer.next(data!['questionTimerExpiresAt'] || null);
+          observer.next(data!['quizSession']!['questionTimerExpiresAt'] || null);
         },
         (err) => observer.error(err),
       );
