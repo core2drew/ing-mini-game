@@ -78,6 +78,9 @@ export class QuizPage {
     if (this.timerSub) {
       this.timerSub.unsubscribe();
     }
+    if (this.gameEndSub) {
+      this.gameEndSub.unsubscribe();
+    }
   }
 
   get progressPercent(): number {
