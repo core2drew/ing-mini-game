@@ -23,8 +23,44 @@ export class RoomService {
       throw new Error(`Room ${roomCode} has already started.`);
     }
 
+    if (roomData && roomData['isEnded'] === true) {
+      throw new Error(`Room ${roomCode} has already ended.`);
+    }
+
     // 3. Room exists and hasn't started yet, allow entry
     return true;
+  }
+
+  waitUntilGameEnds(roomId: string): Observable<boolean> {
+    const roomDocRef = doc(this.fireStore, 'rooms', roomId);
+
+    return new Observable<boolean>((observer) => {
+      console.log(`📡 Opening real-time listener for Room: ${roomId}`);
+
+      const unsubscribe = onSnapshot(
+        roomDocRef,
+        (snapshot) => {
+          const data = snapshot.data();
+          const isEnded = data ? !!data['isEnded'] : false;
+
+          // Debug log to see exactly when and what Firestore emits
+          console.log(`🔄 Room updated. isEnded status is currently: ${isEnded}`);
+
+          observer.next(isEnded);
+        },
+        (error) => observer.error(error),
+      );
+
+      return () => {
+        console.log(`🔌 Closing listener for Room: ${roomId}`);
+        unsubscribe();
+      };
+    }).pipe(
+      // 1. Only let the stream pass if it hits our target condition
+      filter((isEnded) => isEnded === true),
+      // 2. Shut down the pipeline only AFTER the true value escapes
+      take(1),
+    );
   }
 
   waitUntilGameStarts(roomId: string): Observable<boolean> {
