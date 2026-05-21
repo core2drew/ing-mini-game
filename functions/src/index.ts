@@ -43,7 +43,7 @@ export const advanceQuestion = onRequest(async (req, res) => {
 
       const questionRef = roomRef.collection('questions').doc(currentQuestionIndex.toString());
       const questionDoc = await transaction.get(questionRef);
-      console.log('Question data:', questionDoc.data());
+      console.log(`Question index ${currentQuestionIndex} data:`, questionDoc.data());
 
       // Fetch the next question ID from your quiz definition
       if (!questionDoc.exists) {
