@@ -11,27 +11,27 @@ export class GameService {
   private fireStore = inject(Firestore);
   private questionService = inject(QuestionService);
 
-  calculateScore(answers: number[]): number {
-    const questions = this.questionService.getQuestions();
-    let score = 0;
+  // calculateScore(answers: number[]): number {
+  //   const questions = this.questionService.getQuestions();
+  //   let score = 0;
 
-    answers.forEach((answer, index) => {
-      if (answer === questions[index].correctIndex) {
-        score++;
-      }
-    });
+  //   answers.forEach((answer, index) => {
+  //     if (answer === questions[index].correctIndex) {
+  //       score++;
+  //     }
+  //   });
 
-    return score;
-  }
+  //   return score;
+  // }
 
-  isAnswerCorrect(questionIndex: number, answerIndex: number): boolean {
-    const questions = this.questionService.getQuestions();
-    return answerIndex === questions[questionIndex].correctIndex;
-  }
+  // isAnswerCorrect(questionIndex: number, answerIndex: number): boolean {
+  //   const questions = this.questionService.getQuestions();
+  //   return answerIndex === questions[questionIndex].correctIndex;
+  // }
 
-  isLastQuestion(currentIndex: number): boolean {
-    return currentIndex === this.questionService.getQuestionCount() - 1;
-  }
+  // isLastQuestion(currentIndex: number): boolean {
+  //   return currentIndex === this.questionService.getQuestionCount() - 1;
+  // }
 
   /**
    * Listens to the room's deadline and outputs the remaining seconds in real-time.
