@@ -21,6 +21,7 @@ export const advanceQuestion = onRequest(async (req, res) => {
     }
 
     const roomRef = firestore.collection('rooms').doc(roomId);
+
     let nextTaskData:
       | {
           roomId: string;
@@ -38,14 +39,17 @@ export const advanceQuestion = onRequest(async (req, res) => {
       }
 
       const roomData = roomDoc.data()!;
+      const currentQuestionIndex = roomData.currentQuestionIndex || 0;
 
-      const nextIndex = roomData.currentQuestionIndex + 1;
+      const questionRef = roomRef.collection('questions').doc(currentQuestionIndex.toString());
+      const questionDoc = await transaction.get(questionRef);
+      console.log('Question data:', questionDoc.data());
 
       // Fetch the next question ID from your quiz definition
-      if(roomData['quizQuestions'][nextIndex]) {
-                // No more questions left, end the quiz
+      if (!questionDoc.exists) {
+        // No more questions left, end the quiz
         transaction.update(roomRef, {
-          isEnded: true,
+          isEnded: false,
           isStarted: false,
           currentQuestionIndex: 0,
           expiresAt: null,
@@ -56,6 +60,7 @@ export const advanceQuestion = onRequest(async (req, res) => {
       const durationInSeconds = 10; // Customize per question if needed
       const nextExpiryDate = new Date(Date.now() + durationInSeconds * 1000);
       const nextExpiryTimestamp = Timestamp.fromDate(nextExpiryDate);
+      const nextIndex = roomData.currentQuestionIndex + 1; // Next question index
 
       // Update Firestore State
       transaction.update(roomRef, {
@@ -123,25 +128,17 @@ async function scheduleNextQuestionTask(roomId: string, nextIndex: number, sched
   await tasksClient.createTask({ parent: queuePath, task });
 }
 
-async function getNextQuestionId(questions: string, index: number): Promise<string | null> {
-  if
-  // Logic to look up your static/dynamic quiz questions array or subcollection
-  // Return null if index out of bounds
-  return `question_id_${index}`;
-}
-
 // Re-use the scheduling helper we wrote earlier
 export const startQuiz = onCall(async (request) => {
   const { roomId } = request.data;
   const firestore = getFirestore();
   const roomRef = firestore.collection('rooms').doc(roomId);
-  const durationInSeconds = 10;
+  const durationInSeconds = 120;
   const firstExpiry = new Date(Date.now() + durationInSeconds * 1000);
 
   await roomRef.update({
     isStarted: true,
     'quizSession.currentQuestionIndex': 0,
-    'quizSession.currentQuestionId': await getNextQuestionId('defaultQuiz', 0),
     'quizSession.questionTimerExpiresAt': Timestamp.fromDate(firstExpiry),
   });
 
@@ -155,14 +152,17 @@ export const restartQuiz = onCall(async (request) => {
   const { roomId } = request.data;
   const firestore = getFirestore();
   const roomRef = firestore.collection('rooms').doc(roomId);
+  const playerRef = roomRef.collection('players');
 
   await roomRef.update({
     isEnded: false,
     isStarted: false,
     'quizSession.currentQuestionIndex': 0,
-    'quizSession.currentQuestionId': 0,
     'quizSession.questionTimerExpiresAt': null,
   });
+
+  // Delete all player collection
+  await firestore.recursiveDelete(playerRef);
 
   return { success: true };
 });
@@ -176,7 +176,6 @@ export const endQuiz = onCall(async (request) => {
     isEnded: true,
     isStarted: false,
     'quizSession.currentQuestionIndex': 0,
-    'quizSession.currentQuestionId': 0,
     'quizSession.questionTimerExpiresAt': null,
   });
 
