@@ -14,6 +14,15 @@ service cloud.firestore {
         // Allow reading and updating player scores/answers during the game
         allow read, update, delete: if true; 
       }
+
+      // 3.
+      match /questions/{questionId} {
+        // Enforce the uniqueness constraint: only allow creation if doc doesn't exist
+        allow create: if resource == null;
+        
+        // Allow reading question details during the game
+        allow read: if true; 
+      }
     }
   }
 }
