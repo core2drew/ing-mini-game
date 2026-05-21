@@ -35,7 +35,7 @@ export class RoomService {
     const roomDocRef = doc(this.fireStore, 'rooms', roomId);
 
     return new Observable<boolean>((observer) => {
-      console.log(`📡 Opening real-time listener for Room: ${roomId}`);
+      console.log(`📡 Opening real-time listener for Game to end: ${roomId}`);
 
       const unsubscribe = onSnapshot(
         roomDocRef,
@@ -44,7 +44,7 @@ export class RoomService {
           const isEnded = data ? !!data['isEnded'] : false;
 
           // Debug log to see exactly when and what Firestore emits
-          console.log(`🔄 Room updated. isEnded status is currently: ${isEnded}`);
+          console.log(`🔄 Game updated. isEnded status is currently: ${isEnded}`);
 
           observer.next(isEnded);
         },
@@ -52,7 +52,7 @@ export class RoomService {
       );
 
       return () => {
-        console.log(`🔌 Closing listener for Room: ${roomId}`);
+        console.log(`🔌 Closing listener for Game to end: ${roomId}`);
         unsubscribe();
       };
     }).pipe(
@@ -67,7 +67,7 @@ export class RoomService {
     const roomDocRef = doc(this.fireStore, 'rooms', roomId);
 
     return new Observable<boolean>((observer) => {
-      console.log(`📡 Opening real-time listener for Room: ${roomId}`);
+      console.log(`📡 Opening real-time listener for Game to start: ${roomId}`);
 
       const unsubscribe = onSnapshot(
         roomDocRef,
@@ -76,7 +76,7 @@ export class RoomService {
           const isStarted = data ? !!data['isStarted'] : false;
 
           // Debug log to see exactly when and what Firestore emits
-          console.log(`🔄 Room updated. isStarted status is currently: ${isStarted}`);
+          console.log(`🔄 Game updated. isStarted status is currently: ${isStarted}`);
 
           observer.next(isStarted);
         },
@@ -84,7 +84,7 @@ export class RoomService {
       );
 
       return () => {
-        console.log(`🔌 Closing listener for Room: ${roomId}`);
+        console.log(`🔌 Closing listener for Game to start: ${roomId}`);
         unsubscribe();
       };
     }).pipe(
