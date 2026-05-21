@@ -21,7 +21,7 @@ import { RoomService } from '@services/room/room.service';
 })
 export class QuizPage {
   playerId: string = '';
-  questions: Question[] = [];
+  activeQuestion: Promise<Question | null> = Promise.resolve(null);
   secondsLeft = 0;
 
   currentQuestion$ = new BehaviorSubject(0);
@@ -41,10 +41,9 @@ export class QuizPage {
   private roomService = inject(RoomService);
 
   ngOnInit(): void {
-    this.questions = this.questionService.getQuestions();
-
     const currentRoomCode = playerStore.getValue().roomId; // Grab room code from Elf store
 
+    this.activeQuestion = this.questionService.getActiveQuestion(currentRoomCode!);
     this.timer$ = this.gameService.streamGameRoomTimer(currentRoomCode!);
 
     // 1. Fetch the active roomId out of your Elf store
@@ -84,11 +83,11 @@ export class QuizPage {
   }
 
   get progressPercent(): number {
-    return (this.currentQuestion$.value / this.questions.length) * 100;
+    return (this.currentQuestion$.value / 20) * 100;
   }
 
-  get currentQuestion(): Question {
-    return this.questions[this.currentQuestion$.value];
+  get currentQuestion(): Promise<Question | null> {
+    return this.activeQuestion;
   }
 
   get isRevealed(): boolean {

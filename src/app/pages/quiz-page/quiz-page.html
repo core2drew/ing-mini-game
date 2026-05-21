@@ -5,17 +5,17 @@
     <app-quiz-timer [secondsLeft]="(timer$ | async) ?? 0"></app-quiz-timer>
     <app-quiz-progress
       [currentQuestionNumber]="((currentQuestion$ | async) || 0) + 1"
-      [questionLength]="questions.length"
+      [questionLength]="20"
       [progress]="progressPercent"
     ></app-quiz-progress>
-    <app-question-text [question]="currentQuestion.text"></app-question-text>
+    <app-question-text [question]="(activeQuestion | async)!.text"></app-question-text>
     <div class="grid grid-cols-2 gap-3 mb-6">
-      @for (option of currentQuestion.options; track $index; let i = $index) {
+      @for (option of (activeQuestion | async)?.options; track $index; let i = $index) {
         <app-question-option-button
           [option]="option"
           [index]="i"
           [isSelected]="(selected$ | async) === i"
-          [isCorrect]="i === currentQuestion.correctIndex"
+          [isCorrect]="i === (activeQuestion | async)?.correctIndex"
           [isRevealed]="(revealed$ | async)!"
           (click)="!isRevealed && onSelectOption(i)"
           [ngClass]="{ 'cursor-pointer': !isRevealed }"
