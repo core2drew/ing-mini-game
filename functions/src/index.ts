@@ -22,16 +22,8 @@ export const advanceQuestion = onRequest(async (req, res) => {
 
     const roomRef = firestore.collection('rooms').doc(roomId);
 
-    let nextTaskData:
-      | {
-          roomId: string;
-          nextIndex: number;
-          nextExpiryDate: Date;
-        }
-      | undefined = undefined;
-
-    // Use a transaction to prevent race conditions (e.g., if double-triggered)
-    nextTaskData = await firestore.runTransaction(async (transaction) => {
+    // Use a transaction to prevent race conditions
+    const nextTaskData = await firestore.runTransaction(async (transaction) => {
       const roomDoc = await transaction.get(roomRef);
 
       if (!roomDoc.exists) {
@@ -39,48 +31,44 @@ export const advanceQuestion = onRequest(async (req, res) => {
       }
 
       const roomData = roomDoc.data()!;
-      const currentQuestionIndex = roomData.currentQuestionIndex || 0;
+
+      const session = roomData.quizSession || {};
+
+      // If currentQuestionIndex is null/undefined, start at 0. Otherwise increment.
+      const currentQuestionIndex =
+        session.currentQuestionIndex !== undefined ? session.currentQuestionIndex + 1 : 0;
 
       const questionRef = roomRef.collection('questions').doc(currentQuestionIndex.toString());
       const questionDoc = await transaction.get(questionRef);
-      console.log(`Question index ${currentQuestionIndex} data:`, questionDoc.data());
 
       // Fetch the next question ID from your quiz definition
-      if (!questionDoc.exists) {
-        // No more questions left, end the quiz
+      if (questionDoc.exists) {
+        console.log(`Question index ${currentQuestionIndex} data:`, questionDoc.data());
+        const durationInSeconds = 10;
+        const nextExpiryDate = new Date(Date.now() + durationInSeconds * 1000);
+
         transaction.update(roomRef, {
-          isEnded: false,
-          isStarted: false,
-          currentQuestionIndex: 0,
-          expiresAt: null,
+          'quizSession.currentQuestionIndex': currentQuestionIndex,
+          'quizSession.questionTimerExpiresAt': Timestamp.fromDate(nextExpiryDate),
         });
-        return;
+
+        return {
+          roomId,
+          nextExpiryDate,
+        };
       }
 
-      const durationInSeconds = 10; // Customize per question if needed
-      const nextExpiryDate = new Date(Date.now() + durationInSeconds * 1000);
-      const nextExpiryTimestamp = Timestamp.fromDate(nextExpiryDate);
-      const nextIndex = roomData.currentQuestionIndex + 1; // Next question index
-
-      // Update Firestore State
+      // No more questions left, end the quiz
+      console.log(`No question found at index ${currentQuestionIndex}. Ending quiz.`);
       transaction.update(roomRef, {
-        currentQuestionIndex: nextIndex,
-        expiresAt: nextExpiryTimestamp,
+        isEnded: true,
+        isStarted: false,
       });
-
-      return {
-        roomId,
-        nextIndex,
-        nextExpiryDate,
-      };
+      return null;
     });
 
     if (nextTaskData) {
-      await scheduleNextQuestionTask(
-        nextTaskData.roomId,
-        nextTaskData.nextIndex,
-        nextTaskData.nextExpiryDate,
-      );
+      await scheduleNextQuestionTask(nextTaskData.roomId, nextTaskData.nextExpiryDate);
     }
 
     res.status(200).send({ success: true });
@@ -93,7 +81,7 @@ export const advanceQuestion = onRequest(async (req, res) => {
 /**
  * Helper to queue up the next Cloud Task
  */
-async function scheduleNextQuestionTask(roomId: string, nextIndex: number, scheduleTime: Date) {
+async function scheduleNextQuestionTask(roomId: string, scheduleTime: Date) {
   const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT;
   const location = 'asia-east2';
   const queue = 'quiz-timer-queue'; // Must be created in Google Cloud Console
@@ -113,9 +101,7 @@ async function scheduleNextQuestionTask(roomId: string, nextIndex: number, sched
       httpMethod: 'POST' as const,
       url,
       headers: { 'Content-Type': 'application/json' },
-      body: Buffer.from(JSON.stringify({ roomId, expectedQuestionIndex: nextIndex })).toString(
-        'base64',
-      ),
+      body: Buffer.from(JSON.stringify({ roomId })).toString('base64'),
       oidcToken: {
         serviceAccountEmail,
       },
@@ -133,17 +119,18 @@ export const startQuiz = onCall(async (request) => {
   const { roomId } = request.data;
   const firestore = getFirestore();
   const roomRef = firestore.collection('rooms').doc(roomId);
-  const durationInSeconds = 120;
+  const durationInSeconds = 10;
   const firstExpiry = new Date(Date.now() + durationInSeconds * 1000);
 
   await roomRef.update({
+    isEnded: false,
     isStarted: true,
     'quizSession.currentQuestionIndex': 0,
     'quizSession.questionTimerExpiresAt': Timestamp.fromDate(firstExpiry),
   });
 
   // Kick off the automated background loop for index 0
-  await scheduleNextQuestionTask(roomId, 0, firstExpiry);
+  await scheduleNextQuestionTask(roomId, firstExpiry);
 
   return { success: true };
 });
