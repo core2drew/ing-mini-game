@@ -2,20 +2,23 @@
   class="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4"
 >
   <div class="w-full max-w-xl">
-    <app-quiz-timer [secondsLeft]="(timer$ | async) ?? 0"></app-quiz-timer>
+    <app-quiz-timer
+      [secondsLeft]="(timer$ | async) ?? 0"
+      (onZeroReached)="handleTimeRanOut()"
+    ></app-quiz-timer>
     <app-quiz-progress
       [currentQuestionNumber]="((currentQuestion$ | async) || 0) + 1"
       [questionLength]="20"
       [progress]="progressPercent"
     ></app-quiz-progress>
-    <app-question-text [question]="(activeQuestion | async)!.text"></app-question-text>
+    <app-question-text [question]="activeQuestion()!.text"></app-question-text>
     <div class="grid grid-cols-2 gap-3 mb-6">
-      @for (option of (activeQuestion | async)?.options; track $index; let i = $index) {
+      @for (option of activeQuestion()?.options; track $index; let i = $index) {
         <app-question-option-button
           [option]="option"
           [index]="i"
           [isSelected]="(selected$ | async) === i"
-          [isCorrect]="i === (activeQuestion | async)?.correctIndex"
+          [isCorrect]="i === activeQuestion()?.correctIndex"
           [isRevealed]="(revealed$ | async)!"
           (click)="!isRevealed && onSelectOption(i)"
           [ngClass]="{ 'cursor-pointer': !isRevealed }"

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Signal } from '@angular/core';
 import { QuestionText } from './components/question-text/question-text';
 import { QuestionOptionButton } from './components/question-option-button/question-option-button';
 import { QuizProgress } from './components/quiz-progress/quiz-progress';
@@ -11,7 +11,7 @@ import { GameService } from '@services/quiz/game.service';
 import { QuizTimer } from './components/quiz-timer/quiz-timer';
 import { Router } from '@angular/router';
 import { RoomService } from '@services/room/room.service';
-
+import { toSignal } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-quiz-page',
   imports: [QuestionText, QuestionOptionButton, QuizProgress, QuizTimer, CommonModule],
@@ -21,7 +21,6 @@ import { RoomService } from '@services/room/room.service';
 })
 export class QuizPage {
   playerId: string = '';
-  activeQuestion: Promise<Question | null> = Promise.resolve(null);
   secondsLeft = 0;
 
   currentQuestion$ = new BehaviorSubject(0);
@@ -40,10 +39,14 @@ export class QuizPage {
   private gameService = inject(GameService);
   private roomService = inject(RoomService);
 
+  activeQuestion = toSignal(
+    this.questionService.watchActiveQuestion(playerStore.getValue().roomId!),
+  );
+
   ngOnInit(): void {
     const currentRoomCode = playerStore.getValue().roomId; // Grab room code from Elf store
 
-    this.activeQuestion = this.questionService.getActiveQuestion(currentRoomCode!);
+    // Convert the real-time Firebase observable straight into a read-only Signal!
     this.timer$ = this.gameService.streamGameRoomTimer(currentRoomCode!);
 
     // 1. Fetch the active roomId out of your Elf store
@@ -86,7 +89,7 @@ export class QuizPage {
     return (this.currentQuestion$.value / 20) * 100;
   }
 
-  get currentQuestion(): Promise<Question | null> {
+  get currentQuestion(): Signal<Question | null | undefined> {
     return this.activeQuestion;
   }
 
