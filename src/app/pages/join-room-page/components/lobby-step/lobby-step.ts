@@ -21,10 +21,10 @@ export class LobbyStep {
   private playerService = inject(PlayerService);
 
   private gameStartSub!: Subscription;
+  private gameEndSub!: Subscription;
   players$: Observable<Player[]> = of([]);
 
   ngOnInit(): void {
-    // 1. Fetch the active roomId out of your Elf store
     const currentRoomId = playerStore.getValue().roomId;
 
     if (!currentRoomId) {
@@ -35,13 +35,21 @@ export class LobbyStep {
 
     this.players$ = this.playerService.getPlayersInRoom(currentRoomId!);
 
-    // 2. Start watching for the host to click "Start Game"
     this.gameStartSub = this.roomService.waitUntilGameStarts(currentRoomId).subscribe({
       next: (isStarted) => {
         if (isStarted) {
           console.log('Game has started! Redirecting to arena...');
-          // 3. Move the player out of the lobby into the active match
           this.router.navigate(['/quiz-blitz']);
+        }
+      },
+      error: (err) => console.error('Error listening to room status:', err),
+    });
+
+    this.gameEndSub = this.roomService.waitUntilGameEnds(currentRoomId).subscribe({
+      next: (isEnded) => {
+        if (isEnded) {
+          console.log('Game has ended! Redirecting to home...');
+          location.reload();
         }
       },
       error: (err) => console.error('Error listening to room status:', err),
@@ -49,9 +57,12 @@ export class LobbyStep {
   }
 
   ngOnDestroy(): void {
-    // Clean up just in case the player leaves the lobby page manually before the game starts
     if (this.gameStartSub) {
       this.gameStartSub.unsubscribe();
+    }
+
+    if (this.gameEndSub) {
+      this.gameEndSub.unsubscribe();
     }
   }
 }
