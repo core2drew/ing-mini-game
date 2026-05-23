@@ -11,23 +11,24 @@ import { AdminService } from '@services/admin/admin.service';
 export class DashboardPage {
   private authService = inject(AuthService);
   private adminService = inject(AdminService);
-
+  private roomId = '123-123-123'; // This would be dynamic in a real app
   logout() {
     this.authService.signOut();
   }
 
   startQuiz() {
-    const roomId = '123-123-123'; // This would be dynamic in a real app
-    this.adminService.startQuizSession(roomId);
+    this.adminService.startQuizSession(this.roomId);
   }
 
   restartQuiz() {
-    const roomId = '123-123-123'; // This would be dynamic in a real app
-    this.adminService.restartQuizSession(roomId);
+    this.adminService.restartQuizSession(this.roomId);
   }
 
   endQuiz() {
-    const roomId = '123-123-123'; // This would be dynamic in a real app
-    this.adminService.endQuizSession(roomId);
+    this.adminService.endQuizSession(this.roomId);
+  }
+
+  nextQuestion() {
+    this.adminService.nextQuestion(this.roomId);
   }
 }
