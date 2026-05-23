@@ -1,19 +1,29 @@
 <div class="bg-slate-800/60 backdrop-blur border border-slate-700 rounded-2xl p-8 shadow-2xl">
-  <h2 class="text-xl font-semibold text-white mb-1">Game Lobby</h2>
-  <p class="text-slate-300 text-sm mb-6">Sit back and relax while the lobby fills up.</p>
+  <app-logo-title></app-logo-title>
+  <div class="waiting-card">
+    <!-- Animated heading -->
+    <div class="heading-wrap">
+      <h2 class="waiting-heading">Waiting for players</h2>
+      <div class="typing-dots" aria-hidden="true">
+        @for (d of dots; track d) {
+          <span class="typing-dot" [style.animation-delay.ms]="d * 200"></span>
+        }
+      </div>
+    </div>
+    <p class="text-slate-300 text-sm mb-6 text-center">
+      Sit back and relax while the lobby fills up.
+    </p>
 
-  <div class="card">
-    <p-table [value]="(players$ | async) ?? []" [tableStyle]="{ 'min-width': '50rem' }">
-      <ng-template #header>
-        <tr>
-          <th>Name</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-player>
-        <tr>
-          <td>{{ player.name }}</td>
-        </tr>
-      </ng-template>
-    </p-table>
+    <!-- Player avatars grid -->
+    <div class="avatars-grid">
+      @for (player of players$ | async; track player.name; let i = $index) {
+        <div class="avatar-item">
+          <div class="avatar-bubble" [style.background]="getColorByName(player.name)">
+            {{ player.name.charAt(0).toUpperCase() }}
+          </div>
+          <span class="player-name">{{ player.name }}</span>
+        </div>
+      }
+    </div>
   </div>
 </div>
