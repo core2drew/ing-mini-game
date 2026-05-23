@@ -1,10 +1,35 @@
 .quiz-title {
   font-size: 1.5rem;
   font-weight: 800;
-  background: linear-gradient(90deg, #ffac48, #e46d1f);
-  background-size: 200% auto;
+  /* 1. The smooth color palette */
+  background: linear-gradient(
+    to right,
+    #ee7752 0%,
+    #f2506b 30%,
+    #e73c7e 55%,
+    #8e62cb 80%,
+    #23a6d5 100%
+  );
+
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: shimmer 3s linear infinite;
+  animation: shimmer 4s linear infinite;
+  -webkit-animation: shimmer 4s linear infinite;
+  background-size: 300% 300%;
+  -webkit-font-smoothing: antialiased;
+}
+
+.logo {
+  animation: shimmer 4s linear infinite;
+  -webkit-animation: shimmer 4s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }

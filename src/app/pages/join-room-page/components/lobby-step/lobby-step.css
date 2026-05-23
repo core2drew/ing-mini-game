@@ -4,61 +4,6 @@
   position: relative;
 }
 
-/* Orbit rings */
-.orbit-stage {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.orbit-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 1px solid rgba(96, 165, 250, 0.1);
-}
-
-.ring-1 {
-  width: 340px;
-  height: 340px;
-  animation: float-bob 6s ease-in-out infinite;
-}
-.ring-2 {
-  width: 520px;
-  height: 520px;
-  animation: float-bob 8s ease-in-out infinite reverse;
-}
-.ring-3 {
-  width: 700px;
-  height: 700px;
-  animation: float-bob 10s ease-in-out infinite;
-}
-
-.orbit-dot {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  margin: -4px;
-}
-
-.d1 {
-  background: #60a5fa;
-  animation: orbit 4s linear infinite;
-}
-.d2 {
-  background: #34d399;
-  animation: orbit 6s linear infinite reverse;
-}
-.d3 {
-  background: #f59e0b;
-  animation: orbit 9s linear infinite;
-}
-
 /* Heading + dots */
 .heading-wrap {
   display: flex;
@@ -69,7 +14,7 @@
 }
 
 .waiting-heading {
-  font-size: 1.35rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: #e2e8f0;
 }
