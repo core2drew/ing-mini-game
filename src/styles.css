@@ -2,6 +2,22 @@
 
 @import 'tailwindcss';
 
+@theme {
+  --animate-gradient: gradient 10s ease infinite;
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+}
+
 html,
 body {
   height: 100%;
@@ -33,11 +49,16 @@ p-toast .p-toast-message {
   padding: 1.5rem;
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
+.waiting-card {
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 28px;
+  padding: 2.5rem 2rem;
+  max-width: 540px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
+  animation: fade-in-up 0.55s ease both;
+  position: relative;
+  z-index: 1;
 }
