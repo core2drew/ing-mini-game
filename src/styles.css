@@ -2,7 +2,42 @@
 
 @import 'tailwindcss';
 
+html,
+body {
+  height: 100%;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+app-root {
+  display: block;
+  height: 100%;
+}
+
 p-toast .p-toast-message {
   background-color: rgba(30, 41, 59, 0.6) !important; /* Tailwind's slate-800 with 60% opacity */
   border: none !important; /* Remove default border */
+}
+
+/* ── Shared utility ────────────────────────────────────────────── */
+.screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
