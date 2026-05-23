@@ -35,4 +35,17 @@ export class AdminService {
 
     return await endSessionFn({ roomId });
   }
+
+  async nextQuestion(roomId: string): Promise<any> {
+    try {
+      const nextQuestionFn = httpsCallable<{ roomId: string }, { success: boolean }>(
+        this.functions,
+        'nextQuestion',
+      );
+      return await nextQuestionFn({ roomId });
+    } catch (error) {
+      console.error('Error in nextQuestion:', error);
+      throw error;
+    }
+  }
 }

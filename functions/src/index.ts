@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { onRequest, onCall } from 'firebase-functions/v2/https';
+import { onRequest, onCall, HttpsError } from 'firebase-functions/v2/https';
 import { CloudTasksClient } from '@google-cloud/tasks';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
@@ -130,7 +130,7 @@ export const startQuiz = onCall(async (request) => {
   });
 
   // Kick off the automated background loop for index 0
-  await scheduleNextQuestionTask(roomId, firstExpiry);
+  // await scheduleNextQuestionTask(roomId, firstExpiry);
 
   return { success: true };
 });
@@ -167,4 +167,60 @@ export const endQuiz = onCall(async (request) => {
   });
 
   return { success: true };
+});
+
+export const nextQuestion = onCall(async (request) => {
+  try {
+    const { roomId } = request.data;
+    const firestore = getFirestore();
+    const roomRef = firestore.collection('rooms').doc(roomId);
+
+    // Use a transaction to prevent race conditions
+    await firestore.runTransaction(async (transaction) => {
+      const roomDoc = await transaction.get(roomRef);
+
+      if (!roomDoc.exists) {
+        throw new Error('Room not found');
+      }
+
+      const roomData = roomDoc.data()!;
+
+      const session = roomData.quizSession || {};
+
+      // If currentQuestionIndex is null/undefined, start at 0. Otherwise increment.
+      const currentQuestionIndex =
+        session.currentQuestionIndex !== undefined ? session.currentQuestionIndex + 1 : 0;
+
+      const questionRef = roomRef.collection('questions').doc(currentQuestionIndex.toString());
+      const questionDoc = await transaction.get(questionRef);
+
+      // Fetch the next question ID from your quiz definition
+      if (questionDoc.exists) {
+        console.log(`Question index ${currentQuestionIndex} data:`, questionDoc.data());
+        const durationInSeconds = 10;
+        const nextExpiryDate = new Date(Date.now() + durationInSeconds * 1000);
+
+        transaction.update(roomRef, {
+          'quizSession.currentQuestionIndex': currentQuestionIndex,
+          'quizSession.questionTimerExpiresAt': Timestamp.fromDate(nextExpiryDate),
+        });
+
+        return {
+          roomId,
+          nextExpiryDate,
+        };
+      }
+
+      return {
+        message: 'No more questions available',
+      };
+    });
+
+    return { success: true };
+  } catch (error) {
+    if (error instanceof HttpsError) {
+      throw error; // Re-throw known HttpsErrors
+    }
+    throw new HttpsError('internal', 'Error advancing to next question');
+  }
 });
