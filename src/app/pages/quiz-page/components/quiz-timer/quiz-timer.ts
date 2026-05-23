@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { Component, effect, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-quiz-timer',
@@ -10,4 +10,15 @@ import { Component, input } from '@angular/core';
 })
 export class QuizTimer {
   secondsLeft = input<number>(0);
+
+  onZeroReached = output<void>();
+
+  constructor() {
+    effect(() => {
+      const currentSeconds = this.secondsLeft();
+      if (currentSeconds <= 0) {
+        this.onZeroReached.emit();
+      }
+    });
+  }
 }
