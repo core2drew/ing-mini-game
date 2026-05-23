@@ -12,9 +12,12 @@ import { QuizTimer } from './components/quiz-timer/quiz-timer';
 import { Router } from '@angular/router';
 import { RoomService } from '@services/room/room.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { QuestionScreen } from './components/screens/question-screen/question-screen';
+import { WrongAnswerScreen } from './components/screens/wrong-answer-screen/wrong-answer-screen';
+import { CorrectAnswerScreen } from './components/screens/correct-answer-screen/correct-answer-screen';
 @Component({
   selector: 'app-quiz-page',
-  imports: [QuestionText, QuestionOptionButton, QuizProgress, QuizTimer, CommonModule],
+  imports: [CommonModule, QuestionScreen, WrongAnswerScreen, CorrectAnswerScreen],
   templateUrl: './quiz-page.html',
   styleUrl: './quiz-page.css',
   standalone: true,
@@ -27,11 +30,10 @@ export class QuizPage {
   revealed$ = new BehaviorSubject(false);
   selected$ = new BehaviorSubject<number | null>(null);
   answers$ = new BehaviorSubject<number[]>([]);
-  score$ = new BehaviorSubject(0);
+
   finished$ = new BehaviorSubject(false);
   timer$!: Observable<number>;
 
-  private timerSub!: Subscription;
   private gameEndSub!: Subscription;
 
   private router = inject(Router);
@@ -44,13 +46,11 @@ export class QuizPage {
   );
 
   ngOnInit(): void {
-    const currentRoomCode = playerStore.getValue().roomId; // Grab room code from Elf store
-
-    // Convert the real-time Firebase observable straight into a read-only Signal!
-    this.timer$ = this.gameService.streamGameRoomTimer(currentRoomCode!);
-
     // 1. Fetch the active roomId out of your Elf store
     const currentRoomId = playerStore.getValue().roomId;
+
+    // Convert the real-time Firebase observable straight into a read-only Signal!
+    this.timer$ = this.gameService.streamGameRoomTimer(currentRoomId!);
 
     if (!currentRoomId) {
       console.error('No active room found, redirecting back to home.');
@@ -71,35 +71,9 @@ export class QuizPage {
     });
   }
 
-  handleTimeRanOut() {
-    // Lock inputs, auto-submit selected answer if any, wait for host next step
-    console.log('Time is up for this question!');
-  }
-
   ngOnDestroy(): void {
-    if (this.timerSub) {
-      this.timerSub.unsubscribe();
-    }
     if (this.gameEndSub) {
       this.gameEndSub.unsubscribe();
     }
-  }
-
-  get progressPercent(): number {
-    return (this.currentQuestion$.value / 20) * 100;
-  }
-
-  get currentQuestion(): Signal<Question | null | undefined> {
-    return this.activeQuestion;
-  }
-
-  get isRevealed(): boolean {
-    return this.revealed$.value;
-  }
-
-  onSelectOption(idx: number): void {
-    if (this.selected$.value !== null) return;
-    this.selected$.next(idx);
-    this.revealed$.next(true);
   }
 }
