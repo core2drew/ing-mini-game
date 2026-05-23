@@ -9,6 +9,7 @@ import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
 import { playerStore } from '../../../../stores/player.store';
+import { LogoTitle } from '../logo-title/logo-title';
 @Component({
   selector: 'app-room-step',
   imports: [
@@ -19,6 +20,7 @@ import { playerStore } from '../../../../stores/player.store';
     ToastModule,
     RippleModule,
     ButtonModule,
+    LogoTitle,
   ],
   templateUrl: './room-step.html',
   styleUrl: './room-step.css',

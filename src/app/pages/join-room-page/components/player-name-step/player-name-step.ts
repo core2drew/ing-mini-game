@@ -7,9 +7,10 @@ import { playerStore } from '@stores/player.store';
 import { PlayerService } from '@services/quiz/player.service';
 import { MessageService } from 'primeng/api';
 import { MessageModule } from 'primeng/message';
+import { LogoTitle } from '../logo-title/logo-title';
 @Component({
   selector: 'app-player-name-step',
-  imports: [FloatLabelModule, InputTextModule, FormsModule, ButtonModule, MessageModule],
+  imports: [FloatLabelModule, InputTextModule, FormsModule, ButtonModule, MessageModule, LogoTitle],
   templateUrl: './player-name-step.html',
   styleUrl: './player-name-step.css',
   standalone: true,
@@ -31,6 +32,7 @@ export class PlayerNameStep {
           this.nextStep.emit(3);
         },
         error: (error) => {
+          this.loading = false;
           this.messageService.add({
             severity: 'error',
             styleClass: 'border-none',
@@ -38,9 +40,6 @@ export class PlayerNameStep {
             summary: 'Error',
             detail: error.message,
           });
-        },
-        complete: () => {
-          this.loading = false;
         },
       });
     }
