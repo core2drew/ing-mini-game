@@ -1,5 +1,21 @@
-<div class="flex items-center justify-center mb-6">
-  <h3 class="text-5xl text-center rounded-full bg-slate-700 p-6 mb-6 w-25">
-    {{ secondsLeft() }}
-  </h3>
+<div class="timer-wrap" [class.urgent]="urgency()">
+  <svg class="timer-svg" viewBox="0 0 120 120">
+    <!-- track -->
+    <circle cx="60" cy="60" r="54" fill="none" stroke="#1e293b" stroke-width="8" />
+    <!-- progress arc -->
+    <circle
+      cx="60"
+      cy="60"
+      r="54"
+      fill="none"
+      [attr.stroke]="timerColor()"
+      stroke-width="8"
+      stroke-linecap="round"
+      [attr.stroke-dasharray]="circumference"
+      [attr.stroke-dashoffset]="dashOffset()"
+      transform="rotate(-90 60 60)"
+      class="timer-arc"
+    />
+  </svg>
+  <div class="timer-number" [class.tick]="urgency()">{{ timeLeft() }}</div>
 </div>

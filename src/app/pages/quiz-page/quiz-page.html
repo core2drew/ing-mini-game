@@ -3,7 +3,7 @@
 >
   <div class="w-full max-w-xl">
     <app-quiz-timer
-      [secondsLeft]="(timer$ | async) ?? 0"
+      [timeLeft]="(timer$ | async) ?? 0"
       (onZeroReached)="handleTimeRanOut()"
     ></app-quiz-timer>
     <app-quiz-progress
