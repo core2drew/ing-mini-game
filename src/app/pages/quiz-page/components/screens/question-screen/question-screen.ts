@@ -5,7 +5,7 @@ import { QuestionText } from '../../question-text/question-text';
 import { QuestionOptionButton } from '../../question-option-button/question-option-button';
 import { playerStore } from '@stores/player.store';
 import { GameService } from '@services/quiz/game.service';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { Question } from '@models/quiz/question.model';
 import { QuestionService } from '@services/quiz/question.service';
 import { toSignal } from '@angular/core/rxjs-interop';
