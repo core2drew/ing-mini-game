@@ -114,11 +114,12 @@ async function scheduleNextQuestionTask(roomId: string, scheduleTime: Date) {
   await tasksClient.createTask({ parent: queuePath, task });
 }
 
-function computeDurationUntilNextQuestion(durationInSeconds: number): Date {
-  // 1. Get the current time in seconds, dropping the remaining milliseconds
-  const currentUnixSeconds = Math.floor(Date.now() / 1000);
-  // 2. Add your exact duration and convert it back to milliseconds for the Date object
-  return new Date((currentUnixSeconds + durationInSeconds) * 1000);
+function getFirestoreTimeoutTimestamp(durationInSeconds: number): Timestamp {
+  // 1. Create the JS Date object using millisecond math
+  const futureDate = new Date(Date.now() + durationInSeconds * 1000);
+
+  // 2. Convert that Date safely into a Firestore Timestamp
+  return Timestamp.fromDate(futureDate);
 }
 
 // Re-use the scheduling helper we wrote earlier
@@ -128,13 +129,11 @@ export const startQuiz = onCall(async (request) => {
   const roomRef = firestore.collection('rooms').doc(roomId);
   const durationInSeconds = 10;
 
-  const firstExpiry = computeDurationUntilNextQuestion(durationInSeconds);
-
   await roomRef.update({
     isEnded: false,
     isStarted: true,
     'quizSession.currentQuestionIndex': 0,
-    'quizSession.questionTimerExpiresAt': Timestamp.fromDate(firstExpiry),
+    'quizSession.questionTimerExpiresAt': getFirestoreTimeoutTimestamp(durationInSeconds),
   });
 
   // Kick off the automated background loop for index 0
@@ -206,11 +205,11 @@ export const nextQuestion = onCall(async (request) => {
       if (questionDoc.exists) {
         console.log(`Question index ${currentQuestionIndex} data:`, questionDoc.data());
         const durationInSeconds = 10;
-        const nextExpiryDate = computeDurationUntilNextQuestion(durationInSeconds);
+        const nextExpiryDate = getFirestoreTimeoutTimestamp(durationInSeconds);
 
         transaction.update(roomRef, {
           'quizSession.currentQuestionIndex': currentQuestionIndex,
-          'quizSession.questionTimerExpiresAt': Timestamp.fromDate(nextExpiryDate),
+          'quizSession.questionTimerExpiresAt': nextExpiryDate,
         });
 
         return {
