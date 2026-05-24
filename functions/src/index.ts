@@ -114,13 +114,21 @@ async function scheduleNextQuestionTask(roomId: string, scheduleTime: Date) {
   await tasksClient.createTask({ parent: queuePath, task });
 }
 
+function computeDurationUntilNextQuestion(durationInSeconds: number): Date {
+  // 1. Get the current time in seconds, dropping the remaining milliseconds
+  const currentUnixSeconds = Math.floor(Date.now() / 1000);
+  // 2. Add your exact duration and convert it back to milliseconds for the Date object
+  return new Date((currentUnixSeconds + durationInSeconds) * 1000);
+}
+
 // Re-use the scheduling helper we wrote earlier
 export const startQuiz = onCall(async (request) => {
   const { roomId } = request.data;
   const firestore = getFirestore();
   const roomRef = firestore.collection('rooms').doc(roomId);
   const durationInSeconds = 10;
-  const firstExpiry = new Date(Date.now() + durationInSeconds * 1000);
+
+  const firstExpiry = computeDurationUntilNextQuestion(durationInSeconds);
 
   await roomRef.update({
     isEnded: false,
@@ -198,7 +206,7 @@ export const nextQuestion = onCall(async (request) => {
       if (questionDoc.exists) {
         console.log(`Question index ${currentQuestionIndex} data:`, questionDoc.data());
         const durationInSeconds = 10;
-        const nextExpiryDate = new Date(Date.now() + durationInSeconds * 1000);
+        const nextExpiryDate = computeDurationUntilNextQuestion(durationInSeconds);
 
         transaction.update(roomRef, {
           'quizSession.currentQuestionIndex': currentQuestionIndex,
