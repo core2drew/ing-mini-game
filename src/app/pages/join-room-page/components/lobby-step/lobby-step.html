@@ -18,7 +18,7 @@
   <div class="avatars-grid">
     @for (player of players$ | async; track player.name; let i = $index) {
       <div class="avatar-item">
-        <div class="avatar-bubble" [style.background]="getColorByName(player.name)">
+        <div class="avatar-bubble" [style.background]="getAvatarColorByName(player.name)">
           {{ player.name.charAt(0).toUpperCase() }}
         </div>
         <span class="player-name">{{ player.name }}</span>
