@@ -1,9 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { LucideX } from '@lucide/angular';
 
 @Component({
   selector: 'app-wrong-answer-screen',
-  imports: [],
+  imports: [LucideX],
   templateUrl: './wrong-answer-screen.html',
   styleUrl: './wrong-answer-screen.css',
   standalone: true,
