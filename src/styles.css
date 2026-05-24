@@ -3,6 +3,8 @@
 @import 'tailwindcss';
 
 @theme {
+  --background-image-cosmic-glow: radial-gradient(ellipse at 50% 30%, #0c1a3a 0%, #0f172a 65%);
+
   --animate-gradient: gradient 10s ease infinite;
 
   @keyframes gradient {
@@ -26,7 +28,7 @@ body {
     system-ui,
     -apple-system,
     sans-serif;
-  background: #0f172a;
+  background: radial-gradient(ellipse at 50% 30%, #0c1a3a 0%, #0f172a 65%);
   color: #f1f5f9;
 }
 
