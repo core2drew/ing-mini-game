@@ -1,6 +1,10 @@
 <div class="min-h-screen flex items-center justify-center p-4">
   @if (!wrongScreenActive() && !correctScreenActive()) {
-    <app-question-screen class="w-full max-w-xl"></app-question-screen>
+    <app-question-screen
+      class="w-full max-w-xl"
+      [(wrongScreenActive)]="wrongScreenActive"
+      [(correctScreenActive)]="correctScreenActive"
+    ></app-question-screen>
   }
 
   @if (wrongScreenActive()) {
