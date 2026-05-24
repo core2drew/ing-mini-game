@@ -32,12 +32,10 @@ export class QuizPage {
   answers$ = new BehaviorSubject<number[]>([]);
 
   finished$ = new BehaviorSubject(false);
-  timer$!: Observable<number>;
 
   private gameEndSub!: Subscription;
 
   private router = inject(Router);
-  private gameService = inject(GameService);
   private roomService = inject(RoomService);
 
   wrongScreenActive = signal(false);
@@ -52,9 +50,6 @@ export class QuizPage {
       this.router.navigate(['/']);
       return;
     }
-
-    // Convert the real-time Firebase observable straight into a read-only Signal!
-    this.timer$ = this.gameService.streamGameRoomTimer(currentRoomId!);
 
     // 2. Start watching for the host to click "End Game"
     this.gameEndSub = this.roomService.waitUntilGameEnds(currentRoomId).subscribe({
