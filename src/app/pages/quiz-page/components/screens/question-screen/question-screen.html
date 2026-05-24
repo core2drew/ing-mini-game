@@ -1,7 +1,4 @@
-<app-quiz-timer
-  [timeLeft]="(timer$ | async) ?? 0"
-  (onZeroReached)="handleTimeRanOut()"
-></app-quiz-timer>
+<app-quiz-timer [timeLeft]="(timer$ | async) ?? 0" (onZeroReached)="timeRanOut()"></app-quiz-timer>
 <app-quiz-progress
   [currentQuestionNumber]="((currentQuestionIndex$ | async) || 0) + 1"
   [questionLength]="20"
@@ -13,7 +10,7 @@
     <app-question-option-button
       [option]="option"
       [index]="i"
-      [isSelected]="(selected$ | async) === i"
+      [isSelected]="selected() === i"
       [isCorrect]="i === activeQuestion()?.correctIndex"
       [isRevealed]="(revealed$ | async)!"
       (click)="!isRevealed && onSelectOption(i)"
