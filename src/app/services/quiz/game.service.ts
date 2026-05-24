@@ -9,7 +9,6 @@ import { Firestore } from '@angular/fire/firestore';
 })
 export class GameService {
   private fireStore = inject(Firestore);
-  private questionService = inject(QuestionService);
 
   // calculateScore(answers: number[]): number {
   //   const questions = this.questionService.getQuestions();
@@ -69,7 +68,7 @@ export class GameService {
           map(() => {
             const now = Date.now();
             const distance = deadline - now;
-            const secondsLeft = Math.ceil(distance / 1000);
+            const secondsLeft = Math.floor(distance / 1000);
 
             // Return 0 if the time has completely run out
             return secondsLeft > 0 ? secondsLeft : 0;
