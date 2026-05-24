@@ -37,16 +37,11 @@ export class QuizPage {
   private gameEndSub!: Subscription;
 
   private router = inject(Router);
-  private questionService = inject(QuestionService);
   private gameService = inject(GameService);
   private roomService = inject(RoomService);
 
   wrongScreenActive = signal(false);
   correctScreenActive = signal(false);
-
-  activeQuestion = toSignal(
-    this.questionService.watchActiveQuestion(playerStore.getValue().roomId!),
-  );
 
   ngOnInit(): void {
     // 1. Fetch the active roomId out of your Elf store
