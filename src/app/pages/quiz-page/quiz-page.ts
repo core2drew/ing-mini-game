@@ -1,4 +1,4 @@
-import { Component, inject, Signal } from '@angular/core';
+import { Component, inject, signal, Signal } from '@angular/core';
 import { QuestionText } from './components/question-text/question-text';
 import { QuestionOptionButton } from './components/question-option-button/question-option-button';
 import { QuizProgress } from './components/quiz-progress/quiz-progress';
@@ -41,6 +41,9 @@ export class QuizPage {
   private gameService = inject(GameService);
   private roomService = inject(RoomService);
 
+  wrongScreenActive = signal(false);
+  correctScreenActive = signal(false);
+
   activeQuestion = toSignal(
     this.questionService.watchActiveQuestion(playerStore.getValue().roomId!),
   );
@@ -49,14 +52,14 @@ export class QuizPage {
     // 1. Fetch the active roomId out of your Elf store
     const currentRoomId = playerStore.getValue().roomId;
 
-    // Convert the real-time Firebase observable straight into a read-only Signal!
-    this.timer$ = this.gameService.streamGameRoomTimer(currentRoomId!);
-
     if (!currentRoomId) {
       console.error('No active room found, redirecting back to home.');
       this.router.navigate(['/']);
       return;
     }
+
+    // Convert the real-time Firebase observable straight into a read-only Signal!
+    this.timer$ = this.gameService.streamGameRoomTimer(currentRoomId!);
 
     // 2. Start watching for the host to click "End Game"
     this.gameEndSub = this.roomService.waitUntilGameEnds(currentRoomId).subscribe({

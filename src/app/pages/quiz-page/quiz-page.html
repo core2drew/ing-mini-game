@@ -1,9 +1,12 @@
-<div
-  class="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4"
->
-  <div class="w-full max-w-xl">
-    <app-question-screen></app-question-screen>
-    <app-correct-answer-screen></app-correct-answer-screen>
+<div class="min-h-screen flex items-center justify-center p-4">
+  @if (!wrongScreenActive() && !correctScreenActive()) {
+    <app-question-screen class="w-full max-w-xl"></app-question-screen>
+  }
+
+  @if (wrongScreenActive()) {
     <app-wrong-answer-screen></app-wrong-answer-screen>
-  </div>
+  }
+  @if (correctScreenActive()) {
+    <app-correct-answer-screen></app-correct-answer-screen>
+  }
 </div>
