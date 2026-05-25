@@ -1,4 +1,4 @@
-import { Component, effect, inject, Signal, signal } from '@angular/core';
+import { Component, computed, effect, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { playerStore } from '@stores/player.store';
@@ -23,6 +23,8 @@ export class QuizPage {
   secondsLeft = 0;
   questionTimer: Signal<number | undefined> = signal(0);
   activeQuestion: Signal<Question | undefined> = signal(undefined);
+  correctAnswer: Signal<string> = signal('');
+
   finished$ = new BehaviorSubject(false);
 
   private gameEndSub!: Subscription;
@@ -47,6 +49,15 @@ export class QuizPage {
     );
 
     this.questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.currentRoomId!));
+
+    this.correctAnswer = computed(() => {
+      const question = this.activeQuestion();
+      // Safety check: if there's no question, or options/correctIndex are missing
+      if (!question || !question.options || question.correctIndex === undefined) {
+        return '';
+      }
+      return question.options[question.correctIndex];
+    });
 
     this.gameEndSub = this.roomService.waitUntilGameEnds(this.currentRoomId).subscribe({
       next: (isEnded) => {

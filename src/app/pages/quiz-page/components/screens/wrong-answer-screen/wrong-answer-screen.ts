@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { LucideX, LucideCheck } from '@lucide/angular';
 
@@ -18,6 +18,7 @@ export class WrongAnswerScreen {
   }));
   showContent = signal(true);
   shakeActive = signal(true);
+  correctAnswer = input<string | undefined>();
 
   getRandomInspirationalMessage() {
     const inspirationMessages = [

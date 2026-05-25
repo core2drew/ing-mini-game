@@ -48,16 +48,16 @@
       <span class="reveal-label">Correct Answer</span>
       <div class="correct-answer-pill">
         <svg lucideCheck></svg>
-        Saturn
+        {{ correctAnswer() }}
       </div>
     </div>
 
-    <div class="explanation-box">
+    <!-- <div class="explanation-box">
       <p class="explanation-text">
         Saturn surpassed Jupiter in confirmed moon count in 2023 with 146 moons, many of which were
         discovered by advanced telescope surveys.
       </p>
-    </div>
+    </div> -->
 
     <div class="action-row">
       <button class="btn-retry" (click)="exitQuiz()">

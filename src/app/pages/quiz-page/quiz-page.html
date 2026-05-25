@@ -8,7 +8,10 @@
   }
 
   @if (wrongScreenActive()) {
-    <app-wrong-answer-screen class="w-full"></app-wrong-answer-screen>
+    <app-wrong-answer-screen
+      class="w-full"
+      [correctAnswer]="correctAnswer()"
+    ></app-wrong-answer-screen>
   }
   @if (correctScreenActive()) {
     <app-correct-answer-screen class="w-full"></app-correct-answer-screen>
