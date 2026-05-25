@@ -1,20 +1,25 @@
-<app-quiz-timer [timeLeft]="timer() ?? 0" (onZeroReached)="timerRanOut()"></app-quiz-timer>
-<app-quiz-progress
-  [currentQuestionNumber]="((currentQuestionIndex$ | async) || 0) + 1"
-  [questionLength]="20"
-  [progress]="progressPercent"
-></app-quiz-progress>
-<app-question-text [question]="activeQuestion()?.text"></app-question-text>
-<div class="grid md:grid-cols-2 sm:grid-cols-1 gap-3 mb-6">
-  @for (option of activeQuestion()?.options; track $index; let i = $index) {
-    <app-question-option-button
-      [option]="option"
-      [index]="i"
-      [isSelected]="selected() === i"
-      [isCorrect]="i === activeQuestion()?.correctIndex"
-      [isRevealed]="(revealed$ | async)!"
-      (click)="!isRevealed && onSelectOption(i)"
-      [ngClass]="{ 'cursor-pointer': !isRevealed }"
-    ></app-question-option-button>
-  }
+<div class="screen quiz-bg">
+  <div class="quiz-card">
+    <app-quiz-progress
+      [currentQuestionNumber]="((currentQuestionIndex$ | async) || 0) + 1"
+      [questionLength]="20"
+      [progress]="progressPercent"
+    ></app-quiz-progress>
+    <app-quiz-timer [timeLeft]="timer() ?? 0" (onZeroReached)="timerRanOut()"></app-quiz-timer>
+
+    <app-question-text [question]="activeQuestion()?.text"></app-question-text>
+    <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-3 mb-6">
+      @for (option of activeQuestion()?.options; track $index; let i = $index) {
+        <app-question-option-button
+          [option]="option"
+          [index]="i"
+          [isSelected]="selected() === i"
+          [isCorrect]="i === activeQuestion()?.correctIndex"
+          [isRevealed]="(revealed$ | async)!"
+          (click)="!isRevealed && onSelectOption(i)"
+          [ngClass]="{ 'cursor-pointer': !isRevealed }"
+        ></app-question-option-button>
+      }
+    </div>
+  </div>
 </div>

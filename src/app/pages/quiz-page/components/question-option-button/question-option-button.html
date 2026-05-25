@@ -5,7 +5,8 @@
   class="relative flex items-center gap-3 p-4 rounded-xl font-medium transition-all duration-200 active:scale-95 disabled:active:scale-100 w-full"
 >
   <span
-    class="w-7 h-7 rounded-lg bg-black/20 flex items-center justify-center text-xs font-bold shrink-0"
+    [ngClass]="colorConfig.bg"
+    class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
   >
     {{ colorConfig.label }}
   </span>

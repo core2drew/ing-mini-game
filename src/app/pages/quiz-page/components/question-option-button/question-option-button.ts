@@ -26,7 +26,7 @@ export class QuestionOptionButton {
     }
 
     if (this.isSelected && !this.isRevealed) {
-      return `bg-slate-800 text-white border-2 border-white cursor-default`;
+      return `bg-slate-800 text-white outline-2 outline-white cursor-default`;
     }
 
     if (this.isSelected && !this.isCorrect) {
