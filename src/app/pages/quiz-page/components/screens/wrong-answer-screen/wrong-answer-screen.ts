@@ -34,6 +34,8 @@ export class WrongAnswerScreen {
     return inspirationMessages[Math.floor(Math.random() * inspirationMessages.length)];
   }
 
+  inspirationMessage = signal(this.getRandomInspirationalMessage());
+
   exitQuiz(): void {
     this.router.navigate(['/']);
   }
