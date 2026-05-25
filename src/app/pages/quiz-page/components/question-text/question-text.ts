@@ -8,5 +8,5 @@ import { Component, Input } from '@angular/core';
   standalone: true,
 })
 export class QuestionText {
-  @Input() question: string = '';
+  @Input() question: string | undefined = '';
 }
