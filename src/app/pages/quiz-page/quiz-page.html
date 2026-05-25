@@ -2,8 +2,8 @@
   @if (!wrongScreenActive() && !correctScreenActive()) {
     <app-question-screen
       class="w-full max-w-xl"
-      [(wrongScreenActive)]="wrongScreenActive"
-      [(correctScreenActive)]="correctScreenActive"
+      [activeQuestion]="activeQuestion()"
+      [timer]="questionTimer()"
     ></app-question-screen>
   }
 
