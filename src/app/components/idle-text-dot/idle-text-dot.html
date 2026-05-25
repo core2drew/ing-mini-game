@@ -1,0 +1,8 @@
+<div class="heading-wrap">
+  <h2 class="waiting-heading">{{ text() }}</h2>
+  <div class="typing-dots" aria-hidden="true">
+    @for (d of dots; track d) {
+      <span class="typing-dot" [style.animation-delay.ms]="d * 200"></span>
+    }
+  </div>
+</div>
