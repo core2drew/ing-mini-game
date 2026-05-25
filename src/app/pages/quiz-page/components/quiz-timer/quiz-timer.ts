@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, effect, input, output } from '@angular/core';
 
-const TOTAL_SECONDS = 10;
+const TOTAL_SECONDS = 20;
 const CIRCUMFERENCE = 2 * Math.PI * 54; // r=54
 @Component({
   selector: 'app-quiz-timer',

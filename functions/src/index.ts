@@ -127,7 +127,7 @@ export const startQuiz = onCall(async (request) => {
   const { roomId } = request.data;
   const firestore = getFirestore();
   const roomRef = firestore.collection('rooms').doc(roomId);
-  const durationInSeconds = 10;
+  const durationInSeconds = 20;
 
   await roomRef.update({
     isEnded: false,
@@ -204,7 +204,7 @@ export const nextQuestion = onCall(async (request) => {
       // Fetch the next question ID from your quiz definition
       if (questionDoc.exists) {
         console.log(`Question index ${currentQuestionIndex} data:`, questionDoc.data());
-        const durationInSeconds = 10;
+        const durationInSeconds = 20;
         const nextExpiryDate = getFirestoreTimeoutTimestamp(durationInSeconds);
 
         transaction.update(roomRef, {
