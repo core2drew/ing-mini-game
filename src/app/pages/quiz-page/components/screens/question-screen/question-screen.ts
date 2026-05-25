@@ -41,22 +41,20 @@ export class QuestionScreen {
     return (this.currentQuestionIndex$.value / 20) * 100;
   }
 
-  ngOnInit() {}
-
   timerRanOut() {
     if (this.activeQuestion()) {
       this.revealed$.next(true);
       setTimeout(() => {
-        this.questionService.wrongAnswer.set(true);
+        if (this.activeQuestion()?.correctIndex !== this.selected()) {
+          this.questionService.wrongAnswer.set(true);
+        } else {
+          this.questionService.checkAnswer(this.activeQuestion()?.correctIndex!, this.selected()!);
+        }
       }, 900);
     }
   }
 
   onSelectOption(idx: number): void {
-    if (this.selected() !== null) return;
     this.selected.set(idx);
-    setTimeout(() => {
-      this.questionService.checkAnswer(this.activeQuestion()?.correctIndex!, this.selected()!);
-    }, 900);
   }
 }

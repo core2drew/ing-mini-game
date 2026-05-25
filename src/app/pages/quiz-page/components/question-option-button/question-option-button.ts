@@ -21,19 +21,23 @@ export class QuestionOptionButton {
   }
 
   get buttonClass(): string {
-    if (!this.isRevealed) {
+    if (!this.isRevealed && !this.isSelected) {
       return `${this.colorConfig.bg} text-white`;
     }
 
-    if (this.isCorrect) {
-      return 'bg-green-500 text-white ring-2 ring-green-300';
+    if (this.isSelected && !this.isRevealed) {
+      return `bg-slate-800 text-white border-2 border-white cursor-default`;
     }
 
     if (this.isSelected && !this.isCorrect) {
       return 'bg-red-500 text-white ring-2 ring-red-300';
     }
 
-    return 'bg-slate-700 text-slate-400 cursor-default';
+    if (this.isCorrect) {
+      return 'bg-green-500 text-white ring-2 ring-green-300';
+    }
+
+    return 'bg-slate-800 text-slate-400 cursor-default';
   }
 
   get disabled(): boolean {
