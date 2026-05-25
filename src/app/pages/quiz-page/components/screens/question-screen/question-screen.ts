@@ -17,7 +17,6 @@ import { CommonModule } from '@angular/common';
 })
 export class QuestionScreen {
   private questionService = inject(QuestionService);
-
   revealed$ = new BehaviorSubject(false);
   currentQuestionIndex$ = new BehaviorSubject(0);
   activeQuestion = input<Question | undefined>(undefined);
@@ -44,13 +43,13 @@ export class QuestionScreen {
 
   ngOnInit() {}
 
-  timeRanOut() {
-    // Lock inputs, auto-submit selected answer if any, wait for host next step
-    console.log('Time is up for this question!');
-    // this.revealed$.next(true);
-    // setTimeout(() => {
-    //   this.questionService.wrongAnswer.set(true);
-    // }, 900);
+  timerRanOut() {
+    if (this.activeQuestion()) {
+      this.revealed$.next(true);
+      setTimeout(() => {
+        this.questionService.wrongAnswer.set(true);
+      }, 900);
+    }
   }
 
   onSelectOption(idx: number): void {

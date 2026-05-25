@@ -1,4 +1,4 @@
-<app-quiz-timer [timeLeft]="timer() ?? 0" (onZeroReached)="timeRanOut()"></app-quiz-timer>
+<app-quiz-timer [timeLeft]="timer() ?? 0" (onZeroReached)="timerRanOut()"></app-quiz-timer>
 <app-quiz-progress
   [currentQuestionNumber]="((currentQuestionIndex$ | async) || 0) + 1"
   [questionLength]="20"
