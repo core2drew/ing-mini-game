@@ -8,10 +8,11 @@ import { playerStore } from '@stores/player.store';
 import { TableModule } from 'primeng/table';
 import { Observable, of, Subscription } from 'rxjs';
 import { LogoTitle } from '../logo-title/logo-title';
+import { IdleTextDot } from '../../../../components/idle-text-dot/idle-text-dot';
 
 @Component({
   selector: 'app-lobby-step',
-  imports: [TableModule, CommonModule, LogoTitle],
+  imports: [TableModule, CommonModule, LogoTitle, IdleTextDot],
   templateUrl: './lobby-step.html',
   styleUrl: './lobby-step.css',
   standalone: true,
@@ -24,7 +25,6 @@ export class LobbyStep {
   private gameStartSub!: Subscription;
   private gameEndSub!: Subscription;
   players$: Observable<Player[]> = of([]);
-  dots = [0, 1, 2];
 
   getColorByName(name: string | null): string {
     const avatarColors = [

@@ -2,14 +2,7 @@
   <app-logo-title></app-logo-title>
 
   <!-- Animated heading -->
-  <div class="heading-wrap">
-    <h2 class="waiting-heading">Waiting for players</h2>
-    <div class="typing-dots" aria-hidden="true">
-      @for (d of dots; track d) {
-        <span class="typing-dot" [style.animation-delay.ms]="d * 200"></span>
-      }
-    </div>
-  </div>
+  <app-idle-text-dot [text]="'Waiting for players'"></app-idle-text-dot>
   <p class="text-slate-300 text-sm mb-6 text-center">
     Sit back and relax while the lobby fills up.
   </p>
