@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { Question } from '@models/quiz/question.model';
 import { Firestore } from '@angular/fire/firestore';
 import { collection, doc, getCountFromServer, onSnapshot } from 'firebase/firestore';
@@ -9,36 +9,18 @@ import { Observable } from 'rxjs';
 })
 export class QuestionService {
   private fireStore = inject(Firestore);
+  wrongAnswer = signal(false);
+  correctAnswer = signal(false);
 
-  private questions: Question[] = [
-    {
-      text: 'What is the capital of France?',
-      options: ['London', 'Berlin', 'Paris', 'Madrid'],
-      correctIndex: 2,
-    },
-    {
-      text: 'Which planet is known as the Red Planet?',
-      options: ['Venus', 'Mars', 'Jupiter', 'Saturn'],
-      correctIndex: 1,
-    },
-    {
-      text: 'How many sides does a hexagon have?',
-      options: ['5', '6', '7', '8'],
-      correctIndex: 1,
-    },
-    {
-      text: 'Which element has the chemical symbol "O"?',
-      options: ['Gold', 'Oxygen', 'Osmium', 'Oganesson'],
-      correctIndex: 1,
-    },
-  ];
-
-  watchActiveQuestion(roomId: string): Observable<Question | null> {
-    return new Observable<Question | null>((subscriber) => {
+  watchActiveQuestion(roomId: string): Observable<Question> {
+    return new Observable<Question>((subscriber) => {
       const roomRef = doc(this.fireStore, `rooms/${roomId}`);
 
       // Variable to keep track of our active question listener so we can clean it up
       let unsubscribeQuestion: (() => void) | null = null;
+
+      // Track the last known index to check for true changes
+      let lastQuestionIndex: number | null | undefined = undefined;
 
       // 1. Listen to the room document for changes to 'currentQuestionIndex'
       const unsubscribeRoom = onSnapshot(
@@ -52,10 +34,11 @@ export class QuestionService {
           const roomData = roomSnap.data();
           const currentQuestionIndex = roomData?.['quizSession']?.['currentQuestionIndex'];
 
-          // If there is no active index, emit null
-          if (currentQuestionIndex === undefined || currentQuestionIndex === null) {
-            subscriber.next(null);
-            return;
+          // 1. ONLY RESET IF THE INDEX ACTUALLY MOVED TO A NEW QUESTION
+          if (lastQuestionIndex !== currentQuestionIndex) {
+            this.wrongAnswer.set(false);
+            this.correctAnswer.set(false);
+            lastQuestionIndex = currentQuestionIndex; // Update tracked index
           }
 
           // 2. Tear down the PREVIOUS question listener if the index changed
@@ -96,6 +79,14 @@ export class QuestionService {
         }
       };
     });
+  }
+
+  checkAnswer(questionIndex: number, answerIndex: number) {
+    if (answerIndex === questionIndex) {
+      this.correctAnswer.set(true);
+    } else {
+      this.wrongAnswer.set(true);
+    }
   }
 
   async getQuestionsLength(roomId: string): Promise<number> {

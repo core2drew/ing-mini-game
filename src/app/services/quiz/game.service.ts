@@ -10,28 +10,6 @@ import { Firestore } from '@angular/fire/firestore';
 export class GameService {
   private fireStore = inject(Firestore);
 
-  // calculateScore(answers: number[]): number {
-  //   const questions = this.questionService.getQuestions();
-  //   let score = 0;
-
-  //   answers.forEach((answer, index) => {
-  //     if (answer === questions[index].correctIndex) {
-  //       score++;
-  //     }
-  //   });
-
-  //   return score;
-  // }
-
-  // isAnswerCorrect(questionIndex: number, answerIndex: number): boolean {
-  //   const questions = this.questionService.getQuestions();
-  //   return answerIndex === questions[questionIndex].correctIndex;
-  // }
-
-  // isLastQuestion(currentIndex: number): boolean {
-  //   return currentIndex === this.questionService.getQuestionCount() - 1;
-  // }
-
   /**
    * Listens to the room's deadline and outputs the remaining seconds in real-time.
    */
@@ -54,7 +32,6 @@ export class GameService {
     // 2. Map the deadline into a live ticking countdown
     return roomStream$.pipe(
       switchMap((expiryTimestamp) => {
-        console.log(expiryTimestamp);
         if (!expiryTimestamp) {
           return of(0); // No active timer
         }
