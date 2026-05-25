@@ -55,7 +55,6 @@ export class QuestionScreen {
   onSelectOption(idx: number): void {
     if (this.selected() !== null) return;
     this.selected.set(idx);
-    console.log('called');
     setTimeout(() => {
       this.questionService.checkAnswer(this.activeQuestion()?.correctIndex!, this.selected()!);
     }, 900);
