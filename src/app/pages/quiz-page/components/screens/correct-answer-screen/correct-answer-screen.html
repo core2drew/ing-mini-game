@@ -1,1 +1,57 @@
-<p>correct-answer-screen works!</p>
+<div class="screen correct-bg">
+  <!-- Confetti particles -->
+  <div class="confetti-layer" aria-hidden="true">
+    @for (p of confetti(); track $index) {
+      <span
+        class="confetti-piece"
+        [style.left.%]="p.x"
+        [style.background]="p.color"
+        [style.width.px]="p.size"
+        [style.height.px]="p.size"
+        [style.animation-delay.s]="p.delay"
+        [style.animation-duration.s]="p.dur"
+      ></span>
+    }
+  </div>
+
+  <div class="result-card" [class.visible]="showContent()">
+    <!-- Glow ring + check icon -->
+    <div class="icon-ring">
+      <div class="glow-ring"></div>
+      <div class="icon-circle">
+        <svg class="check-svg" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="25" stroke="#22c55e" stroke-width="2" fill="none" />
+          <polyline
+            class="check-path"
+            points="14,27 22,35 38,17"
+            stroke="#22c55e"
+            stroke-width="4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            fill="none"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <div class="stars-row" aria-label="3 stars">
+      <span class="star" style="animation-delay: 0.1s">★</span>
+      <span class="star big" style="animation-delay: 0.25s">★</span>
+      <span class="star" style="animation-delay: 0.4s">★</span>
+    </div>
+
+    <h1 class="result-title">Correct!</h1>
+    <p class="result-subtitle">Excellent work — you nailed it!</p>
+
+    <div class="fact-box">
+      <span class="fact-icon">💡</span>
+      <p class="fact-text">
+        Saturn has 146 confirmed moons — more than any other planet in our solar system!
+      </p>
+    </div>
+
+    <div class="action-row">
+      <app-idle-text-dot [text]="'Next question coming up'"></app-idle-text-dot>
+    </div>
+  </div>
+</div>
