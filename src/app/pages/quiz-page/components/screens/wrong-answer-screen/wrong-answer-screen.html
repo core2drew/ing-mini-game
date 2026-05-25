@@ -42,12 +42,12 @@
     </div>
 
     <h1 class="result-title">Wrong!</h1>
-    <p class="result-subtitle">Don't worry — every mistake is a lesson.</p>
+    <p class="result-subtitle">{{ getRandomInspirationalMessage() }}</p>
 
     <div class="answer-reveal">
       <span class="reveal-label">Correct Answer</span>
       <div class="correct-answer-pill">
-        <i class="pi pi-check-circle"></i>
+        <svg lucideCheck></svg>
         Saturn
       </div>
     </div>
@@ -57,11 +57,6 @@
         Saturn surpassed Jupiter in confirmed moon count in 2023 with 146 moons, many of which were
         discovered by advanced telescope surveys.
       </p>
-    </div>
-
-    <div class="streak-info">
-      <span class="streak-icon">🔥</span>
-      <span class="streak-text">Streak lost — start a new one!</span>
     </div>
 
     <div class="action-row">
