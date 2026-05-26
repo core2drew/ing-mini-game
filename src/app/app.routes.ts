@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { roomGuard } from './guards/room-guard/room-guard';
 import { authGuard } from './guards/auth/auth-guard';
 import { unauthGuard } from './guards/unauth/unauth-guard';
+import { wildcardGuardGuard } from './guards/unauth/wildcard-guard-guard/wildcard-guard-guard';
 
 export const routes: Routes = [
   {
@@ -45,16 +46,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import(`./pages/dashboard-page/pages/room-page/room-page`).then((m) => m.RoomPage),
       },
-      {
-        path: '**',
-        redirectTo: '/',
-        pathMatch: 'full',
-      },
     ],
   },
   {
     path: '**',
-    redirectTo: '/join',
-    pathMatch: 'full',
+    canActivate: [wildcardGuardGuard],
+    component: class {},
   },
 ];
