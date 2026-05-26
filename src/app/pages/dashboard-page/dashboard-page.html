@@ -1,9 +1,2 @@
-<p-button severity="contrast" (click)="logout()" label="Logout"></p-button>
-
-<p-button (click)="startQuiz()" label="Start Quiz"></p-button>
-
-<p-button severity="warn" (click)="restartQuiz()" label="Restart Quiz"></p-button>
-
-<p-button severity="danger" (click)="endQuiz()" label="End Quiz"></p-button>
-
-<p-button severity="help" (click)="nextQuestion()" label="Next Question"></p-button>
+<app-top-menu (logout)="logout()"></app-top-menu>
+<router-outlet></router-outlet>

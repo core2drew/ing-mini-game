@@ -7,7 +7,10 @@ import { Functions, httpsCallable } from '@angular/fire/functions';
 export class AdminService {
   private functions = inject(Functions);
 
-  async startQuizSession(roomId: string): Promise<any> {
+  async startQuizSession(roomId: string | null): Promise<any> {
+    if (!roomId) {
+      throw new Error('roomId is required');
+    }
     // Reference your backend Cloud Function
     const startSessionFn = httpsCallable<{ roomId: string }, { success: boolean }>(
       this.functions,
@@ -18,7 +21,10 @@ export class AdminService {
     return await startSessionFn({ roomId });
   }
 
-  async restartQuizSession(roomId: string): Promise<any> {
+  async restartQuizSession(roomId: string | null): Promise<any> {
+    if (!roomId) {
+      throw new Error('roomId is required');
+    }
     const restartSessionFn = httpsCallable<{ roomId: string }, { success: boolean }>(
       this.functions,
       'restartQuiz',
@@ -27,7 +33,10 @@ export class AdminService {
     return await restartSessionFn({ roomId });
   }
 
-  async endQuizSession(roomId: string): Promise<any> {
+  async endQuizSession(roomId: string | null): Promise<any> {
+    if (!roomId) {
+      throw new Error('roomId is required');
+    }
     const endSessionFn = httpsCallable<{ roomId: string }, { success: boolean }>(
       this.functions,
       'endQuiz',
@@ -36,7 +45,10 @@ export class AdminService {
     return await endSessionFn({ roomId });
   }
 
-  async nextQuestion(roomId: string): Promise<any> {
+  async nextQuestion(roomId: string | null): Promise<any> {
+    if (!roomId) {
+      throw new Error('roomId is required');
+    }
     try {
       const nextQuestionFn = httpsCallable<{ roomId: string }, { success: boolean }>(
         this.functions,
