@@ -44,7 +44,6 @@ export class PlayerService {
         const playerData = {
           name: name.trim(), // Keep original casing for display
           score: 0,
-          answers: [],
           joined_at: new Date(),
         };
 
@@ -144,9 +143,6 @@ export class PlayerService {
       id,
       name: data.name,
       score: data.score,
-      answers: data.answers || [],
-      joined_at: data.joined_at ? data.joined_at.toDate() : new Date(),
-      completed_at: data.completed_at ? data.completed_at.toDate() : undefined,
     };
   }
 }
