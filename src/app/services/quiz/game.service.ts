@@ -65,7 +65,7 @@ export class GameService {
           map(() => {
             const now = Date.now();
             const distance = deadline - now;
-            const secondsLeft = Math.floor(distance / 1000) + 1;
+            const secondsLeft = Math.floor(distance / 1000);
 
             // Return 0 if the time has completely run out
             return secondsLeft > 0 ? secondsLeft : 0;
