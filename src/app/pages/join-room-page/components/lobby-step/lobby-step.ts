@@ -13,6 +13,7 @@ import { GameService } from '@services/quiz/game.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { getAvatarColorByName } from '@utils/player-utils';
 import { Avatar } from '../../../../components/avatar/avatar';
+import { SessionService } from '@services/session/session.service';
 
 @Component({
   selector: 'app-lobby-step',
@@ -25,6 +26,7 @@ export class LobbyStep {
   private router = inject(Router);
   private roomService = inject(RoomService);
   private gameService = inject(GameService);
+  private sessionService = inject(SessionService);
 
   private gameStartSub!: Subscription;
   private gameEndSub!: Subscription;
@@ -63,6 +65,8 @@ export class LobbyStep {
     this.gameEndSub = this.roomService.waitUntilGameEnds(roomId).subscribe({
       next: (isEnded) => {
         if (isEnded) {
+          this.gameService.setPlayerStatus(PlayerStatus.OFFLINE);
+          this.sessionService.leaveRoom();
           console.log('Game has ended! Redirecting to home...');
           location.reload();
         }
