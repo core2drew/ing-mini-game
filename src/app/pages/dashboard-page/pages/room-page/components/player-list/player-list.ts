@@ -5,9 +5,11 @@ import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { ChipModule } from 'primeng/chip';
 import { CommonModule } from '@angular/common';
+import { getPlayerStatusStyleClass } from '@utils/player-utils';
+import { PlayerStatusChip } from '../player-status-chip/player-status-chip';
 @Component({
   selector: 'app-player-list',
-  imports: [CardModule, DividerModule, Avatar, ChipModule, CommonModule],
+  imports: [CardModule, DividerModule, Avatar, ChipModule, CommonModule, PlayerStatusChip],
   templateUrl: './player-list.html',
   styleUrl: './player-list.css',
 })
@@ -48,16 +50,6 @@ export class PlayerList {
   });
 
   getStatusStyle(status: PlayerStatus | undefined) {
-    if (status) {
-      return {
-        waiting: status === PlayerStatus.WAITING,
-        thinking: status === PlayerStatus.THINKING,
-        answered: status === PlayerStatus.ANSWERED,
-        offline: status === PlayerStatus.OFFLINE,
-      };
-    }
-    return {
-      unknown: true,
-    };
+    return getPlayerStatusStyleClass(status);
   }
 }

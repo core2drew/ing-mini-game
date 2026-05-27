@@ -50,3 +50,17 @@ export const getAvatarColorByName = (name: string | null) => {
 export const getPlayerStatusLabel = (status: PlayerStatus): string => {
   return PlayerStatusLabel[status];
 };
+
+export const getPlayerStatusStyleClass = (status: PlayerStatus | undefined) => {
+  if (status) {
+    return {
+      waiting: status === PlayerStatus.WAITING,
+      thinking: status === PlayerStatus.THINKING,
+      answered: status === PlayerStatus.ANSWERED,
+      offline: status === PlayerStatus.OFFLINE,
+    };
+  }
+  return {
+    unknown: true,
+  };
+};
