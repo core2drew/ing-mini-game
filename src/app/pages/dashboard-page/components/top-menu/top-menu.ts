@@ -16,10 +16,6 @@ export class TopMenu {
   ngOnInit() {
     this.items = [
       {
-        label: 'Create Room',
-        styleClass: 'bg-green-500',
-      },
-      {
         label: 'Logout',
         styleClass: 'ml-auto',
         linkClass: 'text-red-500 dark:!text-red-400 ',
