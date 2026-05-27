@@ -3,13 +3,19 @@ import { inject, Injectable } from '@angular/core';
 import { interval, map, Observable, of, startWith, switchMap } from 'rxjs';
 import { collection, doc, onSnapshot, orderBy, query, Timestamp } from 'firebase/firestore';
 import { collectionData, Firestore } from '@angular/fire/firestore';
-import { Player } from '@models/quiz/player.model';
+import { Player, PlayerStatus } from '@models/quiz/player.model';
+import { httpsCallable } from 'firebase/functions';
+import { Functions } from '@angular/fire/functions';
+import { SessionService } from '@services/session/session.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
   private fireStore = inject(Firestore);
+  private functions = inject(Functions);
+  private sessionService = inject(SessionService);
+
   // 1. Stream players to see who has answered in real-time
   getPlayers(roomCode: string): Observable<Player[]> {
     const playersRef = collection(this.fireStore, `rooms/${roomCode}/players`);
@@ -73,5 +79,25 @@ export class GameService {
         );
       }),
     );
+  }
+
+  // Create a reusable caller instance
+  private updateStatusCall = httpsCallable<
+    { roomId: string; playerName: string; targetStatus: PlayerStatus },
+    any
+  >(this.functions, 'updatePlayerStatus');
+
+  async setPlayerStatus(targetStatus: PlayerStatus) {
+    // Read directly from the Elf signals synchronously
+    const roomId = this.sessionService.roomId();
+    const playerName = this.sessionService.playerName();
+
+    if (!roomId || !playerName) throw new Error('No active game session found.');
+
+    return this.updateStatusCall({
+      roomId,
+      playerName,
+      targetStatus,
+    });
   }
 }
