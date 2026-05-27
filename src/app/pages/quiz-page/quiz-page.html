@@ -4,6 +4,8 @@
       class="w-full"
       [activeQuestion]="activeQuestion()"
       [timer]="questionTimer()"
+      [(wrongAnswer)]="wrongScreenActive"
+      [(correctAnswer)]="correctScreenActive"
     ></app-question-screen>
   }
 

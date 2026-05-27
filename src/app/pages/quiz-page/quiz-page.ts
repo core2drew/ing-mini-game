@@ -1,7 +1,7 @@
-import { Component, computed, effect, inject, Signal, signal } from '@angular/core';
+import { Component, computed, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { playerStore } from '@stores/player.store';
+import { sessionStore } from '@stores/session.store';
 import { Router } from '@angular/router';
 import { RoomService } from '@services/room/room.service';
 import { QuestionScreen } from './components/screens/question-screen/question-screen';
@@ -33,10 +33,10 @@ export class QuizPage {
   private roomService = inject(RoomService);
   private questionService = inject(QuestionService);
   private gameService = inject(GameService);
-  private currentRoomId = playerStore.getValue().roomId;
+  private currentRoomId = sessionStore.getValue().roomId;
 
-  wrongScreenActive = this.questionService.wrongAnswer;
-  correctScreenActive = this.questionService.correctAnswer;
+  wrongScreenActive = signal(false);
+  correctScreenActive = signal(false);
 
   constructor() {
     if (!this.currentRoomId) {
@@ -45,7 +45,7 @@ export class QuizPage {
       return;
     }
     this.activeQuestion = toSignal(
-      this.questionService.watchActiveQuestion(playerStore.getValue().roomId!),
+      this.questionService.watchActiveQuestion(sessionStore.getValue().roomId!),
     );
 
     this.questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.currentRoomId!));
