@@ -1,13 +1,15 @@
-import { Component, computed, inject, input, signal, Signal } from '@angular/core';
+import { Component, computed, inject, input, model, signal, Signal } from '@angular/core';
 import { QuizTimer } from '../../quiz-timer/quiz-timer';
 import { QuizProgress } from '../../quiz-progress/quiz-progress';
 
 import { BehaviorSubject } from 'rxjs';
 import { Question } from '@models/quiz/question.model';
-import { QuestionService } from '@services/quiz/question.service';
+
 import { CommonModule } from '@angular/common';
 import { QuestionOptionButton } from '../../../../../components/question-option-button/question-option-button';
 import { QuestionText } from '../../question-text/question-text';
+import { GameService } from '@services/quiz/game.service';
+import { PlayerStatus } from '@models/quiz/player.model';
 
 @Component({
   selector: 'app-question-screen',
@@ -17,11 +19,15 @@ import { QuestionText } from '../../question-text/question-text';
   standalone: true,
 })
 export class QuestionScreen {
-  private questionService = inject(QuestionService);
+  private gameService = inject(GameService);
+
   revealed$ = new BehaviorSubject(false);
   currentQuestionIndex$ = new BehaviorSubject(0);
   activeQuestion = input<Question | undefined>(undefined);
   timer = input<number | undefined>(0);
+  correctAnswer = model<boolean>();
+  wrongAnswer = model<boolean>();
+
   readonly selected = signal<number | null>(null);
 
   readonly answerIsCorrect = computed(() => {
@@ -42,20 +48,27 @@ export class QuestionScreen {
     return (this.currentQuestionIndex$.value / 20) * 100;
   }
 
+  checkAnswer(questionIndex: number, answerIndex: number) {
+    if (answerIndex === questionIndex) {
+      this.correctAnswer.set(true);
+      this.gameService.setPlayerStatus(PlayerStatus.WAITING);
+    } else {
+      this.wrongAnswer.set(true);
+      this.gameService.setPlayerStatus(PlayerStatus.OFFLINE);
+    }
+  }
+
   timerRanOut() {
     if (this.activeQuestion()) {
       this.revealed$.next(true);
       setTimeout(() => {
-        if (this.activeQuestion()?.correctIndex !== this.selected()) {
-          this.questionService.wrongAnswer.set(true);
-        } else {
-          this.questionService.checkAnswer(this.activeQuestion()?.correctIndex!, this.selected()!);
-        }
+        this.checkAnswer(this.activeQuestion()?.correctIndex!, this.selected()!);
       }, 900);
     }
   }
 
   onSelectOption(idx: number): void {
     this.selected.set(idx);
+    this.gameService.setPlayerStatus(PlayerStatus.ANSWERED);
   }
 }

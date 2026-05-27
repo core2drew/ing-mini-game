@@ -18,6 +18,7 @@
           [isRevealed]="(revealed$ | async)!"
           (click)="!isRevealed && onSelectOption(i)"
           [ngClass]="{ 'cursor-pointer': !isRevealed }"
+          [isDisable]="selected() !== null"
         ></app-question-option-button>
       }
     </div>
