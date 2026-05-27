@@ -14,8 +14,8 @@
   </ng-template>
   <p-divider />
   <div class="flex flex-col gap-4">
-    @for (player of players(); track player.id) {
-      <app-leaderboard-card [player]="player"></app-leaderboard-card>
+    @for (player of players(); track player.id; let i = $index) {
+      <app-leaderboard-card [player]="player" [medal]="i"></app-leaderboard-card>
     }
   </div>
 </p-card>

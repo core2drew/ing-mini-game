@@ -1,12 +1,26 @@
 <div class="flex items-center gap-4">
-  <app-avatar [player]="player" [showName]="false"></app-avatar>
-  <div>
-    <p class="text-sm font-medium">{{ player?.name }}</p>
-    <app-player-status-chip [status]="player?.status" [textOnly]="true"></app-player-status-chip>
+  <div class="w-8 text-center text-slate-400">
+    @if (medal === 0) {
+      <span class="medal gold">🥇</span>
+    } @else if (medal === 1) {
+      <span class="medal silver">🥈</span>
+    } @else if (medal === 2) {
+      <span class="medal bronze">🥉</span>
+    } @else {
+      <span class="rank-num">{{ (medal || 0) + 1 }}</span>
+    }
   </div>
 
-  <div class="flex gap-1 ml-auto">
-    <span class="font-bold leading-none">{{ player?.score }}</span>
-    <span class="text-xs self-end">pts</span>
+  <div class="flex items-center gap-4 flex-1">
+    <app-avatar [player]="player" [showName]="false"></app-avatar>
+    <div>
+      <p class="text-sm font-medium">{{ player?.name }}</p>
+      <app-player-status-chip [status]="player?.status" [textOnly]="true"></app-player-status-chip>
+    </div>
+
+    <div class="flex gap-1 ml-auto">
+      <span class="font-bold leading-none">{{ player?.score }}</span>
+      <span class="text-xs self-end">pts</span>
+    </div>
   </div>
 </div>

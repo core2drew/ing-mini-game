@@ -11,4 +11,5 @@ import { PlayerStatusChip } from '../../../player-status-chip/player-status-chip
 })
 export class LeaderboardCard {
   @Input() player: Player | undefined;
+  @Input() medal: number | undefined = 0;
 }
