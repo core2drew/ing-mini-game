@@ -12,14 +12,7 @@
   </span>
   <span class="text-left text-sm leading-snug">{{ option }}</span>
   @if (isRevealed && isCorrect) {
-    <svg class="w-4 h-4 ml-auto shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        stroke-width="2"
-        d="M9 12l2 2 4-4m7 0a9 9 0 11-18 0 9 9 0 0118 0z"
-      ></path>
-    </svg>
+    <i class="pi pi-check-circle ml-auto text-5xl"></i>
   }
   @if (isRevealed && isSelected && !isCorrect) {
     <svg class="w-4 h-4 ml-auto shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

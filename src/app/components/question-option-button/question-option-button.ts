@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { OPTION_COLORS } from '../../constants/question-options-button.constant';
+import { OPTION_CONFIG } from './constants/question-options-button.constant';
 
 @Component({
   selector: 'app-question-option-button',
@@ -17,7 +17,7 @@ export class QuestionOptionButton {
   @Input() isRevealed: boolean = false;
 
   get colorConfig() {
-    return OPTION_COLORS[this.index];
+    return OPTION_CONFIG[this.index];
   }
 
   get buttonClass(): string {
@@ -37,7 +37,7 @@ export class QuestionOptionButton {
       return 'bg-green-500 text-white ring-2 ring-green-300';
     }
 
-    return 'bg-slate-800 text-slate-400 cursor-default';
+    return 'bg-slate-800 text-slate-100 cursor-default';
   }
 
   get disabled(): boolean {
