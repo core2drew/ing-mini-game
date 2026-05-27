@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
-import { Player, PlayerWithUIData } from '@models/quiz/player.model';
+import { PlayerWithUIData } from '@models/quiz/player.model';
 
 @Component({
   selector: 'app-avatar',
