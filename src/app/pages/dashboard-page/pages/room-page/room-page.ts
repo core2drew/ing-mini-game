@@ -10,10 +10,11 @@ import { GameService } from '@services/quiz/game.service';
 import { PlayerList } from './components/player-list/player-list';
 import { Player } from '@models/quiz/player.model';
 import { getAvatarColorByName, getPlayerStatusLabel } from '@utils/player-utils';
+import { Leaderboard } from './components/leaderboard/leaderboard';
 
 @Component({
   selector: 'app-room-page',
-  imports: [ButtonModule, QuestionView, PlayerList],
+  imports: [ButtonModule, QuestionView, PlayerList, Leaderboard],
   templateUrl: './room-page.html',
   styleUrl: './room-page.css',
 })

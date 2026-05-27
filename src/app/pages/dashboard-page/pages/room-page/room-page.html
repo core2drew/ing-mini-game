@@ -1,5 +1,5 @@
-<main class="grid grid-cols-[1fr_340px] items-center max-w-300 m-auto gap-4">
-  <div class="flex flex-col gap-4 my-5">
+<main class="grid grid-cols-[1fr_450px] my-5 max-w-300 m-auto gap-4">
+  <div class="flex flex-col gap-4">
     <app-question-view
       class="w-full"
       [currentQuestion]="currentQuestion()"
@@ -8,4 +8,5 @@
     ></app-question-view>
     <app-player-list [players]="playersWithUIData()"></app-player-list>
   </div>
+  <app-leaderboard [players]="playersWithUIData()"></app-leaderboard>
 </main>
