@@ -16,12 +16,6 @@ export class GameService {
   private functions = inject(Functions);
   private sessionService = inject(SessionService);
 
-  // 1. Stream players to see who has answered in real-time
-  getPlayers(roomCode: string): Observable<Player[]> {
-    const playersRef = collection(this.fireStore, `rooms/${roomCode}/players`);
-    return collectionData(playersRef, { idField: 'id' }) as Observable<Player[]>;
-  }
-
   getPlayersInRoom(roomId: string): Observable<Player[]> {
     // Define the path to the subcollection
     const playersCollectionPath = `rooms/${roomId}/players`;
