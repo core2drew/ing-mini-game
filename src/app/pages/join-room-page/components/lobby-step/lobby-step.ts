@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal, Signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Player } from '@models/quiz/player.model';
+import { Player, PlayerWithUIData } from '@models/quiz/player.model';
 
 import { RoomService } from '@services/room/room.service';
 import { playerStore } from '@stores/player.store';
@@ -32,8 +32,8 @@ export class LobbyStep {
   players: Signal<Player[] | undefined> = signal(undefined);
 
   playersAvatars = computed(() => {
-    const currentPlayers = this.players() ?? [];
-    return currentPlayers.map((player) => ({
+    const currentPlayers = this.players();
+    return currentPlayers?.map<PlayerWithUIData>((player) => ({
       ...player,
       avatarColor: getAvatarColorByName(player.name), // Calculate color once per player change
     }));
