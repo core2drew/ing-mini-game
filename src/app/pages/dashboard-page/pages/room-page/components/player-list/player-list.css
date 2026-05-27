@@ -1,0 +1,45 @@
+:host ::ng-deep app-avatar .avatar-bubble {
+  height: 38px;
+  width: 38px;
+}
+
+.player-status.waiting {
+  background-color: var(--color-blue-100);
+}
+
+.player-status.waiting p-chip {
+  background: var(--color-blue-500) !important;
+}
+
+.player-status.thinking {
+  background-color: var(--color-amber-100);
+}
+
+.player-status.thinking p-chip {
+  background: var(--color-amber-500) !important;
+}
+
+.player-status.answered {
+  background-color: var(--color-green-100);
+}
+
+.player-status.answered p-chip {
+  background: var(--color-green-500) !important;
+}
+
+.player-status.offline {
+  background-color: var(--color-red-100);
+}
+
+.player-status.offline p-chip {
+  background: var(--color-red-500) !important;
+}
+
+.player-status.unknown {
+  background-color: var(--color-slate-800);
+  color: #fff;
+}
+
+.player-status.unknown p-chip {
+  background: var(--color-slate-700) !important;
+}

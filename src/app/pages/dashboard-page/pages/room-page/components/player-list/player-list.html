@@ -4,13 +4,17 @@
       <div class="flex">
         <div>
           <p>Player status</p>
-          <p class="text-xs text-slate-400">8 total players</p>
+          <p class="text-xs text-slate-400">{{ playersAvatars()?.length || 0 }} total players</p>
         </div>
       </div>
     </div>
   </ng-template>
   <p-divider />
-  <div class="grid grid-cols-3 divide-x divide-zinc-700">
+  <div class="grid grid-cols-4 divide-x divide-zinc-700">
+    <div class="flex flex-col items-center">
+      <span class="text-2xl font-bold text-blue-500">10</span>
+      <span class="text-xs text-slate-400">Waiting</span>
+    </div>
     <div class="flex flex-col items-center">
       <span class="text-2xl font-bold text-green-500">8</span>
       <span class="text-xs text-slate-400">Answered</span>
@@ -28,22 +32,23 @@
   </div>
   <p-divider />
 
-  <div class="grid grid-cols-1 gap-5">
+  <div class="grid grid-cols-1 gap-2 max-h-125 overflow-y-auto">
     @for (player of playersAvatars(); track player.id) {
-      <div [class]="'status-' + player.status">
-        <div class="flex flex-col">
-          <div class="mb-2">
+      <div
+        class="flex flex-col gap-2 p-2 rounded-2xl player-status text-slate-800"
+        [ngClass]="getStatusStyle(player?.status)"
+      >
+        <div class="flex items-center justify-between">
+          <div>
             <app-avatar [player]="player" [showName]="false"></app-avatar>
             <span class="ml-2 text-sm font-medium">{{ player.name }}</span>
           </div>
-          <div class="text-sm text-slate-400">
-            <span class="pc-score">{{ player.score }} pts</span>
-            <span class="pc-badge" [class]="'badge-' + player.status">
-              {{ player.status }}
+          <p-chip class="p-0!">
+            <span class="text-xs rounded-full px-2 py-1">
+              {{ player.statusText || 'Unknown' }}
             </span>
-          </div>
+          </p-chip>
         </div>
-        <div class="pc-status-dot" [class]="'dot-' + player.status"></div>
       </div>
     }
   </div>
