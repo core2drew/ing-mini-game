@@ -29,3 +29,8 @@ export function updateSession(roomId: string, name: string) {
 export function clearSession() {
   sessionStore.update(() => ({ roomId: null, name: null }));
 }
+
+export function resetSession() {
+  sessionStore.reset();
+  localStorage.removeItem('game_session');
+}
