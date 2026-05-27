@@ -36,13 +36,13 @@ export class RoomService {
     const roomSnap = await getDoc(roomRef);
 
     if (!roomSnap.exists()) {
-      throw new Error('Room does not exist.');
+      return false;
     }
 
     const roomData = roomSnap.data();
 
     // Returns true if the status is anything other than 'LOBBY'
-    return roomData['isStarted'] === true;
+    return roomData['isStarted'];
   }
 
   waitUntilGameEnds(roomId: string): Observable<boolean> {
