@@ -12,7 +12,7 @@
   @if (wrongScreenActive()) {
     <app-wrong-answer-screen
       class="w-full"
-      [correctAnswer]="correctAnswer()"
+      [correctAnswer]="lastValidCorrectAnswer"
     ></app-wrong-answer-screen>
   }
   @if (correctScreenActive()) {

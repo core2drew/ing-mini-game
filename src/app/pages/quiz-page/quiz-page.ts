@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject, Subscription, switchMap, of } from 'rxjs';
+import { BehaviorSubject, of, Subscription, switchMap } from 'rxjs';
 import { sessionStore } from '@stores/session.store';
 import { Router } from '@angular/router';
 import { RoomService } from '@services/room/room.service';
@@ -38,6 +38,9 @@ export class QuizPage {
 
   finished$ = new BehaviorSubject(false);
 
+  // 1. Create a local variable to cache the last valid answer text
+  lastValidCorrectAnswer = '';
+
   wrongScreenActive = signal(false);
   correctScreenActive = signal(false);
 
@@ -63,11 +66,15 @@ export class QuizPage {
 
     this.correctAnswer = computed(() => {
       const question = this.activeQuestion();
-      // Safety check: if there's no question, or options/correctIndex are missing
+
+      // If the question disappears, return our private class cache!
       if (!question || !question.options || question.correctIndex === undefined) {
-        return '';
+        return this.lastValidCorrectAnswer;
       }
-      return question.options[question.correctIndex];
+
+      // Save the newly found answer into our cache for next time
+      this.lastValidCorrectAnswer = question.options[question.correctIndex];
+      return this.lastValidCorrectAnswer;
     });
 
     this.gameEndSub = this.roomService.waitUntilGameEnds(this.currentRoomId).subscribe({
@@ -82,6 +89,7 @@ export class QuizPage {
 
     effect(async () => {
       const question = this.activeQuestion();
+      this.correctAnswer();
 
       if (!question) return;
 
