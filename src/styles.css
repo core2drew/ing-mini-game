@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+@import 'primeicons/primeicons.css';
 
 @theme {
   --background-image-cosmic-glow: radial-gradient(ellipse at 50% 30%, #0c1a3a 0%, #0f172a 65%);
