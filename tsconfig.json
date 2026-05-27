@@ -18,7 +18,8 @@
       "@models/*": ["./src/app/models/*"],
       "@services/*": ["./src/app/services/*"],
       "@environments/*": ["./src/environments/*"],
-      "@stores/*": ["./src/app/stores/*"]
+      "@stores/*": ["./src/app/stores/*"],
+      "@utils/*": ["./src/app/utils/*"]
     }
   },
   "angularCompilerOptions": {
