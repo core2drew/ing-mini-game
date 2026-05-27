@@ -40,7 +40,8 @@ export class RoomPage {
   });
 
   leaderboardPlayers = computed(() => {
-    const sortedPool = this.playersWithUIData().sort((playerA, playerB) => {
+    const activePool = [...this.playersWithUIData()];
+    const sortedPool = activePool.sort((playerA, playerB) => {
       // Axis 1: Score
       if (playerB.score !== playerA.score) {
         return playerB.score - playerA.score;
