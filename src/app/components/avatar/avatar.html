@@ -1,6 +1,12 @@
 <div class="avatar-item">
-  <div class="avatar-bubble" [style.background]="player()?.avatarColor || null">
-    {{ player()?.name?.charAt(0)?.toUpperCase() }}
+  <div
+    class="avatar-bubble"
+    [style.background]="hasEmoji ? null : player()?.avatarColor"
+    [ngClass]="{
+      'rainbow-background': hasEmoji,
+    }"
+  >
+    {{ playerInitial }}
   </div>
 
   @if (showName()) {
