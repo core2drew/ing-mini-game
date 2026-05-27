@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Stepper } from './components/stepper/stepper';
+import { SessionService } from '@services/session/session.service';
 @Component({
   selector: 'app-join-room-page',
   imports: [Stepper],
@@ -8,5 +9,13 @@ import { Stepper } from './components/stepper/stepper';
   standalone: true,
 })
 export class JoinRoomPage {
-  value: string | undefined;
+  private sessionService = inject(SessionService);
+
+  currentStep: number = 1;
+
+  ngOnInit() {
+    if (this.sessionService.isLoggedIn()) {
+      this.currentStep = 3;
+    }
+  }
 }
