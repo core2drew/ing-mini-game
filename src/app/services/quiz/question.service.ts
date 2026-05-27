@@ -87,14 +87,6 @@ export class QuestionService {
     });
   }
 
-  checkAnswer(questionIndex: number, answerIndex: number) {
-    if (answerIndex === questionIndex) {
-      this.correctAnswer.set(true);
-    } else {
-      this.wrongAnswer.set(true);
-    }
-  }
-
   async getQuestionsLength(roomId: string): Promise<number> {
     const questionsCollection = collection(this.fireStore, `rooms/${roomId}/questions`);
     const snapshot = await getCountFromServer(questionsCollection);
