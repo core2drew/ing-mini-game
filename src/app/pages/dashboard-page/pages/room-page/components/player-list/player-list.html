@@ -19,7 +19,7 @@
       <span class="text-xs text-slate-400">Waiting</span>
     </div>
     <div class="flex flex-col items-center">
-      <span class="text-2xl font-bold text-green-500">{{ playerStatusCounts().answered }}</span>
+      <span class="text-2xl font-bold text-green-600">{{ playerStatusCounts().answered }}</span>
       <span class="text-xs text-slate-400">Answered</span>
     </div>
 
@@ -46,11 +46,7 @@
             <app-avatar [player]="player" [showName]="false"></app-avatar>
             <span class="ml-2 text-sm font-medium">{{ player.name }}</span>
           </div>
-          <p-chip class="p-0!">
-            <span class="text-xs rounded-full px-2 py-1">
-              {{ player.statusText || 'Unknown' }}
-            </span>
-          </p-chip>
+          <app-player-status-chip [player]="player"></app-player-status-chip>
         </div>
       </div>
     }
