@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn } from '@angular/router';
 
-import { wildcardGuardGuard } from './wildcard-guard-guard';
+import { wildcardGuard } from './wildcard-guard';
 
-describe('wildcardGuardGuard', () => {
+describe('wildcardGuard', () => {
   const executeGuard: CanActivateFn = (...guardParameters) =>
-    TestBed.runInInjectionContext(() => wildcardGuardGuard(...guardParameters));
+    TestBed.runInInjectionContext(() => wildcardGuard(...guardParameters));
 
   beforeEach(() => {
     TestBed.configureTestingModule({});

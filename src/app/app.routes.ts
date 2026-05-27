@@ -1,8 +1,7 @@
 import { Routes } from '@angular/router';
 import { roomGuard } from './guards/room-guard/room-guard';
-import { authGuard } from './guards/auth/auth-guard';
 import { unauthGuard } from './guards/unauth/unauth-guard';
-import { wildcardGuardGuard } from './guards/unauth/wildcard-guard-guard/wildcard-guard-guard';
+import { wildcardGuard } from './guards/unauth/wildcard-guard/wildcard-guard';
 
 export const routes: Routes = [
   {
@@ -25,7 +24,7 @@ export const routes: Routes = [
     path: '',
     loadComponent: () =>
       import('./pages/dashboard-page/dashboard-page').then((m) => m.DashboardPage),
-    canActivate: [authGuard],
+    canActivate: [wildcardGuard],
     children: [
       {
         path: '',
@@ -50,7 +49,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    canActivate: [wildcardGuardGuard],
-    component: class {},
+    redirectTo: 'join',
+    pathMatch: 'full',
   },
 ];
