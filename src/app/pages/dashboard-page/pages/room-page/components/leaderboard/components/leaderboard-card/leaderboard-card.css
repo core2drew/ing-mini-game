@@ -1,0 +1,4 @@
+:host ::ng-deep app-avatar .avatar-bubble {
+  height: 38px;
+  width: 38px;
+}

@@ -1,6 +1,9 @@
-<div class="flex items-center gap-2">
+<div class="flex items-center gap-4">
   <app-avatar [player]="player" [showName]="false"></app-avatar>
-  <p>{{ player?.name }}</p>
+  <div>
+    <p class="text-sm font-medium">{{ player?.name }}</p>
+    <app-player-status-chip [status]="player?.status" [textOnly]="true"></app-player-status-chip>
+  </div>
 
   <div class="flex gap-1 ml-auto">
     <span class="font-bold leading-none">{{ player?.score }}</span>

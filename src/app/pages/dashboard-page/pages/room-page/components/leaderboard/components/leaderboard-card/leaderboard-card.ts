@@ -1,10 +1,11 @@
 import { Component, Input } from '@angular/core';
-import { Player } from '@models/quiz/player.model';
+import { Player, PlayerStatus } from '@models/quiz/player.model';
 import { Avatar } from '../../../../../../../../components/avatar/avatar';
+import { PlayerStatusChip } from '../../../player-status-chip/player-status-chip';
 
 @Component({
   selector: 'app-leaderboard-card',
-  imports: [Avatar],
+  imports: [Avatar, PlayerStatusChip],
   templateUrl: './leaderboard-card.html',
   styleUrl: './leaderboard-card.css',
 })
