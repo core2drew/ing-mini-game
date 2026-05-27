@@ -40,12 +40,30 @@ export class RoomPage {
   });
 
   leaderboardPlayers = computed(() => {
-    return this.playersWithUIData()?.filter(
+    const activePool = this.playersWithUIData()?.filter(
       (player) =>
         player.status === PlayerStatus.ANSWERED ||
         player.status === PlayerStatus.WAITING ||
         player.status === PlayerStatus.THINKING,
     );
+    return activePool.sort((playerA, playerB) => {
+      // 1. Primary Sort: Scores
+      if (playerB.score !== playerA.score) {
+        return playerB.score - playerA.score;
+      }
+
+      // 2. Extract Timestamps safely
+      const timeA = playerA.lastScoreUpdateTime?.toMillis() ?? null;
+      const timeB = playerB.lastScoreUpdateTime?.toMillis() ?? null;
+
+      // 3. 🔥 Tie-breaker Null Guarding
+      if (timeA === null && timeB === null) return 0; // Both null? Keep original sequence
+      if (timeA === null) return 1; // A is null, push A down (B wins)
+      if (timeB === null) return -1; // B is null, push B down (A wins)
+
+      // 4. Both have valid timestamps? Earliest time wins.
+      return timeA - timeB;
+    });
   });
 
   constructor() {

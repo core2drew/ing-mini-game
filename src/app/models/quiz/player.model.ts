@@ -1,3 +1,6 @@
+import { Time } from '@angular/common';
+import { Timestamp } from 'firebase/firestore';
+
 export enum PlayerStatus {
   WAITING = 1,
   THINKING = 2,
@@ -18,6 +21,7 @@ export interface Player {
   score: number;
   hasAnswered?: boolean;
   status?: PlayerStatus;
+  lastScoreUpdateTime?: Timestamp | null;
 }
 
 export interface PlayerWithUIData extends Player {
