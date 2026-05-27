@@ -19,6 +19,7 @@ export interface Player {
   hasAnswered?: boolean;
   avatarColor?: string;
   status?: PlayerStatus;
+  statusText?: string;
 }
 
 export interface LeaderboardEntry extends Player {
