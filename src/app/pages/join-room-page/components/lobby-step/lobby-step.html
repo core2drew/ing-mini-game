@@ -9,13 +9,8 @@
 
   <!-- Player avatars grid -->
   <div class="avatars-grid">
-    @for (player of players(); track player.name; let i = $index) {
-      <div class="avatar-item">
-        <div class="avatar-bubble" [style.background]="getAvatarColorByName(player.name)">
-          {{ player.name.charAt(0).toUpperCase() }}
-        </div>
-        <span class="player-name">{{ player.name }}</span>
-      </div>
+    @for (player of playersAvatars(); track player.name; let i = $index) {
+      <app-avatar [player]="player"></app-avatar>
     }
   </div>
 </div>
