@@ -1,12 +1,13 @@
 import { Component, computed, inject, input, signal, Signal } from '@angular/core';
 import { QuizTimer } from '../../quiz-timer/quiz-timer';
 import { QuizProgress } from '../../quiz-progress/quiz-progress';
-import { QuestionText } from '../../question-text/question-text';
-import { QuestionOptionButton } from '../../question-option-button/question-option-button';
+
 import { BehaviorSubject } from 'rxjs';
 import { Question } from '@models/quiz/question.model';
 import { QuestionService } from '@services/quiz/question.service';
 import { CommonModule } from '@angular/common';
+import { QuestionOptionButton } from '../../../../../components/question-option-button/question-option-button';
+import { QuestionText } from '../../question-text/question-text';
 
 @Component({
   selector: 'app-question-screen',
