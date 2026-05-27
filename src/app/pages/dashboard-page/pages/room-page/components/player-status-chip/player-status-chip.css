@@ -1,0 +1,19 @@
+p-chip.waiting {
+  background: var(--color-blue-500) !important;
+}
+
+p-chip.thinking {
+  background: var(--color-amber-500) !important;
+}
+
+p-chip.answered {
+  background: var(--color-green-600) !important;
+}
+
+p-chip.offline {
+  background: var(--color-red-500) !important;
+}
+
+p-chip.unknown {
+  background: var(--color-slate-700) !important;
+}
