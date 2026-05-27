@@ -9,7 +9,7 @@ import { map } from 'rxjs';
 export class SessionService {
   // 1. Convert the underlying Elf RxJS observables directly into Signals
   roomId = toSignal(sessionStore.pipe(map((s) => s.roomId)), { initialValue: null });
-  playerName = toSignal(sessionStore.pipe(map((s) => s.playerName)), { initialValue: null });
+  playerName = toSignal(sessionStore.pipe(map((s) => s.name)), { initialValue: null });
 
   // 2. Derived state: check if the local user is actively authenticated in a room
   isLoggedIn = computed(() => !!this.roomId() && !!this.playerName());
