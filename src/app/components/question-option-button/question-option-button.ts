@@ -15,29 +15,30 @@ export class QuestionOptionButton {
   @Input() isSelected: boolean = false;
   @Input() isCorrect: boolean = false;
   @Input() isRevealed: boolean = false;
+  @Input() isDisable: boolean = false;
 
   get colorConfig() {
     return OPTION_CONFIG[this.index];
   }
 
   get buttonClass(): string {
-    if (!this.isRevealed && !this.isSelected) {
-      return `${this.colorConfig.bg} text-white`;
-    }
-
     if (this.isSelected && !this.isRevealed) {
-      return `bg-slate-800 text-white outline-2 outline-white cursor-default`;
+      return `bg-slate-800 text-white outline-3 outline-white cursor-default`;
     }
 
     if (this.isSelected && !this.isCorrect) {
       return 'bg-red-500 text-white ring-2 ring-red-300';
     }
 
-    if (this.isCorrect) {
+    if (this.isCorrect && this.isRevealed) {
       return 'bg-green-500 text-white ring-2 ring-green-300';
     }
 
-    return 'bg-slate-800 text-slate-100 cursor-default';
+    if (this.isDisable) {
+      return 'bg-slate-700! text-slate-100! cursor-default';
+    }
+
+    return 'bg-slate-800 text-slate-100 cursor-pointer';
   }
 
   get disabled(): boolean {
