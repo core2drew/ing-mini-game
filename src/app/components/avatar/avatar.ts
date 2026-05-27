@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
-import { Player } from '@models/quiz/player.model';
+import { Player, PlayerWithUIData } from '@models/quiz/player.model';
 
 @Component({
   selector: 'app-avatar',
@@ -10,6 +10,6 @@ import { Player } from '@models/quiz/player.model';
   standalone: true,
 })
 export class Avatar {
-  player = input<Player | undefined>();
+  player = input<PlayerWithUIData | undefined>();
   showName = input<boolean>(true);
 }
