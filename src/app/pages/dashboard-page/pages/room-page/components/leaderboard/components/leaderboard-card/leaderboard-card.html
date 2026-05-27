@@ -1,0 +1,9 @@
+<div class="flex items-center gap-2">
+  <app-avatar [player]="player" [showName]="false"></app-avatar>
+  <p>{{ player?.name }}</p>
+
+  <div class="flex gap-1 ml-auto">
+    <span class="font-bold leading-none">{{ player?.score }}</span>
+    <span class="text-xs self-end">pts</span>
+  </div>
+</div>
