@@ -1,11 +1,8 @@
-import { effect, inject, Injectable, signal } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Question } from '@models/quiz/question.model';
 import { Firestore } from '@angular/fire/firestore';
 import { collection, doc, getCountFromServer, onSnapshot } from 'firebase/firestore';
 import { Observable } from 'rxjs';
-import { GameService } from './game.service';
-import { PlayerStatus } from '@models/quiz/player.model';
-import { SessionService } from '@services/session/session.service';
 
 @Injectable({
   providedIn: 'root',
