@@ -10,6 +10,7 @@ import { QuestionOptionButton } from '../../../../../components/question-option-
 import { QuestionText } from '../../question-text/question-text';
 import { GameService } from '@services/quiz/game.service';
 import { PlayerStatus } from '@models/quiz/player.model';
+import { SessionService } from '@services/session/session.service';
 
 @Component({
   selector: 'app-question-screen',
@@ -20,6 +21,7 @@ import { PlayerStatus } from '@models/quiz/player.model';
 })
 export class QuestionScreen {
   private gameService = inject(GameService);
+  private sessionService = inject(SessionService);
 
   revealed$ = new BehaviorSubject(false);
   currentQuestionIndex$ = new BehaviorSubject(0);
@@ -55,6 +57,7 @@ export class QuestionScreen {
     } else {
       this.wrongAnswer.set(true);
       this.gameService.setPlayerStatus(PlayerStatus.OFFLINE);
+      this.sessionService.leaveRoom();
     }
   }
 
