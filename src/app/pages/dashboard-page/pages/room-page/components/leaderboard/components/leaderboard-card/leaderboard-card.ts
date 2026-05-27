@@ -11,5 +11,10 @@ import { PlayerStatusChip } from '../../../player-status-chip/player-status-chip
 })
 export class LeaderboardCard {
   @Input() player: Player | undefined;
-  @Input() medal: number | undefined = 0;
+  @Input() medal: number = 0;
+
+  get showRankings() {
+    const hasScore = this.player?.score !== 0;
+    return hasScore ? ['🥇', '🥈', '🥉'][this.medal] : this.medal + 1;
+  }
 }

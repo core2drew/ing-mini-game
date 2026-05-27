@@ -1,14 +1,6 @@
 <div class="flex items-center gap-4">
   <div class="w-8 text-center text-slate-400">
-    @if (medal === 0) {
-      <span class="medal gold">🥇</span>
-    } @else if (medal === 1) {
-      <span class="medal silver">🥈</span>
-    } @else if (medal === 2) {
-      <span class="medal bronze">🥉</span>
-    } @else {
-      <span class="rank-num">{{ (medal || 0) + 1 }}</span>
-    }
+    {{ showRankings }}
   </div>
 
   <div class="flex items-center gap-4 flex-1">
