@@ -57,7 +57,7 @@ p-toast .p-toast-message {
   border: 1px solid rgba(148, 163, 184, 0.12);
   border-radius: 28px;
   padding: 2.5rem 2rem;
-  max-width: 540px;
+  max-width: 1080px;
   width: 100%;
   text-align: center;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.55);
