@@ -8,7 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
-import { playerStore } from '../../../../stores/player.store';
+import { sessionStore } from '@stores/session.store';
 import { LogoTitle } from '../logo-title/logo-title';
 @Component({
   selector: 'app-room-step',
@@ -42,7 +42,7 @@ export class RoomStep {
         .then((canJoin) => {
           if (canJoin) {
             this.nextStep.emit(2);
-            playerStore.update((state) => ({ ...state, roomId: this.roomId }));
+            sessionStore.update((state) => ({ ...state, roomId: this.roomId }));
           } else {
             this.messageService.add({
               severity: 'error',

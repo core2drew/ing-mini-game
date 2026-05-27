@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Player, PlayerWithUIData } from '@models/quiz/player.model';
 
 import { RoomService } from '@services/room/room.service';
-import { playerStore } from '@stores/player.store';
+import { sessionStore } from '@stores/session.store';
 import { TableModule } from 'primeng/table';
 import { Subscription } from 'rxjs';
 import { LogoTitle } from '../logo-title/logo-title';
@@ -40,7 +40,7 @@ export class LobbyStep {
   });
 
   constructor() {
-    const roomId = playerStore.getValue().roomId;
+    const roomId = sessionStore.getValue().roomId;
     if (!roomId) {
       console.error('No active room found, redirecting back to home.');
       this.router.navigate(['/']);

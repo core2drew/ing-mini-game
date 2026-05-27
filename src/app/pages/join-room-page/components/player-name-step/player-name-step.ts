@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
-import { playerStore } from '@stores/player.store';
+import { sessionStore } from '@stores/session.store';
 import { PlayerService } from '@services/quiz/player.service';
 import { MessageService } from 'primeng/api';
 import { MessageModule } from 'primeng/message';
@@ -28,7 +28,7 @@ export class PlayerNameStep {
       this.loading = true;
       this.playerService.createPlayer(this.playerName!).subscribe({
         next: (player) => {
-          playerStore.update((state) => ({ ...state, name: player.name }));
+          sessionStore.update((state) => ({ ...state, name: player.name }));
           this.nextStep.emit(3);
         },
         error: (error) => {

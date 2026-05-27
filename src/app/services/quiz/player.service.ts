@@ -12,7 +12,7 @@ import {
 import { from, map, Observable, switchMap, take, throwError } from 'rxjs';
 import { query, Firestore } from '@angular/fire/firestore';
 import { Player, PlayerStatus } from '@models/quiz/player.model';
-import { playerStore } from '../../stores/player.store';
+import { sessionStore } from '../../stores/session.store';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +24,7 @@ export class PlayerService {
     const cleanName = name.trim().toLowerCase();
 
     // 1. Stream the current state from your Elf store
-    return playerStore.pipe(
+    return sessionStore.pipe(
       // Select the roomId field from your store state
       map((state) => state.roomId),
       // Ensure we only take the current value and complete the store stream listener
