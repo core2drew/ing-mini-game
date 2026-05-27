@@ -1,1 +1,21 @@
-<p>leaderboard works!</p>
+<p-card>
+  <ng-template #title>
+    <div class="flex gap-2 items-center justify-between">
+      <div class="flex gap-4">
+        <div class="bg-amber-600 h-11.5 w-11.5 rounded-xl flex justify-center items-center">
+          <i class="pi pi-trophy text-xl!"></i>
+        </div>
+        <div>
+          <p>Leaderboard</p>
+          <p class="text-xs text-slate-400">5 active players</p>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  <p-divider />
+  <div class="flex flex-col gap-2">
+    @for (player of players(); track player.id) {
+      <app-leaderboard-card [player]="player"></app-leaderboard-card>
+    }
+  </div>
+</p-card>
