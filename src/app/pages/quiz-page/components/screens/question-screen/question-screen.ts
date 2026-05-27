@@ -57,7 +57,7 @@ export class QuestionScreen {
     } else {
       this.wrongAnswer.set(true);
       this.gameService.setPlayerStatus(PlayerStatus.OFFLINE);
-      this.sessionService.resetSession();
+      this.sessionService.clearSession();
     }
   }
 
