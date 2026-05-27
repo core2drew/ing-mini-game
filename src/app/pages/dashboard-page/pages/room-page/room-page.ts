@@ -8,7 +8,7 @@ import { Question } from '@models/quiz/question.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { GameService } from '@services/quiz/game.service';
 import { PlayerList } from './components/player-list/player-list';
-import { Player } from '@models/quiz/player.model';
+import { Player, PlayerStatus } from '@models/quiz/player.model';
 import { getAvatarColorByName, getPlayerStatusLabel } from '@utils/player-utils';
 import { Leaderboard } from './components/leaderboard/leaderboard';
 
@@ -28,7 +28,7 @@ export class RoomPage {
 
   questionTimer: Signal<number | undefined> = signal(0);
   currentQuestion: Signal<Question | undefined> = signal(undefined);
-  players: Signal<Player[] | undefined> = signal(undefined);
+  players: Signal<Player[] | undefined> = signal([]);
 
   playersWithUIData = computed(() => {
     const currentPlayers = this.players() ?? [];
@@ -37,6 +37,15 @@ export class RoomPage {
       avatarColor: getAvatarColorByName(player.name), // Calculate color once per player change
       statusText: getPlayerStatusLabel(player.status!),
     }));
+  });
+
+  leaderboardPlayers = computed(() => {
+    return this.playersWithUIData()?.filter(
+      (player) =>
+        player.status === PlayerStatus.ANSWERED ||
+        player.status === PlayerStatus.WAITING ||
+        player.status === PlayerStatus.THINKING,
+    );
   });
 
   constructor() {
