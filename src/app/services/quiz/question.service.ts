@@ -12,11 +12,6 @@ import { SessionService } from '@services/session/session.service';
 })
 export class QuestionService {
   private fireStore = inject(Firestore);
-  private gameService = inject(GameService);
-  private sessionService = inject(SessionService);
-
-  wrongAnswer = signal(false);
-  correctAnswer = signal(false);
 
   watchActiveQuestion(roomId: string): Observable<Question> {
     if (!roomId) {
@@ -24,14 +19,9 @@ export class QuestionService {
     }
     return new Observable<Question>((subscriber) => {
       const roomRef = doc(this.fireStore, `rooms/${roomId}`);
-
-      // Variable to keep track of our active question listener so we can clean it up
       let unsubscribeQuestion: (() => void) | null = null;
-
-      // Track the last known index to check for true changes
       let lastQuestionIndex: number | null | undefined = undefined;
 
-      // 1. Listen to the room document for changes to 'currentQuestionIndex'
       const unsubscribeRoom = onSnapshot(
         roomRef,
         (roomSnap) => {
@@ -43,44 +33,35 @@ export class QuestionService {
           const roomData = roomSnap.data();
           const currentQuestionIndex = roomData?.['quizSession']?.['currentQuestionIndex'];
 
-          // 1. ONLY RESET IF THE INDEX ACTUALLY MOVED TO A NEW QUESTION
+          // Only tear down and rebuild listeners if the index shifted
           if (lastQuestionIndex !== currentQuestionIndex) {
-            this.wrongAnswer.set(false);
-            this.correctAnswer.set(false);
             lastQuestionIndex = currentQuestionIndex; // Update tracked index
+
+            if (unsubscribeQuestion) {
+              unsubscribeQuestion();
+            }
+
+            const questionRef = doc(
+              this.fireStore,
+              `rooms/${roomId}/questions/${currentQuestionIndex}`,
+            );
+
+            unsubscribeQuestion = onSnapshot(
+              questionRef,
+              (questionSnap) => {
+                if (!questionSnap.exists()) {
+                  subscriber.error(new Error('Question missing'));
+                  return;
+                }
+
+                subscriber.next({
+                  ...(questionSnap.data() as Question),
+                  questionNumber: currentQuestionIndex + 1,
+                });
+              },
+              (error) => subscriber.error(error),
+            );
           }
-
-          // 2. Tear down the PREVIOUS question listener if the index changed
-          if (unsubscribeQuestion) {
-            unsubscribeQuestion();
-          }
-
-          // 3. Set up a new listener for the freshly updated question document
-          const questionRef = doc(
-            this.fireStore,
-            `rooms/${roomId}/questions/${currentQuestionIndex}`,
-          );
-
-          unsubscribeQuestion = onSnapshot(
-            questionRef,
-            (questionSnap) => {
-              if (!questionSnap.exists()) {
-                subscriber.error(new Error('Question missing'));
-                return;
-              }
-
-              // Emit the real-time question data down the stream
-              if (this.sessionService.playerName()) {
-                this.gameService.setPlayerStatus(PlayerStatus.THINKING);
-              }
-
-              subscriber.next({
-                ...(questionSnap.data() as Question),
-                questionNumber: currentQuestionIndex + 1,
-              });
-            },
-            (error) => subscriber.error(error),
-          );
         },
         (error) => subscriber.error(error),
       );
