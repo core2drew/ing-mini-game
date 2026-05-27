@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal, Signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Player, PlayerWithUIData } from '@models/quiz/player.model';
+import { Player, PlayerStatus, PlayerWithUIData } from '@models/quiz/player.model';
 
 import { RoomService } from '@services/room/room.service';
 import { sessionStore } from '@stores/session.store';
@@ -53,6 +53,7 @@ export class LobbyStep {
       next: (isStarted) => {
         if (isStarted) {
           console.log('Game has started! Redirecting to arena...');
+          this.gameService.setPlayerStatus(PlayerStatus.THINKING);
           this.router.navigate(['/quiz-blitz']);
         }
       },

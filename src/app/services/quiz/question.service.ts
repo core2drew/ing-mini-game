@@ -3,12 +3,15 @@ import { Question } from '@models/quiz/question.model';
 import { Firestore } from '@angular/fire/firestore';
 import { collection, doc, getCountFromServer, onSnapshot } from 'firebase/firestore';
 import { Observable } from 'rxjs';
+import { GameService } from './game.service';
+import { PlayerStatus } from '@models/quiz/player.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class QuestionService {
   private fireStore = inject(Firestore);
+  private gameService = inject(GameService);
   wrongAnswer = signal(false);
   correctAnswer = signal(false);
 
@@ -66,6 +69,7 @@ export class QuestionService {
               }
 
               // Emit the real-time question data down the stream
+              this.gameService.setPlayerStatus(PlayerStatus.THINKING);
               subscriber.next({
                 ...(questionSnap.data() as Question),
                 questionNumber: currentQuestionIndex + 1,
