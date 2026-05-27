@@ -45,6 +45,7 @@ export class PlayerService {
           name: name.trim(), // Keep original casing for display
           score: 0,
           joined_at: new Date(),
+          hasAnswered: false,
         };
 
         // 3. Wrap the Firestore Transaction in an RxJS Observable using from()
@@ -105,20 +106,6 @@ export class PlayerService {
 
       return () => unsubscribe();
     });
-  }
-
-  getPlayersInRoom(roomId: string): Observable<Player[]> {
-    // Define the path to the subcollection
-    const playersCollectionPath = `rooms/${roomId}/players`;
-
-    // Create a reference to the collection
-    const playersColRef = firestoreCollection(this.fireStore, playersCollectionPath);
-
-    const playersQuery = query(playersColRef, orderBy('joined_at', 'asc'));
-
-    // Fetch the data as an observable.
-    // Passing { idField: 'id' } automatically maps the Firestore document ID to a property named 'id'
-    return collectionData(playersQuery, { idField: 'id' }) as Observable<Player[]>;
   }
 
   updatePlayerScore(playerId: string, score: number, answers: number[]): Observable<void> {

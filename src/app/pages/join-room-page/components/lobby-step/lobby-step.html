@@ -9,7 +9,7 @@
 
   <!-- Player avatars grid -->
   <div class="avatars-grid">
-    @for (player of players$ | async; track player.name; let i = $index) {
+    @for (player of players(); track player.name; let i = $index) {
       <div class="avatar-item">
         <div class="avatar-bubble" [style.background]="getAvatarColorByName(player.name)">
           {{ player.name.charAt(0).toUpperCase() }}

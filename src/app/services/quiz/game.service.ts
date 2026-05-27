@@ -1,14 +1,34 @@
 import { inject, Injectable } from '@angular/core';
-import { QuestionService } from './question.service';
-import { interval, map, Observable, of, startWith, switchMap, take } from 'rxjs';
-import { doc, onSnapshot, Timestamp } from 'firebase/firestore';
-import { Firestore } from '@angular/fire/firestore';
+
+import { interval, map, Observable, of, startWith, switchMap } from 'rxjs';
+import { collection, doc, onSnapshot, orderBy, query, Timestamp } from 'firebase/firestore';
+import { collectionData, Firestore } from '@angular/fire/firestore';
+import { Player } from '@models/quiz/player.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GameService {
   private fireStore = inject(Firestore);
+  // 1. Stream players to see who has answered in real-time
+  getPlayers(roomCode: string): Observable<Player[]> {
+    const playersRef = collection(this.fireStore, `rooms/${roomCode}/players`);
+    return collectionData(playersRef, { idField: 'id' }) as Observable<Player[]>;
+  }
+
+  getPlayersInRoom(roomId: string): Observable<Player[]> {
+    // Define the path to the subcollection
+    const playersCollectionPath = `rooms/${roomId}/players`;
+
+    // Create a reference to the collection
+    const playersColRef = collection(this.fireStore, playersCollectionPath);
+
+    const playersQuery = query(playersColRef, orderBy('joined_at', 'asc'));
+
+    // Fetch the data as an observable.
+    // Passing { idField: 'id' } automatically maps the Firestore document ID to a property named 'id'
+    return collectionData(playersQuery, { idField: 'id' }) as Observable<Player[]>;
+  }
 
   /**
    * Listens to the room's deadline and outputs the remaining seconds in real-time.
