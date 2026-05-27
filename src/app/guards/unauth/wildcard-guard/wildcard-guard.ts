@@ -9,7 +9,6 @@ export const wildcardGuard: CanActivateFn = (route, state) => {
   return authService.getAuthState().pipe(
     map((user) => {
       if (!user) {
-        console.log(user);
         router.navigate(['/join']);
         return false;
       }
