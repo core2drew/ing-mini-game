@@ -40,13 +40,7 @@ export class RoomPage {
   });
 
   leaderboardPlayers = computed(() => {
-    const activePool = this.playersWithUIData()?.filter(
-      (player) =>
-        player.status === PlayerStatus.ANSWERED ||
-        player.status === PlayerStatus.WAITING ||
-        player.status === PlayerStatus.THINKING,
-    );
-    const sortedPool = activePool.sort((playerA, playerB) => {
+    const sortedPool = this.playersWithUIData().sort((playerA, playerB) => {
       // Axis 1: Score
       if (playerB.score !== playerA.score) {
         return playerB.score - playerA.score;
