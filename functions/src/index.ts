@@ -4,6 +4,7 @@ import { CloudTasksClient } from '@google-cloud/tasks';
 import { initializeApp } from 'firebase-admin/app';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { setGlobalOptions } from 'firebase-functions/options';
+import { PlayerStatus, UpdateStatusPayload } from './models/player.model';
 
 initializeApp();
 setGlobalOptions({ region: 'asia-east2' });
@@ -224,6 +225,109 @@ export const nextQuestion = onCall(async (request) => {
     });
 
     return { success: true };
+  } catch (error) {
+    if (error instanceof HttpsError) {
+      throw error; // Re-throw known HttpsErrors
+    }
+    throw new HttpsError('internal', 'Error advancing to next question');
+  }
+});
+
+export const updatePlayerStatus = onCall(async (request) => {
+  const { roomId, playerName, targetStatus } = request.data as UpdateStatusPayload;
+
+  // 1. Defend the Gate: Validate incoming input types
+  if (!roomId || !playerName || targetStatus === undefined) {
+    throw new HttpsError('invalid-argument', 'Missing required parameters.');
+  }
+
+  // 2. Prevent malicious inputs (Ensure the passed status actually exists in your enum)
+  if (!Object.values(PlayerStatus).includes(targetStatus)) {
+    throw new HttpsError('invalid-argument', 'Invalid player status provided.');
+  }
+
+  const roomRef = firestore.collection('rooms').doc(roomId);
+  const playerRef = roomRef.collection('players').doc(playerName);
+
+  try {
+    await firestore.runTransaction(async (transaction) => {
+      // Execute reads concurrently to optimize transaction speed
+      const [roomDoc, playerDoc] = await Promise.all([
+        transaction.get(roomRef),
+        transaction.get(playerRef),
+      ]);
+
+      if (!roomDoc.exists) {
+        throw new HttpsError('not-found', 'Room not found.');
+      }
+
+      if (!playerDoc.exists) {
+        throw new HttpsError('not-found', 'Player not found.');
+      }
+
+      // Write the clean, dynamic state change
+      transaction.update(playerRef, {
+        status: targetStatus,
+        // Pro-tip: Automatically log timestamps if the status shifts to ANSWERED
+        ...(targetStatus === PlayerStatus.ANSWERED && { lastScoreUpdateTime: Date.now() }),
+      });
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    // Senior Move: Wrap raw errors cleanly so client components don't crash
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError('internal', error.message || 'Transaction failed.');
+  }
+});
+
+export const updatePlayer = onCall(async (request) => {
+  try {
+    const { roomId, playerName, status } = request.data;
+
+    const firestore = getFirestore();
+    const roomRef = firestore.collection('rooms').doc(roomId);
+    // Use a transaction to prevent race conditions
+    await firestore.runTransaction(async (transaction) => {
+      const roomDoc = await transaction.get(roomRef);
+
+      if (!roomDoc.exists) {
+        throw new Error('Room not found');
+      }
+      const roomData = roomDoc.data()!;
+      const session = roomData.quizSession || {};
+
+      // If currentQuestionIndex is null/undefined, start at 0. Otherwise increment.
+      const currentQuestionIndex =
+        session.currentQuestionIndex !== undefined ? session.currentQuestionIndex + 1 : 0;
+
+      const playerRef = roomRef.collection('players').doc(playerName);
+      const playerDoc = await transaction.get(playerRef);
+
+      const questionRef = roomRef.collection('questions').doc(currentQuestionIndex.toString());
+      const questionDoc = await transaction.get(questionRef);
+
+      if (!playerDoc.exists) {
+        throw new Error('Player not found');
+      }
+
+      if (!questionDoc.exists) {
+        throw new Error('Question not found');
+      }
+
+      const playerData = playerDoc.data();
+      const questionData = questionDoc.data();
+
+      const currentScore = playerData?.score;
+      const currentQuestionScore = questionData?.score;
+
+      transaction.update(playerRef, {
+        status,
+        score: currentScore + currentQuestionScore,
+      });
+
+      return { success: true };
+    });
   } catch (error) {
     if (error instanceof HttpsError) {
       throw error; // Re-throw known HttpsErrors
