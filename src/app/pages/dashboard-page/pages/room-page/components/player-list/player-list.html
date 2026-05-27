@@ -1,10 +1,13 @@
 <p-card>
   <ng-template #title>
     <div class="flex gap-2 justify-between">
-      <div class="flex">
+      <div class="flex gap-4">
+        <div class="bg-green-600 h-11.5 w-11.5 rounded-xl flex justify-center items-center">
+          <i class="pi pi-users text-xl!"></i>
+        </div>
         <div>
-          <p>Player status</p>
-          <p class="text-xs text-slate-400">{{ playersAvatars()?.length || 0 }} total players</p>
+          <p>Players</p>
+          <p class="text-xs text-slate-400">{{ players()?.length || 0 }} total players</p>
         </div>
       </div>
     </div>
@@ -12,28 +15,28 @@
   <p-divider />
   <div class="grid grid-cols-4 divide-x divide-zinc-700">
     <div class="flex flex-col items-center">
-      <span class="text-2xl font-bold text-blue-500">10</span>
+      <span class="text-2xl font-bold text-blue-500">{{ playerStatusCounts().waiting }}</span>
       <span class="text-xs text-slate-400">Waiting</span>
     </div>
     <div class="flex flex-col items-center">
-      <span class="text-2xl font-bold text-green-500">8</span>
+      <span class="text-2xl font-bold text-green-500">{{ playerStatusCounts().answered }}</span>
       <span class="text-xs text-slate-400">Answered</span>
     </div>
 
     <div class="flex flex-col items-center">
-      <span class="text-2xl font-bold text-amber-500">4</span>
+      <span class="text-2xl font-bold text-amber-500">{{ playerStatusCounts().thinking }}</span>
       <span class="text-xs text-slate-400">Thinking</span>
     </div>
 
     <div class="flex flex-col items-center">
-      <span class="text-2xl font-bold text-red-500">10</span>
+      <span class="text-2xl font-bold text-red-500">{{ playerStatusCounts().offline }}</span>
       <span class="text-xs text-slate-400">Offline</span>
     </div>
   </div>
   <p-divider />
 
   <div class="grid grid-cols-1 gap-2 max-h-125 overflow-y-auto">
-    @for (player of playersAvatars(); track player.id) {
+    @for (player of players(); track player.id) {
       <div
         class="flex flex-col gap-2 p-2 rounded-2xl player-status text-slate-800"
         [ngClass]="getStatusStyle(player?.status)"
