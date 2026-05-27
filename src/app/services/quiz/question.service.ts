@@ -5,6 +5,7 @@ import { collection, doc, getCountFromServer, onSnapshot } from 'firebase/firest
 import { Observable } from 'rxjs';
 import { GameService } from './game.service';
 import { PlayerStatus } from '@models/quiz/player.model';
+import { SessionService } from '@services/session/session.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +13,8 @@ import { PlayerStatus } from '@models/quiz/player.model';
 export class QuestionService {
   private fireStore = inject(Firestore);
   private gameService = inject(GameService);
+  private sessionService = inject(SessionService);
+
   wrongAnswer = signal(false);
   correctAnswer = signal(false);
 
@@ -61,15 +64,16 @@ export class QuestionService {
           unsubscribeQuestion = onSnapshot(
             questionRef,
             (questionSnap) => {
-              console.log(questionSnap.data());
-
               if (!questionSnap.exists()) {
                 subscriber.error(new Error('Question missing'));
                 return;
               }
 
               // Emit the real-time question data down the stream
-              this.gameService.setPlayerStatus(PlayerStatus.THINKING);
+              if (this.sessionService.playerName()) {
+                this.gameService.setPlayerStatus(PlayerStatus.THINKING);
+              }
+
               subscriber.next({
                 ...(questionSnap.data() as Question),
                 questionNumber: currentQuestionIndex + 1,
