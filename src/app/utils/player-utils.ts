@@ -47,7 +47,10 @@ export const getAvatarColorByName = (name: string | null) => {
   return alphabetAvatarColors[keys[fallbackIndex]];
 };
 
-export const getPlayerStatusLabel = (status: PlayerStatus): string => {
+export const getPlayerStatusLabel = (status: PlayerStatus | undefined): string => {
+  if (!status) {
+    return 'Unknown';
+  }
   return PlayerStatusLabel[status];
 };
 

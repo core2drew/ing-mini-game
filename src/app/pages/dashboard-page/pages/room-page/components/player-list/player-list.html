@@ -46,7 +46,7 @@
             <app-avatar [player]="player" [showName]="false"></app-avatar>
             <span class="ml-2 text-sm font-medium">{{ player.name }}</span>
           </div>
-          <app-player-status-chip [player]="player"></app-player-status-chip>
+          <app-player-status-chip [status]="player.status"></app-player-status-chip>
         </div>
       </div>
     }
