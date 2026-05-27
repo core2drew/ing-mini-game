@@ -23,7 +23,6 @@
 
 html,
 body {
-  height: 100%;
   font-family:
     'Inter',
     system-ui,
@@ -35,7 +34,6 @@ body {
 
 app-root {
   display: block;
-  height: 100%;
 }
 
 p-toast .p-toast-message {
