@@ -13,6 +13,9 @@ export class QuestionService {
   correctAnswer = signal(false);
 
   watchActiveQuestion(roomId: string): Observable<Question> {
+    if (!roomId) {
+      throw new Error('roomId is required');
+    }
     return new Observable<Question>((subscriber) => {
       const roomRef = doc(this.fireStore, `rooms/${roomId}`);
 
@@ -63,7 +66,10 @@ export class QuestionService {
               }
 
               // Emit the real-time question data down the stream
-              subscriber.next({ ...(questionSnap.data() as Question) });
+              subscriber.next({
+                ...(questionSnap.data() as Question),
+                questionNumber: currentQuestionIndex + 1,
+              });
             },
             (error) => subscriber.error(error),
           );
