@@ -1,9 +1,11 @@
-<div>
-  <p-button label="Start Quiz" (click)="startQuiz()"></p-button>
-
-  <p-button severity="warn" (click)="restartQuiz()" label="Restart Quiz"></p-button>
-
-  <p-button severity="danger" (click)="endQuiz()" label="End Quiz"></p-button>
-
-  <p-button severity="help" (click)="nextQuestion()" label="Next Question"></p-button>
-</div>
+<main class="grid grid-cols-[1fr_340px] items-center mt-5 max-w-300 m-auto gap-4">
+  <div class="flex flex-col gap-4">
+    <app-question-view
+      class="w-full"
+      [currentQuestion]="currentQuestion()"
+      [questionTimer]="questionTimer()"
+      (nextQuestion)="nextQuestion()"
+    ></app-question-view>
+    <app-player-list></app-player-list>
+  </div>
+</main>
