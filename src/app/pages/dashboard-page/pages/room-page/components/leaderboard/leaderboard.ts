@@ -11,5 +11,5 @@ import { Player } from '@models/quiz/player.model';
   styleUrl: './leaderboard.css',
 })
 export class Leaderboard {
-  players = input<Player[] | undefined>();
+  players = input<Player[]>([]);
 }
