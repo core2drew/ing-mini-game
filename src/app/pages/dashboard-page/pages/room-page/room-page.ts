@@ -46,24 +46,27 @@ export class RoomPage {
         player.status === PlayerStatus.WAITING ||
         player.status === PlayerStatus.THINKING,
     );
-    return activePool.sort((playerA, playerB) => {
-      // 1. Primary Sort: Scores
+    const sortedPool = activePool.sort((playerA, playerB) => {
+      // Axis 1: Score
       if (playerB.score !== playerA.score) {
         return playerB.score - playerA.score;
       }
 
-      // 2. Extract Timestamps safely
+      // Axis 2: Timestamp Speed
       const timeA = playerA.lastScoreUpdateTime?.toMillis() ?? null;
       const timeB = playerB.lastScoreUpdateTime?.toMillis() ?? null;
 
-      // 3. 🔥 Tie-breaker Null Guarding
-      if (timeA === null && timeB === null) return 0; // Both null? Keep original sequence
-      if (timeA === null) return 1; // A is null, push A down (B wins)
-      if (timeB === null) return -1; // B is null, push B down (A wins)
+      if (timeA !== null || timeB !== null) {
+        if (timeA === null) return 1;
+        if (timeB === null) return -1;
+        if (timeA !== timeB) return timeA - timeB;
+      }
 
-      // 4. Both have valid timestamps? Earliest time wins.
-      return timeA - timeB;
+      // Axis 3: 🔥 Alphabetical Fallback (When scores match and both times are null/identical)
+      return playerA.name.localeCompare(playerB.name);
     });
+
+    return sortedPool.splice(0, 10);
   });
 
   constructor() {
