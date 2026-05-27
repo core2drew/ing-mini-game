@@ -9,7 +9,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { GameService } from '@services/quiz/game.service';
 import { PlayerList } from './components/player-list/player-list';
 import { Player } from '@models/quiz/player.model';
-import { getAvatarColorByName, getPlayerStatus } from '@utils/player-utils';
+import { getAvatarColorByName, getPlayerStatusLabel } from '@utils/player-utils';
 
 @Component({
   selector: 'app-room-page',
@@ -34,6 +34,7 @@ export class RoomPage {
     return currentPlayers.map((player) => ({
       ...player,
       avatarColor: getAvatarColorByName(player.name), // Calculate color once per player change
+      statusText: getPlayerStatusLabel(player.status!),
     }));
   });
 
