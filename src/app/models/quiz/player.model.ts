@@ -1,8 +1,8 @@
 export enum PlayerStatus {
-  WAITING = 0,
-  THINKING = 1,
-  ANSWERED = 2,
-  OFFLINE = 3,
+  WAITING = 1,
+  THINKING = 2,
+  ANSWERED = 3,
+  OFFLINE = 4,
 }
 
 export const PlayerStatusLabel: Record<PlayerStatus, string> = {
@@ -17,9 +17,12 @@ export interface Player {
   name: string;
   score: number;
   hasAnswered?: boolean;
-  avatarColor?: string;
   status?: PlayerStatus;
+}
+
+export interface PlayerWithUIData extends Player {
   statusText?: string;
+  avatarColor?: string;
 }
 
 export interface LeaderboardEntry extends Player {
