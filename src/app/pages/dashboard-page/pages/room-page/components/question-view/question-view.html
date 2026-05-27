@@ -1,35 +1,35 @@
-<div class="flex flex-col gap-4">
-  <p-card>
-    <ng-template #title>
-      <div class="flex gap-2 justify-between">
-        <div class="flex">
-          <div>
-            <p>Current Question</p>
-            <p class="text-xs text-slate-400">Question 1 of 5</p>
-          </div>
+<p-card>
+  <ng-template #title>
+    <div class="flex gap-2 justify-between">
+      <div class="flex">
+        <div>
+          <p>Current Question</p>
+          <p class="text-xs text-slate-400">Question 1 of 5</p>
         </div>
-        <p-chip class="px-0! py-0! self-end w-15">
-          <span
-            class="bg-primary text-primary-contrast rounded-full h-8 w-full flex items-center justify-center gap-2"
-          >
-            <span class="bg-red-600 w-2 h-2 rounded-full"></span>
-            <span class="text-sm">Live</span>
-          </span>
-        </p-chip>
       </div>
-    </ng-template>
-    <p-divider />
-    <div class="flex mb-5">
-      <p-chip class="px-0! py-0! w-10">
-        <div class="bg-blue-600 rounded-full h-8 w-full flex items-center justify-center">
-          <span class="text-sm font-bold"> Q{{ questionNumber }} </span>
-        </div>
-      </p-chip>
-      <p-chip class="flex ml-auto justify-center">
-        <i class="pi pi-clock"></i>
-        <span class="text-sm"> {{ questionTimer() }}s </span>
+      <p-chip class="px-0! py-0! self-end w-15">
+        <span
+          class="bg-primary text-primary-contrast rounded-full h-8 w-full flex items-center justify-center gap-2"
+        >
+          <span class="bg-red-600 w-2 h-2 rounded-full"></span>
+          <span class="text-sm">Live</span>
+        </span>
       </p-chip>
     </div>
+  </ng-template>
+  <p-divider />
+  <div class="flex mb-5">
+    <p-chip class="px-0! py-0! w-10">
+      <div class="bg-blue-600 rounded-full h-8 w-full flex items-center justify-center">
+        <span class="text-sm font-bold"> Q{{ questionNumber }} </span>
+      </div>
+    </p-chip>
+    <p-chip class="flex ml-auto justify-center">
+      <i class="pi pi-clock"></i>
+      <span class="text-sm"> {{ questionTimer() }}s </span>
+    </p-chip>
+  </div>
+  <div class="flex flex-col">
     <p class="text-xl mb-5 select-none">
       {{ currentQuestion()?.text }}
     </p>
@@ -44,16 +44,20 @@
         ></app-question-option-button>
       }
     </div>
-  </p-card>
-  <p-button
-    severity="info"
-    (click)="nextQuestion.emit()"
-    label="Next question"
-    class="self-end"
-    [pt]="{
-      root: {
-        style: 'bg-blue-600',
-      },
-    }"
-  ></p-button>
-</div>
+
+    <p-button
+      severity="info"
+      (click)="nextQuestion.emit()"
+      class="self-end"
+      icon
+      [pt]="{
+        root: {
+          style: 'bg-blue-600',
+        },
+      }"
+    >
+      <span pButtonLabel>Next question</span>
+      <i class="pi pi-chevron-right"></i>
+    </p-button>
+  </div>
+</p-card>
