@@ -1,0 +1,9 @@
+<div class="avatar-item">
+  <div class="avatar-bubble" [style.background]="player()?.avatarColor || null">
+    {{ player()?.name?.charAt(0)?.toUpperCase() }}
+  </div>
+
+  @if (showName()) {
+    <span class="player-name">{{ player()?.name }}</span>
+  }
+</div>
