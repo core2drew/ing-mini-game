@@ -1,4 +1,4 @@
-import { Component, inject, signal, Signal } from '@angular/core';
+import { Component, computed, inject, signal, Signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AdminService } from '@services/admin/admin.service';
 import { ButtonModule } from 'primeng/button';
@@ -8,6 +8,8 @@ import { Question } from '@models/quiz/question.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { GameService } from '@services/quiz/game.service';
 import { PlayerList } from './components/player-list/player-list';
+import { Player } from '@models/quiz/player.model';
+import { getAvatarColorByName, getPlayerStatus } from '@utils/player-utils';
 
 @Component({
   selector: 'app-room-page',
@@ -25,6 +27,15 @@ export class RoomPage {
 
   questionTimer: Signal<number | undefined> = signal(0);
   currentQuestion: Signal<Question | undefined> = signal(undefined);
+  players: Signal<Player[] | undefined> = signal(undefined);
+
+  playersAvatars = computed(() => {
+    const currentPlayers = this.players() ?? [];
+    return currentPlayers.map((player) => ({
+      ...player,
+      avatarColor: getAvatarColorByName(player.name), // Calculate color once per player change
+    }));
+  });
 
   constructor() {
     this.route.paramMap.subscribe((params) => {
@@ -32,6 +43,7 @@ export class RoomPage {
     });
     this.currentQuestion = toSignal(this.questionService.watchActiveQuestion(this.roomId!));
     this.questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.roomId!));
+    this.players = toSignal(this.gameService.getPlayersInRoom(this.roomId!));
   }
 
   startQuiz() {
