@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { filter, Observable, take } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
 
@@ -29,6 +29,20 @@ export class RoomService {
 
     // 3. Room exists and hasn't started yet, allow entry
     return true;
+  }
+
+  async checkIsRoomStarted(roomId: string | null): Promise<boolean> {
+    const roomRef = doc(this.fireStore, `rooms/${roomId}`);
+    const roomSnap = await getDoc(roomRef);
+
+    if (!roomSnap.exists()) {
+      throw new Error('Room does not exist.');
+    }
+
+    const roomData = roomSnap.data();
+
+    // Returns true if the status is anything other than 'LOBBY'
+    return roomData['isStarted'] === true;
   }
 
   waitUntilGameEnds(roomId: string): Observable<boolean> {
