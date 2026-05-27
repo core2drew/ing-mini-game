@@ -281,9 +281,9 @@ export const updatePlayerStatus = onCall(async (request) => {
   }
 });
 
-export const updatePlayer = onCall(async (request) => {
+export const updatePlayerScore = onCall(async (request) => {
   try {
-    const { roomId, playerName, status } = request.data;
+    const { roomId, playerName } = request.data;
 
     const firestore = getFirestore();
     const roomRef = firestore.collection('rooms').doc(roomId);
