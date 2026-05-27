@@ -1,5 +1,11 @@
-<p-chip class="p-0!" [ngClass]="getStatusStyle">
+<p-chip
+  class="p-0!"
+  [ngClass]="{
+    ...statusStyle,
+    'text-only': textOnly,
+  }"
+>
   <span class="text-xs rounded-full px-2 py-1">
-    {{ player?.statusText || 'Unknown' }}
+    {{ statusText }}
   </span>
 </p-chip>

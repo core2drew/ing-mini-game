@@ -17,3 +17,31 @@ p-chip.offline {
 p-chip.unknown {
   background: var(--color-slate-700) !important;
 }
+
+p-chip.text-only {
+  background: transparent !important;
+}
+
+p-chip.text-only span {
+  padding: 0;
+}
+
+p-chip.waiting.text-only {
+  color: var(--color-blue-500);
+}
+
+p-chip.thinking.text-only {
+  color: var(--color-amber-500);
+}
+
+p-chip.answered.text-only {
+  color: var(--color-green-600);
+}
+
+p-chip.offline.text-only {
+  color: var(--color-red-500);
+}
+
+p-chip.unknown.text-only {
+  color: var(--color-slate-400);
+}

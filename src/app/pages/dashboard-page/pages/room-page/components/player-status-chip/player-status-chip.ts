@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { PlayerWithUIData } from '@models/quiz/player.model';
-import { getPlayerStatusStyleClass } from '@utils/player-utils';
+import { PlayerStatus } from '@models/quiz/player.model';
+import { getPlayerStatusLabel, getPlayerStatusStyleClass } from '@utils/player-utils';
 import { ChipModule } from 'primeng/chip';
 
 @Component({
@@ -11,9 +11,14 @@ import { ChipModule } from 'primeng/chip';
   styleUrl: './player-status-chip.css',
 })
 export class PlayerStatusChip {
-  @Input() player: PlayerWithUIData | undefined;
+  @Input() status: PlayerStatus | undefined;
+  @Input() textOnly: boolean = false;
 
-  get getStatusStyle() {
-    return getPlayerStatusStyleClass(this.player?.status);
+  get statusStyle() {
+    return getPlayerStatusStyleClass(this.status);
+  }
+
+  get statusText() {
+    return getPlayerStatusLabel(this.status);
   }
 }
