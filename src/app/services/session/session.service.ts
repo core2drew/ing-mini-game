@@ -1,6 +1,6 @@
 import { computed, Injectable } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { clearSession, resetSession, sessionStore, updateSession } from '@stores/session.store';
+import { clearSession, sessionStore, updateSession } from '@stores/session.store';
 import { map } from 'rxjs';
 
 @Injectable({
@@ -22,7 +22,7 @@ export class SessionService {
     clearSession();
   }
 
-  resetSession() {
-    resetSession();
+  clearSession() {
+    clearSession();
   }
 }

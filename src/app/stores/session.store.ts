@@ -12,7 +12,7 @@ export const sessionStore = createStore(
   },
   withProps<SessionProps>({
     name: null as string | null,
-    roomId: '123-123-123',
+    roomId: null as string | null,
   }),
 );
 
@@ -27,10 +27,6 @@ export function updateSession(roomId: string, name: string) {
 }
 
 export function clearSession() {
-  sessionStore.update(() => ({ roomId: null, name: null }));
-}
-
-export function resetSession() {
-  sessionStore.reset();
   localStorage.removeItem('game_session');
+  sessionStore.update(() => ({ roomId: null, name: null }));
 }
