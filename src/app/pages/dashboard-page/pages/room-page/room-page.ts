@@ -29,7 +29,7 @@ export class RoomPage {
   currentQuestion: Signal<Question | undefined> = signal(undefined);
   players: Signal<Player[] | undefined> = signal(undefined);
 
-  playersAvatars = computed(() => {
+  playersWithUIData = computed(() => {
     const currentPlayers = this.players() ?? [];
     return currentPlayers.map((player) => ({
       ...player,
