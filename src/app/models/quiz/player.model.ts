@@ -26,7 +26,6 @@ export interface Player {
 
 export interface PlayerWithUIData extends Player {
   statusText?: string;
-  avatarColor?: string;
 }
 
 export interface LeaderboardEntry extends Player {
