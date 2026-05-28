@@ -154,6 +154,7 @@ export const restartQuiz = onCall(async (request) => {
     isStarted: false,
     'quizSession.currentQuestionIndex': 0,
     'quizSession.questionTimerExpiresAt': null,
+    'quizSession.isEnded': false,
   });
 
   // Delete all player collection
@@ -172,6 +173,7 @@ export const endQuiz = onCall(async (request) => {
     isStarted: false,
     'quizSession.currentQuestionIndex': 0,
     'quizSession.questionTimerExpiresAt': null,
+    'quizSession.isEnded': true,
   });
 
   return { success: true };
