@@ -1,7 +1,7 @@
 <div class="screen quiz-bg">
   <div class="quiz-card">
     <app-quiz-progress
-      [currentQuestionNumber]="((currentQuestionIndex$ | async) || 0) + 1"
+      [currentQuestionNumber]="activeQuestion()?.questionNumber ?? 0"
       [questionLength]="questionLength()"
       [progress]="progressPercent"
     ></app-quiz-progress>

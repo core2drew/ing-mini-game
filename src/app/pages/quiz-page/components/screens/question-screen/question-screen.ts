@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, model, signal, Signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, signal, Signal } from '@angular/core';
 import { QuizTimer } from '../../quiz-timer/quiz-timer';
 import { QuizProgress } from '../../quiz-progress/quiz-progress';
 
@@ -54,7 +54,7 @@ export class QuestionScreen {
   }
 
   get progressPercent(): number {
-    return (this.currentQuestionIndex$.value / 20) * 100;
+    return ((this.activeQuestion()?.questionNumber || 0) / (this.questionLength() || 0)) * 100;
   }
 
   checkAnswer(questionIndex: number, answerIndex: number) {
