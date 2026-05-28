@@ -33,14 +33,6 @@ export class LobbyStep {
 
   players: Signal<Player[] | undefined> = signal(undefined);
 
-  playersAvatars = computed(() => {
-    const currentPlayers = this.players();
-    return currentPlayers?.map<PlayerWithUIData>((player) => ({
-      ...player,
-      avatarColor: getAvatarColorByName(player.name), // Calculate color once per player change
-    }));
-  });
-
   constructor() {
     const roomId = sessionStore.getValue().roomId;
     if (!roomId) {

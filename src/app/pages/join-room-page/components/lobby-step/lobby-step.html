@@ -9,7 +9,7 @@
 
   <!-- Player avatars grid -->
   <div class="avatars-grid">
-    @for (player of playersAvatars(); track player.name; let i = $index) {
+    @for (player of players(); track player.name; let i = $index) {
       <app-avatar [player]="player"></app-avatar>
     }
   </div>
