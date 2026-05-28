@@ -15,6 +15,10 @@ export class LeaderboardCard {
 
   get showRankings() {
     const hasScore = this.player?.score !== 0;
-    return hasScore ? ['🥇', '🥈', '🥉'][this.medal] : this.medal + 1;
+    if (hasScore) {
+      return ['🥇', '🥈', '🥉'][this.medal] ?? this.medal + 1;
+    }
+
+    return '-';
   }
 }
