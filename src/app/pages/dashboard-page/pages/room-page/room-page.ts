@@ -12,6 +12,7 @@ import { Player, PlayerStatus } from '@models/quiz/player.model';
 import { getAvatarColorByName, getPlayerStatusLabel } from '@utils/player-utils';
 import { Leaderboard } from './components/leaderboard/leaderboard';
 import { getTopLeaderboardPlayers } from '@utils/leaderboard.utils';
+import { from } from 'rxjs';
 
 @Component({
   selector: 'app-room-page',
@@ -30,6 +31,7 @@ export class RoomPage {
   questionTimer: Signal<number | undefined> = signal(0);
   currentQuestion: Signal<Question | undefined> = signal(undefined);
   players: Signal<Player[] | undefined> = signal([]);
+  questionLength: Signal<number | undefined> = signal(0);
 
   playersWithUIData = computed(() => {
     const currentPlayers = this.players() ?? [];
@@ -39,7 +41,7 @@ export class RoomPage {
     }));
   });
 
-  leaderboardPlayers = computed(() => getTopLeaderboardPlayers(this.players()!));
+  leaderboardPlayers = computed(() => getTopLeaderboardPlayers(this.players() || []));
 
   constructor() {
     this.route.paramMap.subscribe((params) => {
@@ -48,6 +50,7 @@ export class RoomPage {
     this.currentQuestion = toSignal(this.questionService.watchActiveQuestion(this.roomId!));
     this.questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.roomId!));
     this.players = toSignal(this.gameService.getPlayersInRoom(this.roomId!));
+    this.questionLength = toSignal(from(this.questionService.getQuestionsLength(this.roomId!)));
   }
 
   startQuiz() {
