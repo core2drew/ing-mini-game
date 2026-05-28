@@ -36,7 +36,7 @@ export class QuizPage {
   secondsLeft = 0;
   questionTimer: Signal<number | undefined> = signal(0);
   activeQuestion: Signal<Question | undefined> = signal(undefined);
-
+  quizCompleted: Signal<boolean | undefined> = signal(undefined);
   lastQuestionCorrectAnswer: string | undefined;
   lastQuestionScore: number = 0;
 
@@ -57,26 +57,28 @@ export class QuizPage {
             // Tear down the active snapshot connection and emit a null state holder
             return of(undefined);
           }
-          return this.questionService.watchActiveQuestion(sessionStore.getValue().roomId!);
+          return this.questionService.watchActiveQuestion(this.currentRoomId!);
         }),
       ),
     );
 
     this.questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.currentRoomId!));
 
-    this.quizEndSub = this.roomService.waitUntilQuizEndedResults(this.currentRoomId).subscribe({
-      next: (isEnded) => {
-        if (isEnded) {
-          console.log('Quiz is ended, Redirecting to final screen...');
-          this.endScreenActive.set(true);
-        }
-      },
-      error: (err) => console.error('Error listening to quiz ended status:', err),
-    });
+    this.quizCompleted = toSignal(
+      toObservable(this.wrongScreenActive).pipe(
+        switchMap((isScreenLocked) => {
+          if (isScreenLocked) {
+            // Tear down the active snapshot connection and emit a null state holder
+            return of(undefined);
+          }
+          return this.roomService.waitUntilQuizEndedResults(this.currentRoomId!);
+        }),
+      ),
+    );
 
     effect(async () => {
       const question = this.activeQuestion();
-
+      this.quizCompleted();
       if (!question) return;
       this.lastQuestionCorrectAnswer = question?.options[question?.correctIndex];
       this.lastQuestionScore = question.score;
