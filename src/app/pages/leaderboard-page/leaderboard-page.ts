@@ -8,6 +8,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { map, switchMap, tap } from 'rxjs';
 import { Avatar } from '../../components/avatar/avatar';
+import { getTopLeaderboardPlayers } from '@utils/leaderboard.utils';
 
 @Component({
   selector: 'app-leaderboard-page',
@@ -48,29 +49,7 @@ export class LeaderboardPage {
     { initialValue: [] },
   );
 
-  leaderboardPlayers = computed(() => {
-    const activePool = [...this.players()];
-    const sortedPool = activePool.sort((playerA, playerB) => {
-      // Axis 1: Score
-      if (playerB.score !== playerA.score) {
-        return playerB.score - playerA.score;
-      }
-
-      // Axis 2: Timestamp Speed
-      const timeA = playerA.lastScoreUpdateTime?.toMillis() ?? null;
-      const timeB = playerB.lastScoreUpdateTime?.toMillis() ?? null;
-
-      if (timeA !== null || timeB !== null) {
-        if (timeA === null) return 1;
-        if (timeB === null) return -1;
-        if (timeA !== timeB) return timeA - timeB;
-      }
-
-      return playerA.name.localeCompare(playerB.name);
-    });
-
-    return sortedPool.splice(0, 10);
-  });
+  leaderboardPlayers = computed(() => getTopLeaderboardPlayers(this.players()));
 
   getRankConfig(index: number, score: number | undefined | null) {
     // If there is no valid score, return a neutral fallback styling

@@ -11,6 +11,7 @@ import { PlayerList } from './components/player-list/player-list';
 import { Player, PlayerStatus } from '@models/quiz/player.model';
 import { getAvatarColorByName, getPlayerStatusLabel } from '@utils/player-utils';
 import { Leaderboard } from './components/leaderboard/leaderboard';
+import { getTopLeaderboardPlayers } from '@utils/leaderboard.utils';
 
 @Component({
   selector: 'app-room-page',
@@ -34,35 +35,11 @@ export class RoomPage {
     const currentPlayers = this.players() ?? [];
     return currentPlayers.map((player) => ({
       ...player,
-      avatarColor: getAvatarColorByName(player.name), // Calculate color once per player change
       statusText: getPlayerStatusLabel(player.status!),
     }));
   });
 
-  leaderboardPlayers = computed(() => {
-    const activePool = [...this.playersWithUIData()];
-    const sortedPool = activePool.sort((playerA, playerB) => {
-      // Axis 1: Score
-      if (playerB.score !== playerA.score) {
-        return playerB.score - playerA.score;
-      }
-
-      // Axis 2: Timestamp Speed
-      const timeA = playerA.lastScoreUpdateTime?.toMillis() ?? null;
-      const timeB = playerB.lastScoreUpdateTime?.toMillis() ?? null;
-
-      if (timeA !== null || timeB !== null) {
-        if (timeA === null) return 1;
-        if (timeB === null) return -1;
-        if (timeA !== timeB) return timeA - timeB;
-      }
-
-      // Axis 3: 🔥 Alphabetical Fallback (When scores match and both times are null/identical)
-      return playerA.name.localeCompare(playerB.name);
-    });
-
-    return sortedPool.splice(0, 10);
-  });
+  leaderboardPlayers = computed(() => getTopLeaderboardPlayers(this.players()!));
 
   constructor() {
     this.route.paramMap.subscribe((params) => {
