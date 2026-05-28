@@ -45,6 +45,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import(`./pages/dashboard-page/pages/room-page/room-page`).then((m) => m.RoomPage),
       },
+      {
+        path: 'room/:roomId/leaderboard',
+        loadComponent: () =>
+          import(`./pages/dashboard-page/pages/leaderboard-page/leaderboard-page`).then(
+            (m) => m.LeaderboardPage,
+          ),
+      },
     ],
   },
   {
