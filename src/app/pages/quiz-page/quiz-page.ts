@@ -69,7 +69,7 @@ export class QuizPage {
         switchMap((isScreenLocked) => {
           if (isScreenLocked) {
             // Tear down the active snapshot connection and emit a null state holder
-            return of(undefined);
+            return of(false);
           }
           return this.roomService.waitUntilQuizEndedResults(this.currentRoomId!);
         }),
@@ -78,21 +78,26 @@ export class QuizPage {
 
     effect(async () => {
       const question = this.activeQuestion();
-      this.quizCompleted();
-      if (!question) return;
-      this.lastQuestionCorrectAnswer = question?.options[question?.correctIndex];
-      this.lastQuestionScore = question.score;
+      const quizCompleted = this.quizCompleted();
 
-      // 1. A new question has landed! Clear the previous screen UI states immediately
-      this.correctScreenActive.set(false);
+      if (question) {
+        this.lastQuestionCorrectAnswer = question?.options[question?.correctIndex];
+        this.lastQuestionScore = question.score;
 
-      // 2. Set the player status to THINKING on the backend via your Cloud Function
-      if (this.sessionService.playerName()) {
-        try {
-          await this.gameService.setPlayerStatus(PlayerStatus.THINKING);
-        } catch (error) {
-          console.error('Failed to sync player status on new question:', error);
+        // 1. A new question has landed! Clear the previous screen UI states immediately
+        this.correctScreenActive.set(false);
+
+        // 2. Set the player status to THINKING on the backend via your Cloud Function
+        if (this.sessionService.playerName()) {
+          try {
+            await this.gameService.setPlayerStatus(PlayerStatus.THINKING);
+          } catch (error) {
+            console.error('Failed to sync player status on new question:', error);
+          }
         }
+      }
+      if (quizCompleted) {
+        this.endScreenActive.set(true);
       }
     });
   }
