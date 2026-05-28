@@ -56,9 +56,9 @@ export class RoomService {
         (snapshot) => {
           const data = snapshot.data();
           const isEnded = data ? !!data['isEnded'] : false;
-
-          // Debug log to see exactly when and what Firestore emits
-          console.log(`🔄 Game updated. isEnded status is currently: ${isEnded}`);
+          if (isEnded) {
+            console.log(`🔄 Game ended`);
+          }
 
           observer.next(isEnded);
         },
@@ -88,9 +88,9 @@ export class RoomService {
         (snapshot) => {
           const data = snapshot.data();
           const isStarted = data ? !!data['isStarted'] : false;
-
-          // Debug log to see exactly when and what Firestore emits
-          console.log(`🔄 Game updated. isStarted status is currently: ${isStarted}`);
+          if (isStarted) {
+            console.log(`🔄 Game started`);
+          }
 
           observer.next(isStarted);
         },
@@ -104,6 +104,40 @@ export class RoomService {
     }).pipe(
       // 1. Only let the stream pass if it hits our target condition
       filter((isStarted) => isStarted === true),
+      // 2. Shut down the pipeline only AFTER the true value escapes
+      take(1),
+    );
+  }
+
+  waitUntilQuizEndedResults(roomId: string): Observable<boolean> {
+    const roomDocRef = doc(this.fireStore, 'rooms', roomId);
+
+    return new Observable<boolean>((observer) => {
+      console.log(`📡 Opening real-time listener for quiz to end: ${roomId}`);
+
+      const unsubscribe = onSnapshot(
+        roomDocRef,
+        (snapshot) => {
+          const data = snapshot.data();
+          const isEnded = data ? !!data['quizSession']['isEnded'] : false;
+
+          // Debug log to see exactly when and what Firestore emits
+          if (isEnded) {
+            console.log(`🔄 Quiz is ended`);
+          }
+
+          observer.next(isEnded);
+        },
+        (error) => observer.error(error),
+      );
+
+      return () => {
+        console.log(`🔌 Closing listener for quiz to end: ${roomId}`);
+        unsubscribe();
+      };
+    }).pipe(
+      // 1. Only let the stream pass if it hits our target condition
+      filter((isEnded) => isEnded === true),
       // 2. Shut down the pipeline only AFTER the true value escapes
       take(1),
     );

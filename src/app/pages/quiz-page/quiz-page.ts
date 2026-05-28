@@ -1,6 +1,6 @@
 import { Component, effect, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BehaviorSubject, of, Subscription, switchMap } from 'rxjs';
+import { of, Subscription, switchMap } from 'rxjs';
 import { sessionStore } from '@stores/session.store';
 import { Router } from '@angular/router';
 import { RoomService } from '@services/room/room.service';
@@ -13,9 +13,10 @@ import { GameService } from '@services/quiz/game.service';
 import { Question } from '@models/quiz/question.model';
 import { SessionService } from '@services/session/session.service';
 import { PlayerStatus } from '@models/quiz/player.model';
+import { EndScreen } from './components/screens/end-screen/end-screen';
 @Component({
   selector: 'app-quiz-page',
-  imports: [CommonModule, QuestionScreen, WrongAnswerScreen, CorrectAnswerScreen],
+  imports: [CommonModule, QuestionScreen, WrongAnswerScreen, CorrectAnswerScreen, EndScreen],
   templateUrl: './quiz-page.html',
   styleUrl: './quiz-page.css',
   standalone: true,
@@ -28,6 +29,7 @@ export class QuizPage {
   private sessionService = inject(SessionService);
 
   private gameEndSub!: Subscription;
+  private quizEndSub!: Subscription;
   private currentRoomId = sessionStore.getValue().roomId;
 
   playerId: string = '';
@@ -35,13 +37,12 @@ export class QuizPage {
   questionTimer: Signal<number | undefined> = signal(0);
   activeQuestion: Signal<Question | undefined> = signal(undefined);
 
-  finished$ = new BehaviorSubject(false);
-
   lastQuestionCorrectAnswer: string | undefined;
   lastQuestionScore: number = 0;
 
   wrongScreenActive = signal(false);
   correctScreenActive = signal(false);
+  endScreenActive = signal(false);
 
   constructor() {
     if (!this.currentRoomId) {
@@ -63,14 +64,14 @@ export class QuizPage {
 
     this.questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.currentRoomId!));
 
-    this.gameEndSub = this.roomService.waitUntilGameEnds(this.currentRoomId).subscribe({
+    this.quizEndSub = this.roomService.waitUntilQuizEndedResults(this.currentRoomId).subscribe({
       next: (isEnded) => {
         if (isEnded) {
-          console.log('Game has ended! Redirecting to arena...');
-          this.router.navigate(['/join']);
+          console.log('Quiz is ended, Redirecting to final screen...');
+          this.endScreenActive.set(true);
         }
       },
-      error: (err) => console.error('Error listening to room status:', err),
+      error: (err) => console.error('Error listening to quiz ended status:', err),
     });
 
     effect(async () => {
@@ -97,6 +98,9 @@ export class QuizPage {
   ngOnDestroy(): void {
     if (this.gameEndSub) {
       this.gameEndSub.unsubscribe();
+    }
+    if (this.quizEndSub) {
+      this.quizEndSub.unsubscribe();
     }
   }
 }

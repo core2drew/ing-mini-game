@@ -1,5 +1,5 @@
 <div class="min-h-screen flex items-center justify-center">
-  @if (!wrongScreenActive() && !correctScreenActive()) {
+  @if (!wrongScreenActive() && !correctScreenActive() && !endScreenActive()) {
     <app-question-screen
       class="w-full"
       [activeQuestion]="activeQuestion()"
@@ -9,16 +9,20 @@
     ></app-question-screen>
   }
 
-  @if (wrongScreenActive()) {
+  @if (wrongScreenActive() && !endScreenActive()) {
     <app-wrong-answer-screen
       class="w-full"
       [correctAnswer]="lastQuestionCorrectAnswer"
     ></app-wrong-answer-screen>
   }
-  @if (correctScreenActive()) {
+  @if (correctScreenActive() && !endScreenActive()) {
     <app-correct-answer-screen
       class="w-full"
       [score]="lastQuestionScore"
     ></app-correct-answer-screen>
+  }
+
+  @if (endScreenActive()) {
+    <app-end-screen class="w-full"></app-end-screen>
   }
 </div>
