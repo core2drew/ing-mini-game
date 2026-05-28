@@ -25,6 +25,7 @@ export class QuestionView {
 
   currentQuestion = input<Question>();
   questionTimer = input<number>();
+  questionLength = input<number>();
 
   get questionNumber() {
     return this.currentQuestion()?.questionNumber || 1;

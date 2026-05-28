@@ -7,7 +7,9 @@
         </div>
         <div>
           <p>Current Question</p>
-          <p class="text-xs text-slate-400">Question 1 of 5</p>
+          <p class="text-xs text-slate-400">
+            Question {{ questionNumber }} of {{ questionLength() }}
+          </p>
         </div>
       </div>
       <p-chip class="px-0! py-0! w-15">

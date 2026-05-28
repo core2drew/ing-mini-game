@@ -2,7 +2,7 @@ import { Component, computed, inject, input, model, signal, Signal } from '@angu
 import { QuizTimer } from '../../quiz-timer/quiz-timer';
 import { QuizProgress } from '../../quiz-progress/quiz-progress';
 
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, from } from 'rxjs';
 import { Question } from '@models/quiz/question.model';
 
 import { CommonModule } from '@angular/common';
@@ -11,6 +11,8 @@ import { QuestionText } from '../../question-text/question-text';
 import { GameService } from '@services/quiz/game.service';
 import { PlayerStatus } from '@models/quiz/player.model';
 import { SessionService } from '@services/session/session.service';
+import { QuestionService } from '@services/quiz/question.service';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-question-screen',
@@ -21,6 +23,7 @@ import { SessionService } from '@services/session/session.service';
 })
 export class QuestionScreen {
   private gameService = inject(GameService);
+  private questionService = inject(QuestionService);
   private sessionService = inject(SessionService);
 
   revealed$ = new BehaviorSubject(false);
@@ -37,6 +40,10 @@ export class QuestionScreen {
     if (selectedIndex === null) return false;
     return selectedIndex === this.activeQuestion()?.correctIndex;
   });
+
+  readonly questionLength = toSignal(
+    from(this.questionService.getQuestionsLength(this.sessionService.roomId()!)),
+  );
 
   get isRevealed(): boolean {
     return this.revealed$.value;
