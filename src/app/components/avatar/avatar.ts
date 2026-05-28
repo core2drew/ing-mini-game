@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
-import { PlayerWithUIData } from '@models/quiz/player.model';
+import { Player, PlayerWithUIData } from '@models/quiz/player.model';
+import { getAvatarColorByName } from '@utils/player-utils';
 
 @Component({
   selector: 'app-avatar',
@@ -10,8 +11,13 @@ import { PlayerWithUIData } from '@models/quiz/player.model';
   standalone: true,
 })
 export class Avatar {
-  player = input<PlayerWithUIData | undefined>();
+  player = input<Player | undefined>();
   showName = input<boolean>(true);
+
+  get avatarColor() {
+    const { name } = this.player() || {};
+    return getAvatarColorByName(name!);
+  }
 
   get hasEmoji() {
     const { name } = this.player() || {};
