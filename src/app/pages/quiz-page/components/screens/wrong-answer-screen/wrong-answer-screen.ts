@@ -19,11 +19,10 @@ export class WrongAnswerScreen {
   }));
   showContent = signal(true);
   shakeActive = signal(true);
-  @Input() correctAnswer: string | undefined = '';
 
-  get inspirationalMessage() {
-    return getWrongRandomInspirationalMessage();
-  }
+  inspirationalMessage = signal(getWrongRandomInspirationalMessage());
+
+  @Input() correctAnswer: string | undefined = '';
 
   exitQuiz(): void {
     this.router.navigate(['/']);

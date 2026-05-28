@@ -13,12 +13,9 @@ export class CorrectAnswerScreen {
 
   confetti = signal<{ x: number; delay: number; color: string; size: number; dur: number }[]>([]);
   showContent = signal(false);
+  inspirationalMessage = signal(getCorrectRandomInspirationalMessage());
 
   private colors = ['#22c55e', '#86efac', '#4ade80', '#fbbf24', '#34d399', '#a3e635'];
-
-  get inspirationalMessage() {
-    return getCorrectRandomInspirationalMessage();
-  }
 
   ngOnInit(): void {
     this.confetti.set(
