@@ -2,16 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { LeaderboardRow } from '@models/quiz/leaderboard.model';
 import { GameService } from '@services/quiz/game.service';
 import { getAvatarColorByName, getPlayerStatusLabel } from '@utils/player-utils';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
 import { map, switchMap, tap } from 'rxjs';
+import { Avatar } from '../../components/avatar/avatar';
 
 @Component({
   selector: 'app-leaderboard-page',
-  imports: [TableModule, SkeletonModule, CommonModule],
+  imports: [TableModule, SkeletonModule, CommonModule, Avatar],
   templateUrl: './leaderboard-page.html',
   styleUrl: './leaderboard-page.css',
 })
@@ -20,8 +20,6 @@ export class LeaderboardPage {
   private route = inject(ActivatedRoute);
 
   loading = signal(true);
-  leaderboardData = signal<LeaderboardRow[]>([]);
-  lastUpdated = signal(new Date());
 
   stats = signal({
     totalPlayers: 0,
@@ -74,14 +72,30 @@ export class LeaderboardPage {
     return sortedPool.splice(0, 10);
   });
 
-  getRowClass(rank: number): string {
-    if (rank === 1) {
-      return 'bg-gradient-to-r from-amber-900/20 to-transparent hover:from-amber-900/30';
-    } else if (rank === 2) {
-      return 'bg-gradient-to-r from-slate-600/20 to-transparent hover:from-slate-600/30';
-    } else if (rank === 3) {
-      return 'bg-gradient-to-r from-orange-900/20 to-transparent hover:from-orange-900/30';
+  getRankConfig(index: number, score: number | undefined | null) {
+    // If there is no valid score, return a neutral fallback styling
+    if (!score || score <= 0) {
+      return {
+        bg: 'bg-slate-800/30 border border-slate-700/50',
+        text: 'text-slate-500 font-normal text-sm',
+        content: '-',
+      };
     }
-    return 'hover:bg-slate-700/30';
+
+    // Medal configurations for top 3 positions
+    const topRanks: Record<number, { bg: string; text: string; content: string }> = {
+      0: { bg: 'from-amber-400 to-amber-600 shadow-lg', text: 'text-lg', content: '🥇' },
+      1: { bg: 'from-slate-300 to-slate-500 shadow-lg', text: 'text-lg', content: '🥈' },
+      2: { bg: 'from-orange-400 to-orange-600 shadow-lg', text: 'text-lg', content: '🥉' },
+    };
+
+    // Return the medal configuration, or the fallback for rank 4+ with a score
+    return (
+      topRanks[index] ?? {
+        bg: 'bg-slate-700/50',
+        text: 'text-slate-300 font-medium text-sm',
+        content: `#${index + 1}`,
+      }
+    );
   }
 }
