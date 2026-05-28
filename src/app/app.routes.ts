@@ -48,9 +48,7 @@ export const routes: Routes = [
       {
         path: 'room/:roomId/leaderboard',
         loadComponent: () =>
-          import(`./pages/dashboard-page/pages/leaderboard-page/leaderboard-page`).then(
-            (m) => m.LeaderboardPage,
-          ),
+          import(`./pages/leaderboard-page/leaderboard-page`).then((m) => m.LeaderboardPage),
       },
     ],
   },
