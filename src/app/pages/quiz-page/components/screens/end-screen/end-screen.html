@@ -1,344 +1,118 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-  <!-- Header Section -->
-  <div class="bg-gradient-to-r from-blue-600 to-cyan-500 shadow-2xl">
-    <div class="max-w-6xl mx-auto px-4 py-8">
-      <div class="flex items-center justify-center gap-4">
-        <div
-          class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm"
-        >
-          <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-            />
+<div class="end-screen">
+  <div class="confetti-container" #confettiContainer></div>
+
+  <div class="card">
+    <div class="header">
+      <h1>Quiz Complete!</h1>
+      <p class="subtitle">Great effort! Here's how you did:</p>
+    </div>
+
+    <div class="score-section">
+      <div class="score-circle">
+        <svg viewBox="0 0 100 100" class="score-ring">
+          <circle cx="50" cy="50" r="45" class="score-ring-bg" />
+          <circle
+            cx="50"
+            cy="50"
+            r="45"
+            class="score-ring-progress"
+            [style.stroke-dashoffset]="scoreOffset()"
+          />
+        </svg>
+        <div class="score-value">
+          <span class="score-number">{{ displayScore() }}</span>
+          <span class="score-percent">%</span>
+        </div>
+      </div>
+
+      <div class="performance-message" [class]="performanceClass()">
+        {{ performanceMessage() }}
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card correct">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
         </div>
-        <div class="text-center">
-          <h1 class="text-4xl md:text-5xl font-bold text-white tracking-tight">Leaderboard</h1>
-          <p class="text-blue-100 text-lg mt-2">Top Players Rankings</p>
+        <div class="stat-content">
+          <span class="stat-value">{{ correctAnswers() }}</span>
+          <span class="stat-label">Correct</span>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Main Content -->
-  <div class="max-w-6xl mx-auto px-4 py-8">
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-      <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-amber-500/20 rounded-lg flex items-center justify-center">
-            <svg class="w-6 h-6 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M5 2a1 1 0 011 1v1h1a1 1 0 010 2H6v1a1 1 0 01-2 0V6H3a1 1 0 010-2h1V3a1 1 0 011-1zm0 10a1 1 0 011 1v1h1a1 1 0 110 2H6v1a1 1 0 11-2 0v-1H3a1 1 0 110-2h1v-1a1 1 0 011-1zM12 2a1 1 0 01.967.744L14.146 7.2 17.5 9.134a1 1 0 010 1.732l-3.354 1.934-1.18 4.456a1 1 0 01-1.933 0L9.854 12.8 6.5 10.866a1 1 0 010-1.732l3.354-1.934 1.18-4.456A1 1 0 0112 2z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </div>
-          <div>
-            <p class="text-slate-400 text-sm">Total Players</p>
-            <p class="text-2xl font-bold text-white">{{ stats().totalPlayers }}</p>
-          </div>
+      <div class="stat-card incorrect">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ incorrectAnswers() }}</span>
+          <span class="stat-label">Incorrect</span>
         </div>
       </div>
-      <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-            <svg class="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.334v6a1.5 1.5 0 003 0v-4.668A1.5 1.5 0 006 10.334zM12.5 8.5a1.5 1.5 0 00-1.5 1.5v6.5a1.5 1.5 0 003 0V10a1.5 1.5 0 00-1.5-1.5zM17.5 6a1.5 1.5 0 00-1.5 1.5v9a1.5 1.5 0 003 0v-9A1.5 1.5 0 0017.5 6z"
-              />
-            </svg>
-          </div>
-          <div>
-            <p class="text-slate-400 text-sm">Highest Score</p>
-            <p class="text-2xl font-bold text-white">{{ stats().highestScore | number }}</p>
-          </div>
+
+      <div class="stat-card time">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ formatTime(timeTaken()) }}</span>
+          <span class="stat-label">Time Taken</span>
         </div>
       </div>
-      <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center">
-            <svg class="w-6 h-6 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-              />
-            </svg>
-          </div>
-          <div>
-            <p class="text-slate-400 text-sm">Total Games Played</p>
-            <p class="text-2xl font-bold text-white">{{ stats().totalGames | number }}</p>
-          </div>
+
+      <div class="stat-card accuracy">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-value">{{ questionsAnswered() }}</span>
+          <span class="stat-label">Questions</span>
         </div>
       </div>
     </div>
 
-    <!-- Leaderboard Table -->
-    <div
-      class="bg-slate-800/50 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden shadow-2xl"
-    >
-      @if (loading()) {
-        <div class="p-6">
-          <div class="space-y-4">
-            @for (i of [1, 2, 3, 4, 5]; track i) {
-              <div class="flex items-center gap-4">
-                <p-skeleton width="4rem" height="2rem"></p-skeleton>
-                <p-skeleton width="3rem" height="3rem" shape="circle"></p-skeleton>
-                <div class="flex-1">
-                  <p-skeleton width="10rem" height="1.5rem"></p-skeleton>
-                  <p-skeleton width="5rem" height="1rem" styleClass="mt-2"></p-skeleton>
-                </div>
-                <p-skeleton width="6rem" height="2rem"></p-skeleton>
-              </div>
-            }
-          </div>
-        </div>
-      } @else {
-        <p-table
-          [value]="leaderboardData()"
-          styleClass="w-full"
-          [tableStyle]="{ 'min-width': '60rem' }"
-          [paginator]="true"
-          [rows]="10"
-          [rowsPerPageOptions]="[5, 10, 20]"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} players"
-          paginatorStyleClass="bg-slate-800 border-t border-slate-700"
-        >
-          <ng-template pTemplate="header">
-            <tr class="bg-slate-900/50">
-              <th
-                pSortableColumn="rank"
-                class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider w-20"
-              >
-                <div class="flex items-center gap-2">
-                  Rank
-                  <p-sortIcon field="rank"></p-sortIcon>
-                </div>
-              </th>
-              <th
-                pSortableColumn="username"
-                class="px-6 py-4 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider"
-              >
-                <div class="flex items-center gap-2">
-                  Player
-                  <p-sortIcon field="username"></p-sortIcon>
-                </div>
-              </th>
-              <th
-                pSortableColumn="score"
-                class="px-6 py-4 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider"
-              >
-                <div class="flex items-center justify-end gap-2">
-                  Score
-                  <p-sortIcon field="score"></p-sortIcon>
-                </div>
-              </th>
-              <th
-                pSortableColumn="games_played"
-                class="px-6 py-4 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider"
-              >
-                <div class="flex items-center justify-center gap-2">
-                  Games
-                  <p-sortIcon field="games_played"></p-sortIcon>
-                </div>
-              </th>
-              <th
-                pSortableColumn="wins"
-                class="px-6 py-4 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider"
-              >
-                <div class="flex items-center justify-center gap-2">
-                  Wins
-                  <p-sortIcon field="wins"></p-sortIcon>
-                </div>
-              </th>
-              <th
-                pSortableColumn="win_rate"
-                class="px-6 py-4 text-center text-xs font-semibold text-slate-400 uppercase tracking-wider"
-              >
-                <div class="flex items-center justify-center gap-2">
-                  Win Rate
-                  <p-sortIcon field="win_rate"></p-sortIcon>
-                </div>
-              </th>
-            </tr>
-          </ng-template>
+    <div class="actions">
+      <button class="btn btn-primary" (click)="restartQuiz()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        Try Again
+      </button>
 
-          <ng-template pTemplate="body" let-row>
-            <tr [ngClass]="getRowClass(row.rank)">
-              <td class="px-6 py-4">
-                <div class="flex items-center justify-center">
-                  @if (row.rank === 1) {
-                    <div
-                      class="w-10 h-10 bg-gradient-to-br from-amber-400 to-amber-600 rounded-full flex items-center justify-center shadow-lg"
-                    >
-                      <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                        />
-                      </svg>
-                    </div>
-                  } @else if (row.rank === 2) {
-                    <div
-                      class="w-10 h-10 bg-gradient-to-br from-slate-300 to-slate-500 rounded-full flex items-center justify-center shadow-lg"
-                    >
-                      <span class="text-white font-bold text-lg">2</span>
-                    </div>
-                  } @else if (row.rank === 3) {
-                    <div
-                      class="w-10 h-10 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center shadow-lg"
-                    >
-                      <span class="text-white font-bold text-lg">3</span>
-                    </div>
-                  } @else {
-                    <div
-                      class="w-10 h-10 bg-slate-700/50 rounded-full flex items-center justify-center"
-                    >
-                      <span class="text-slate-300 font-medium">#{{ row.rank }}</span>
-                    </div>
-                  }
-                </div>
-              </td>
-              <td class="px-6 py-4">
-                <div class="flex items-center gap-3">
-                  <div class="relative">
-                    <img
-                      [src]="
-                        row.avatar_url ||
-                        'https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=150'
-                      "
-                      [alt]="row.username"
-                      class="w-12 h-12 rounded-full object-cover border-2 border-slate-600"
-                    />
-                    @if (row.rank <= 3) {
-                      <div
-                        class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-slate-800"
-                        [ngClass]="{
-                          'bg-amber-400': row.rank === 1,
-                          'bg-slate-400': row.rank === 2,
-                          'bg-orange-500': row.rank === 3,
-                        }"
-                      ></div>
-                    }
-                  </div>
-                  <div>
-                    <p class="text-white font-semibold">{{ row.username }}</p>
-                    <p class="text-slate-400 text-sm">ID: {{ row.id.slice(0, 8) }}</p>
-                  </div>
-                </div>
-              </td>
-              <td class="px-6 py-4 text-right">
-                <span
-                  class="text-2xl font-bold"
-                  [ngClass]="{
-                    'text-amber-400': row.rank === 1,
-                    'text-slate-300': row.rank === 2,
-                    'text-orange-400': row.rank === 3,
-                    'text-white': row.rank > 3,
-                  }"
-                >
-                  {{ row.score | number }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-500/20 text-blue-300"
-                >
-                  {{ row.games_played }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <span
-                  class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-emerald-500/20 text-emerald-300"
-                >
-                  {{ row.wins }}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-center">
-                <div class="flex flex-col items-center gap-1">
-                  <div class="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
-                    <div
-                      class="h-full rounded-full transition-all duration-500"
-                      [ngStyle]="{ 'width.%': row.win_rate }"
-                      [ngClass]="{
-                        'bg-emerald-500': row.win_rate >= 70,
-                        'bg-blue-500': row.win_rate >= 50 && row.win_rate < 70,
-                        'bg-amber-500': row.win_rate >= 30 && row.win_rate < 50,
-                        'bg-red-500': row.win_rate < 30,
-                      }"
-                    ></div>
-                  </div>
-                  <span
-                    class="text-xs font-medium"
-                    [ngClass]="{
-                      'text-emerald-400': row.win_rate >= 70,
-                      'text-blue-400': row.win_rate >= 50 && row.win_rate < 70,
-                      'text-amber-400': row.win_rate >= 30 && row.win_rate < 50,
-                      'text-red-400': row.win_rate < 30,
-                    }"
-                  >
-                    {{ row.win_rate.toFixed(1) }}%
-                  </span>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
+      <button class="btn btn-secondary" (click)="shareResults()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="18" cy="5" r="3"></circle>
+          <circle cx="6" cy="12" r="3"></circle>
+          <circle cx="18" cy="19" r="3"></circle>
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        </svg>
+        Share Results
+      </button>
 
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="6" class="px-6 py-12 text-center">
-                <div class="flex flex-col items-center gap-3">
-                  <svg
-                    class="w-16 h-16 text-slate-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <p class="text-slate-400 text-lg">No players found</p>
-                </div>
-              </td>
-            </tr>
-          </ng-template>
-
-          <ng-template pTemplate="summary">
-            <div class="bg-slate-900/50 px-6 py-4 border-t border-slate-700">
-              <div class="flex items-center justify-between">
-                <p class="text-slate-400 text-sm">
-                  Last updated: {{ lastUpdated() | date: 'medium' }}
-                </p>
-                <button
-                  (click)="refreshData()"
-                  class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                    />
-                  </svg>
-                  Refresh
-                </button>
-              </div>
-            </div>
-          </ng-template>
-        </p-table>
-      }
+      <button class="btn btn-outline" (click)="reviewAnswers()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        Review Answers
+      </button>
     </div>
-  </div>
-
-  <!-- Footer -->
-  <div class="max-w-6xl mx-auto px-4 py-8 mt-8 border-t border-slate-700/50">
-    <p class="text-center text-slate-500 text-sm">
-      Data updates in real-time. Rankings are calculated based on total score.
-    </p>
   </div>
 </div>
