@@ -1,4 +1,4 @@
-interface LeaderboardRow {
+export interface LeaderboardRow {
   rank: number;
   id: string;
   username: string;
