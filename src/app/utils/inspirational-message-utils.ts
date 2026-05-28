@@ -9,6 +9,8 @@ export const getCorrectRandomInspirationalMessage = () => {
     `Congratulations on achieving basic competence. We are all very proud of you doing your job.`,
     `Oh, look at that. You did the job you were actually supposed to do. Someone notify the media.`,
     `Excellent work — you nailed it! Do you want a medal, or can we finally move on with our lives?`,
+    'Congrats! You passed. Please do not list this on your LinkedIn resume.',
+    'Your reward? The exact same amount of free time, but slightly more regret.',
   ];
   return inspirationMessages[Math.floor(Math.random() * inspirationMessages.length)];
 };
