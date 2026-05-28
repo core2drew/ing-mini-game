@@ -1,14 +1,6 @@
 <div class="screen wrong-bg">
   <!-- Background radial burst -->
-  <div class="burst-overlay" aria-hidden="true">
-    @for (s of sparks; track $index) {
-      <span
-        class="spark"
-        [style.transform]="'rotate(' + s.angle + 'deg) translateX(90px)'"
-        [style.animation-delay.s]="s.delay"
-      ></span>
-    }
-  </div>
+  <div class="burst-overlay" aria-hidden="true"></div>
 
   <div class="result-card" [class.visible]="showContent()" [class.shake]="shakeActive()">
     <!-- X icon -->

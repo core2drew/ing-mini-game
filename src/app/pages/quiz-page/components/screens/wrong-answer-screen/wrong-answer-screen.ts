@@ -13,10 +13,6 @@ import { getWrongRandomInspirationalMessage } from '@utils/inspirational-message
 export class WrongAnswerScreen {
   private router = inject(Router);
 
-  sparks = Array.from({ length: 14 }, (_, i) => ({
-    angle: (360 / 14) * i,
-    delay: (i * 0.05).toFixed(2),
-  }));
   showContent = signal(true);
   shakeActive = signal(true);
 
