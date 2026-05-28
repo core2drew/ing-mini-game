@@ -1,5 +1,4 @@
-import { Component, inject } from '@angular/core';
-import { AdminService } from '@services/admin/admin.service';
+import { Component } from '@angular/core';
 
 import { ButtonModule } from 'primeng/button';
 
