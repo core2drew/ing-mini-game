@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { filter, Observable, take } from 'rxjs';
+import { filter, iif, Observable, of, switchMap, take } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
 
 @Injectable({
@@ -45,7 +45,10 @@ export class RoomService {
     return roomData['isStarted'];
   }
 
-  waitUntilGameEnds(roomId: string): Observable<boolean> {
+  waitUntilGameEnds(
+    roomId: string,
+    options: { once?: boolean } = { once: true },
+  ): Observable<boolean> {
     const roomDocRef = doc(this.fireStore, 'rooms', roomId);
 
     return new Observable<boolean>((observer) => {
@@ -70,14 +73,20 @@ export class RoomService {
         unsubscribe();
       };
     }).pipe(
-      // 1. Only let the stream pass if it hits our target condition
-      filter((isEnded) => isEnded === true),
-      // 2. Shut down the pipeline only AFTER the true value escapes
-      take(1),
+      switchMap((isStarted) =>
+        iif(
+          () => !!options.once,
+          of(isStarted).pipe(take(1)), // If once is true, take 1 and complete
+          of(isStarted), // If once is false, keep passing values through
+        ),
+      ),
     );
   }
 
-  waitUntilGameStarts(roomId: string): Observable<boolean> {
+  waitUntilGameStarts(
+    roomId: string,
+    options: { once?: boolean } = { once: true },
+  ): Observable<boolean> {
     const roomDocRef = doc(this.fireStore, 'rooms', roomId);
 
     return new Observable<boolean>((observer) => {
@@ -102,10 +111,13 @@ export class RoomService {
         unsubscribe();
       };
     }).pipe(
-      // 1. Only let the stream pass if it hits our target condition
-      filter((isStarted) => isStarted === true),
-      // 2. Shut down the pipeline only AFTER the true value escapes
-      take(1),
+      switchMap((isStarted) =>
+        iif(
+          () => !!options.once,
+          of(isStarted).pipe(take(1)), // If once is true, take 1 and complete
+          of(isStarted), // If once is false, keep passing values through
+        ),
+      ),
     );
   }
 

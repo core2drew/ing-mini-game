@@ -13,6 +13,8 @@
       [currentQuestion]="currentQuestion()"
       [questionTimer]="questionTimer()"
       (nextQuestion)="nextQuestion()"
+      [isGameStarted]="isGameStarted()"
+      [isGameEnded]="isGameEnded()"
     ></app-question-view>
     <app-player-list [players]="playersWithUIData()"></app-player-list>
   </div>

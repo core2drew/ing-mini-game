@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, effect, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
@@ -26,6 +26,8 @@ export class QuestionView {
   currentQuestion = input<Question>();
   questionTimer = input<number>();
   questionLength = input<number>();
+  isGameStarted = input<boolean>();
+  isGameEnded = input<boolean>();
 
   get questionNumber() {
     return this.currentQuestion()?.questionNumber || 1;

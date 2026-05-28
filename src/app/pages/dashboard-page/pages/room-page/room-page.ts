@@ -13,6 +13,7 @@ import { getAvatarColorByName, getPlayerStatusLabel } from '@utils/player-utils'
 import { Leaderboard } from './components/leaderboard/leaderboard';
 import { getTopLeaderboardPlayers } from '@utils/leaderboard.utils';
 import { from } from 'rxjs';
+import { RoomService } from '@services/room/room.service';
 
 @Component({
   selector: 'app-room-page',
@@ -24,6 +25,7 @@ export class RoomPage {
   private adminService = inject(AdminService);
   private route = inject(ActivatedRoute);
   private gameService = inject(GameService);
+  private roomService = inject(RoomService);
 
   private roomId: string | null = null;
   private questionService = inject(QuestionService);
@@ -32,6 +34,8 @@ export class RoomPage {
   currentQuestion: Signal<Question | undefined> = signal(undefined);
   players: Signal<Player[] | undefined> = signal([]);
   questionLength: Signal<number | undefined> = signal(0);
+  isGameStarted: Signal<boolean | undefined> = signal(false);
+  isGameEnded: Signal<boolean | undefined> = signal(false);
 
   playersWithUIData = computed(() => {
     const currentPlayers = this.players() ?? [];
@@ -51,6 +55,16 @@ export class RoomPage {
     this.questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.roomId!));
     this.players = toSignal(this.gameService.getPlayersInRoom(this.roomId!));
     this.questionLength = toSignal(from(this.questionService.getQuestionsLength(this.roomId!)));
+    this.isGameStarted = toSignal(
+      this.roomService.waitUntilGameStarts(this.roomId!, {
+        once: false,
+      }),
+    );
+    this.isGameEnded = toSignal(
+      this.roomService.waitUntilGameEnds(this.roomId!, {
+        once: false,
+      }),
+    );
   }
 
   startQuiz() {
