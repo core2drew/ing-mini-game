@@ -1,7 +1,15 @@
 <main class="grid grid-cols-[1fr_450px] my-5 max-w-300 m-auto gap-4">
   <div class="flex flex-col gap-4">
+    <div>
+      <p-button label="Start Quiz" (click)="startQuiz()"></p-button>
+
+      <p-button severity="warn" (click)="restartQuiz()" label="Restart Quiz"></p-button>
+
+      <p-button severity="danger" (click)="endQuiz()" label="End Quiz"></p-button>
+    </div>
     <app-question-view
       class="w-full"
+      [questionLength]="questionLength()"
       [currentQuestion]="currentQuestion()"
       [questionTimer]="questionTimer()"
       (nextQuestion)="nextQuestion()"
