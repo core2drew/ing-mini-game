@@ -11,5 +11,5 @@ import { Component, input, Input } from '@angular/core';
 export class QuizProgress {
   @Input() progress: number = 0;
   @Input() currentQuestionNumber: number = 1;
-  @Input() questionLength: number = 1;
+  questionLength = input<number | undefined>(0);
 }

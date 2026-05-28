@@ -74,19 +74,16 @@ export class QuestionService {
   }
 
   async getQuestionsLength(roomId: string): Promise<number> {
-    // 1. Guard against empty or invalid room IDs
     if (!roomId) return 0;
 
     try {
       const questionsCollection = collection(this.fireStore, `rooms/${roomId}/questions`);
       const snapshot = await getCountFromServer(questionsCollection);
 
-      // 2. Direct access to .count is cleaner and fully typed
-      console.log(snapshot.data().count);
       return snapshot.data().count;
     } catch (error) {
       console.error(`Failed to fetch question count for room ${roomId}:`, error);
-      // 3. Fallback to 0 or rethrow depending on your global error strategy
+
       return 0;
     }
   }
