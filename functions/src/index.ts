@@ -285,31 +285,39 @@ export const updatePlayerScore = onCall(async (request) => {
   try {
     const { roomId, playerName } = request.data;
 
+    // 1. Defend the Gate: Validate incoming input types
+    if (!roomId || !playerName) {
+      throw new HttpsError('invalid-argument', 'Missing required parameters.');
+    }
+
     const firestore = getFirestore();
     const roomRef = firestore.collection('rooms').doc(roomId);
+    const playerRef = roomRef.collection('players').doc(playerName);
+
     // Use a transaction to prevent race conditions
     await firestore.runTransaction(async (transaction) => {
-      const roomDoc = await transaction.get(roomRef);
+      // Execute reads concurrently to optimize transaction speed
+      const [roomDoc, playerDoc] = await Promise.all([
+        transaction.get(roomRef),
+        transaction.get(playerRef),
+      ]);
 
       if (!roomDoc.exists) {
-        throw new Error('Room not found');
+        throw new HttpsError('not-found', 'Room not found.');
       }
+
+      if (!playerDoc.exists) {
+        throw new HttpsError('not-found', 'Player not found.');
+      }
+
       const roomData = roomDoc.data()!;
       const session = roomData.quizSession || {};
 
-      // If currentQuestionIndex is null/undefined, start at 0. Otherwise increment.
       const currentQuestionIndex =
-        session.currentQuestionIndex !== undefined ? session.currentQuestionIndex + 1 : 0;
-
-      const playerRef = roomRef.collection('players').doc(playerName);
-      const playerDoc = await transaction.get(playerRef);
+        session.currentQuestionIndex !== undefined ? session.currentQuestionIndex : 0;
 
       const questionRef = roomRef.collection('questions').doc(currentQuestionIndex.toString());
       const questionDoc = await transaction.get(questionRef);
-
-      if (!playerDoc.exists) {
-        throw new Error('Player not found');
-      }
 
       if (!questionDoc.exists) {
         throw new Error('Question not found');
@@ -322,16 +330,14 @@ export const updatePlayerScore = onCall(async (request) => {
       const currentQuestionScore = questionData?.score;
 
       transaction.update(playerRef, {
-        status,
         score: currentScore + currentQuestionScore,
       });
-
-      return { success: true };
     });
+    return { success: true };
   } catch (error) {
     if (error instanceof HttpsError) {
       throw error; // Re-throw known HttpsErrors
     }
-    throw new HttpsError('internal', 'Error advancing to next question');
+    throw new HttpsError('internal', 'Error updating player scrore');
   }
 });

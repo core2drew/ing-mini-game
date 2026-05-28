@@ -42,6 +42,10 @@
 
     <h1 class="result-title">Correct!</h1>
     <p class="result-subtitle">{{ inspirationMessage() }}</p>
+    <div class="score-box">
+      <span class="score-label">Points earned</span>
+      <span class="score-value">+{{ score }}</span>
+    </div>
 
     <div class="action-row">
       <app-idle-text-dot [text]="'Next question coming up'"></app-idle-text-dot>

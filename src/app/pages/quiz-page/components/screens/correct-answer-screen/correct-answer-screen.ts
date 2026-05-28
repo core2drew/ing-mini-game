@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, Input, signal } from '@angular/core';
 import { IdleTextDot } from '../../../../../components/idle-text-dot/idle-text-dot';
 
 @Component({
@@ -8,6 +8,8 @@ import { IdleTextDot } from '../../../../../components/idle-text-dot/idle-text-d
   styleUrl: './correct-answer-screen.css',
 })
 export class CorrectAnswerScreen {
+  @Input() score: number = 0;
+
   confetti = signal<{ x: number; delay: number; color: string; size: number; dur: number }[]>([]);
   showContent = signal(false);
 

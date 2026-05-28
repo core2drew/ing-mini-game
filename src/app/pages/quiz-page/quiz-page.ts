@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, Signal, signal } from '@angular/core';
+import { Component, effect, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject, of, Subscription, switchMap } from 'rxjs';
 import { sessionStore } from '@stores/session.store';
@@ -34,12 +34,11 @@ export class QuizPage {
   secondsLeft = 0;
   questionTimer: Signal<number | undefined> = signal(0);
   activeQuestion: Signal<Question | undefined> = signal(undefined);
-  correctAnswer: Signal<string> = signal('');
 
   finished$ = new BehaviorSubject(false);
 
-  // 1. Create a local variable to cache the last valid answer text
-  lastValidCorrectAnswer = '';
+  lastQuestionCorrectAnswer: string | undefined;
+  lastQuestionScore: number = 0;
 
   wrongScreenActive = signal(false);
   correctScreenActive = signal(false);
@@ -64,19 +63,6 @@ export class QuizPage {
 
     this.questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.currentRoomId!));
 
-    this.correctAnswer = computed(() => {
-      const question = this.activeQuestion();
-
-      // If the question disappears, return our private class cache!
-      if (!question || !question.options || question.correctIndex === undefined) {
-        return this.lastValidCorrectAnswer;
-      }
-
-      // Save the newly found answer into our cache for next time
-      this.lastValidCorrectAnswer = question.options[question.correctIndex];
-      return this.lastValidCorrectAnswer;
-    });
-
     this.gameEndSub = this.roomService.waitUntilGameEnds(this.currentRoomId).subscribe({
       next: (isEnded) => {
         if (isEnded) {
@@ -89,9 +75,10 @@ export class QuizPage {
 
     effect(async () => {
       const question = this.activeQuestion();
-      this.correctAnswer();
 
       if (!question) return;
+      this.lastQuestionCorrectAnswer = question?.options[question?.correctIndex];
+      this.lastQuestionScore = question.score;
 
       // 1. A new question has landed! Clear the previous screen UI states immediately
       this.correctScreenActive.set(false);

@@ -94,4 +94,23 @@ export class GameService {
       targetStatus,
     });
   }
+
+  // Create a reusable caller instance
+  private updateScoreCall = httpsCallable<{ roomId: string; playerName: string }, any>(
+    this.functions,
+    'updatePlayerScore',
+  );
+
+  async updatePlayerScore() {
+    // Read directly from the Elf signals synchronously
+    const roomId = this.sessionService.roomId();
+    const playerName = this.sessionService.playerName();
+
+    if (!roomId || !playerName) throw new Error('No active game session found.');
+
+    return this.updateScoreCall({
+      roomId,
+      playerName,
+    });
+  }
 }

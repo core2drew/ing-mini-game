@@ -54,6 +54,7 @@ export class QuestionScreen {
     if (answerIndex === questionIndex) {
       this.correctAnswer.set(true);
       this.gameService.setPlayerStatus(PlayerStatus.WAITING);
+      this.gameService.updatePlayerScore();
     } else {
       this.wrongAnswer.set(true);
       this.gameService.setPlayerStatus(PlayerStatus.OFFLINE);
