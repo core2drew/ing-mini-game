@@ -1,8 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { ActivatedRoute } from '@angular/router';
 import { LeaderboardRow } from '@models/quiz/leaderboard.model';
+import { GameService } from '@services/quiz/game.service';
+import { getAvatarColorByName, getPlayerStatusLabel } from '@utils/player-utils';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TableModule } from 'primeng/table';
+import { map, switchMap, tap } from 'rxjs';
 
 @Component({
   selector: 'app-leaderboard-page',
@@ -11,6 +16,9 @@ import { TableModule } from 'primeng/table';
   styleUrl: './leaderboard-page.css',
 })
 export class LeaderboardPage {
+  private gameService = inject(GameService);
+  private route = inject(ActivatedRoute);
+
   loading = signal(true);
   leaderboardData = signal<LeaderboardRow[]>([]);
   lastUpdated = signal(new Date());
@@ -21,23 +29,50 @@ export class LeaderboardPage {
     totalGames: 0,
   });
 
-  async ngOnInit() {
-    await this.loadLeaderboard();
-  }
+  players = toSignal(
+    this.route.paramMap.pipe(
+      map((params) => params.get('roomId')),
+      tap(() => this.loading.set(true)),
 
-  async loadLeaderboard() {
-    this.loading.set(true);
-    try {
-    } catch (error) {
-      console.error('Error loading leaderboard:', error);
-    } finally {
-      this.loading.set(false);
-    }
-  }
+      switchMap((roomId) => this.gameService.getPlayersInRoom(roomId!)),
+      map((players) =>
+        players.map((player) => ({
+          ...player,
+          avatarColor: getAvatarColorByName(player.name),
+          statusText: getPlayerStatusLabel(player.status!),
+        })),
+      ),
+      tap({
+        next: () => this.loading.set(false),
+        error: () => this.loading.set(false),
+      }),
+    ),
+    { initialValue: [] },
+  );
 
-  async refreshData() {
-    await this.loadLeaderboard();
-  }
+  leaderboardPlayers = computed(() => {
+    const activePool = [...this.players()];
+    const sortedPool = activePool.sort((playerA, playerB) => {
+      // Axis 1: Score
+      if (playerB.score !== playerA.score) {
+        return playerB.score - playerA.score;
+      }
+
+      // Axis 2: Timestamp Speed
+      const timeA = playerA.lastScoreUpdateTime?.toMillis() ?? null;
+      const timeB = playerB.lastScoreUpdateTime?.toMillis() ?? null;
+
+      if (timeA !== null || timeB !== null) {
+        if (timeA === null) return 1;
+        if (timeB === null) return -1;
+        if (timeA !== timeB) return timeA - timeB;
+      }
+
+      return playerA.name.localeCompare(playerB.name);
+    });
+
+    return sortedPool.splice(0, 10);
+  });
 
   getRowClass(rank: number): string {
     if (rank === 1) {
