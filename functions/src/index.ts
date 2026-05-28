@@ -271,7 +271,7 @@ export const updatePlayerStatus = onCall(async (request) => {
       transaction.update(playerRef, {
         status: targetStatus,
         // Pro-tip: Automatically log timestamps if the status shifts to ANSWERED
-        ...(targetStatus === PlayerStatus.ANSWERED && { lastScoreUpdateTime: Date.now() }),
+        ...(targetStatus === PlayerStatus.ANSWERED && { lastScoreUpdateTime: Timestamp.now() }),
       });
     });
 
