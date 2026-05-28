@@ -1,10 +1,7 @@
-export interface LeaderboardRow {
-  rank: number;
-  id: string;
-  username: string;
+export interface LeaderboardPlayer {
+  name: string;
   score: number;
-  avatar_url: string | null;
-  games_played: number;
-  wins: number;
-  win_rate: number;
+  lastScoreUpdateTime?: {
+    toMillis(): number;
+  } | null;
 }
