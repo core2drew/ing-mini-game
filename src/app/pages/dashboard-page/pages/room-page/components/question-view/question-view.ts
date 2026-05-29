@@ -28,6 +28,7 @@ export class QuestionView {
   questionLength = input<number>();
   isGameStarted = input<boolean>();
   isGameEnded = input<boolean>();
+  isProcessing = input<boolean>();
 
   get questionNumber() {
     return this.currentQuestion()?.questionNumber || 1;

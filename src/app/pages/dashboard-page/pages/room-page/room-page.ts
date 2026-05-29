@@ -12,7 +12,7 @@ import { Player, PlayerStatus } from '@models/quiz/player.model';
 import { getAvatarColorByName, getPlayerStatusLabel } from '@utils/player-utils';
 import { Leaderboard } from './components/leaderboard/leaderboard';
 import { getTopLeaderboardPlayers } from '@utils/leaderboard.utils';
-import { from } from 'rxjs';
+import { from, Subject, takeUntil } from 'rxjs';
 import { RoomService } from '@services/room/room.service';
 
 @Component({
@@ -36,6 +36,8 @@ export class RoomPage {
   questionLength: Signal<number | undefined> = signal(0);
   isGameStarted: Signal<boolean | undefined> = signal(false);
   isGameEnded: Signal<boolean | undefined> = signal(false);
+  isProcessing = signal(false);
+  private destroy$ = new Subject<void>();
 
   playersWithUIData = computed(() => {
     const currentPlayers = this.players() ?? [];
@@ -102,6 +104,28 @@ export class RoomPage {
   }
 
   nextQuestion() {
-    this.adminService.nextQuestion(this.roomId!);
+    if (this.isProcessing()) return;
+
+    this.isProcessing.set(true);
+
+    this.adminService
+      .nextQuestion(this.roomId!)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          console.log('Successfully moved to next question:', result.data);
+          this.isProcessing.set(false);
+        },
+        error: (error) => {
+          console.error('Failed to advance quiz:', error);
+          this.isProcessing.set(false);
+          // Handle error UI notification here (e.g., Toast notification)
+        },
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
