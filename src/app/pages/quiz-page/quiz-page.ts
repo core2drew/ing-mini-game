@@ -1,6 +1,6 @@
 import { Component, effect, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { of, Subscription, switchMap } from 'rxjs';
+import { combineLatest, from, of, Subscription, switchMap } from 'rxjs';
 import { sessionStore } from '@stores/session.store';
 import { Router } from '@angular/router';
 import { RoomService } from '@services/room/room.service';
@@ -37,6 +37,11 @@ export class QuizPage {
   questionTimer: Signal<number | undefined> = signal(0);
   activeQuestion: Signal<Question | undefined> = signal(undefined);
   quizCompleted: Signal<boolean | undefined> = signal(undefined);
+
+  readonly questionLength = toSignal(
+    from(this.questionService.getQuestionsLength(this.sessionService.roomId()!)),
+  );
+
   lastQuestionCorrectAnswer: string | undefined;
   lastQuestionScore: number = 0;
 
@@ -51,12 +56,20 @@ export class QuizPage {
       return;
     }
     this.activeQuestion = toSignal(
-      toObservable(this.wrongScreenActive).pipe(
-        switchMap((isScreenLocked) => {
-          if (isScreenLocked) {
-            // Tear down the active snapshot connection and emit a null state holder
+      combineLatest([
+        toObservable(this.wrongScreenActive),
+        toObservable(this.endScreenActive),
+      ]).pipe(
+        switchMap(([isWrongActive, isEndScreenActive]) => {
+          const isAnyScreenLocked = isWrongActive || isEndScreenActive;
+
+          if (isAnyScreenLocked) {
+            console.log('🔒 Screen is locked by an overlay. Pausing active question sync.');
+            // Tear down the active snapshot connection and emit an undefined state holder
             return of(undefined);
           }
+
+          // No screens are blocking, safely watch the live question feed
           return this.questionService.watchActiveQuestion(this.currentRoomId!);
         }),
       ),
@@ -88,7 +101,7 @@ export class QuizPage {
         this.correctScreenActive.set(false);
 
         // 2. Set the player status to THINKING on the backend via your Cloud Function
-        if (this.sessionService.playerName()) {
+        if (this.sessionService.playerName() && !quizCompleted) {
           try {
             await this.gameService.setPlayerStatus(PlayerStatus.THINKING);
           } catch (error) {
@@ -100,6 +113,27 @@ export class QuizPage {
         this.endScreenActive.set(true);
       }
     });
+  }
+
+  handleWrongAnswer() {
+    this.gameService.setPlayerStatus(PlayerStatus.OFFLINE);
+    this.gameService.updatePlayerScore();
+    this.wrongScreenActive.set(true);
+    this.correctScreenActive.set(false);
+  }
+
+  handleCorrectAnswer() {
+    this.gameService.setPlayerStatus(PlayerStatus.WAITING);
+    this.gameService.updatePlayerScore();
+    // 2. Extract current values from your signals
+    const totalQuestions = this.questionLength();
+    const currentQuestionNumber = this.activeQuestion()?.questionNumber;
+
+    if (totalQuestions !== currentQuestionNumber) {
+      this.correctScreenActive.set(true);
+    }
+
+    this.wrongScreenActive.set(false);
   }
 
   ngOnDestroy(): void {

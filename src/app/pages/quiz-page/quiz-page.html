@@ -3,9 +3,10 @@
     <app-question-screen
       class="w-full"
       [activeQuestion]="activeQuestion()"
+      [questionLength]="questionLength()"
       [timer]="questionTimer()"
-      [(wrongAnswer)]="wrongScreenActive"
-      [(correctAnswer)]="correctScreenActive"
+      (wrongAnswer)="handleWrongAnswer()"
+      (correctAnswer)="handleCorrectAnswer()"
     ></app-question-screen>
   }
 

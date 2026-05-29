@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, model, signal, Signal } from '@angular/core';
+import { Component, computed, inject, input, output, signal, Signal } from '@angular/core';
 import { QuizTimer } from '../../quiz-timer/quiz-timer';
 import { QuizProgress } from '../../quiz-progress/quiz-progress';
 
@@ -10,10 +10,6 @@ import { QuestionOptionButton } from '../../../../../components/question-option-
 import { QuestionText } from '../../question-text/question-text';
 import { GameService } from '@services/quiz/game.service';
 import { PlayerStatus } from '@models/quiz/player.model';
-import { SessionService } from '@services/session/session.service';
-import { QuestionService } from '@services/quiz/question.service';
-import { toSignal } from '@angular/core/rxjs-interop';
-
 @Component({
   selector: 'app-question-screen',
   imports: [QuizTimer, QuizProgress, QuestionText, QuestionOptionButton, CommonModule],
@@ -23,15 +19,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class QuestionScreen {
   private gameService = inject(GameService);
-  private questionService = inject(QuestionService);
-  private sessionService = inject(SessionService);
 
   revealed$ = new BehaviorSubject(false);
-  currentQuestionIndex$ = new BehaviorSubject(0);
   activeQuestion = input<Question | undefined>(undefined);
   timer = input<number | undefined>(0);
-  correctAnswer = model<boolean>();
-  wrongAnswer = model<boolean>();
+  questionLength = input<number | undefined>(0);
+  wrongAnswer = output<void>();
+  correctAnswer = output<void>();
 
   readonly selected = signal<number | null>(null);
 
@@ -40,10 +34,6 @@ export class QuestionScreen {
     if (selectedIndex === null) return false;
     return selectedIndex === this.activeQuestion()?.correctIndex;
   });
-
-  readonly questionLength = toSignal(
-    from(this.questionService.getQuestionsLength(this.sessionService.roomId()!)),
-  );
 
   get isRevealed(): boolean {
     return this.revealed$.value;
@@ -59,13 +49,9 @@ export class QuestionScreen {
 
   checkAnswer(questionIndex: number, answerIndex: number) {
     if (answerIndex === questionIndex) {
-      this.correctAnswer.set(true);
-      this.gameService.setPlayerStatus(PlayerStatus.WAITING);
-      this.gameService.updatePlayerScore();
+      this.correctAnswer.emit();
     } else {
-      this.wrongAnswer.set(true);
-      this.gameService.setPlayerStatus(PlayerStatus.OFFLINE);
-      this.sessionService.clearSession();
+      this.wrongAnswer.emit();
     }
   }
 
