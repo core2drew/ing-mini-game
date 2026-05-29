@@ -171,8 +171,6 @@ export const endQuiz = onCall(async (request) => {
   await roomRef.update({
     isEnded: true,
     isStarted: false,
-    'quizSession.currentQuestionIndex': 0,
-    'quizSession.questionTimerExpiresAt': null,
     'quizSession.isEnded': true,
   });
 
