@@ -286,6 +286,44 @@ export const disconnectThinkingPlayers = onCall(async (request) => {
   }
 });
 
+export const transitionWaitingToThinking = onCall(async (request) => {
+  try {
+    const { roomId } = request.data;
+    if (!roomId) {
+      throw new HttpsError('invalid-argument', 'Room ID is required.');
+    }
+
+    const firestore = getFirestore();
+    const playersRef = firestore.collection('rooms').doc(roomId).collection('players');
+
+    // Fetch all players who are currently waiting (Status = WAITING)
+    const snapshot = await playersRef.where('status', '==', PlayerStatus.WAITING).get();
+
+    if (snapshot.empty) {
+      return { success: true, message: 'No waiting players found.' };
+    }
+
+    // Initialize a WriteBatch for high-speed concurrent updates
+    const batch = firestore.batch();
+
+    snapshot.forEach((doc) => {
+      batch.update(doc.ref, { status: PlayerStatus.THINKING });
+    });
+
+    // Commit all state updates atomically in a single network request
+    await batch.commit();
+
+    return {
+      success: true,
+      activatedCount: snapshot.size,
+    };
+  } catch (error) {
+    console.error('Error transitioning waiting players:', error);
+    if (error instanceof HttpsError) throw error;
+    throw new HttpsError('internal', 'Failed to update player statuses.');
+  }
+});
+
 export const updatePlayerStatus = onCall(async (request) => {
   const { roomId, playerName, targetStatus } = request.data as UpdateStatusPayload;
 
@@ -298,39 +336,45 @@ export const updatePlayerStatus = onCall(async (request) => {
   if (!Object.values(PlayerStatus).includes(targetStatus)) {
     throw new HttpsError('invalid-argument', 'Invalid player status provided.');
   }
-
+  const cleanName = playerName.trim().toLowerCase();
+  const firestore = getFirestore();
   const roomRef = firestore.collection('rooms').doc(roomId);
-  const playerRef = roomRef.collection('players').doc(playerName);
+  const playerRef = roomRef.collection('players').doc(cleanName);
 
   try {
-    await firestore.runTransaction(async (transaction) => {
-      // Execute reads concurrently to optimize transaction speed
-      const [roomDoc, playerDoc] = await Promise.all([
-        transaction.get(roomRef),
-        transaction.get(playerRef),
-      ]);
+    // 3. Document Verification (Reads are done outside of batches)
+    const [roomDoc, playerDoc] = await Promise.all([roomRef.get(), playerRef.get()]);
 
-      if (!roomDoc.exists) {
-        throw new HttpsError('not-found', 'Room not found.');
-      }
+    if (!roomDoc.exists) {
+      throw new HttpsError('not-found', 'Room not found.');
+    }
 
-      if (!playerDoc.exists) {
-        throw new HttpsError('not-found', 'Player not found.');
-      }
+    if (!playerDoc.exists) {
+      throw new HttpsError('not-found', 'Player not found.');
+    }
 
-      // Write the clean, dynamic state change
-      transaction.update(playerRef, {
-        status: targetStatus,
-        // Pro-tip: Automatically log timestamps if the status shifts to ANSWERED
-        ...(targetStatus === PlayerStatus.ANSWERED && { lastScoreUpdateTime: Timestamp.now() }),
-      });
-    });
+    // 4. Initialize and execute the Batch
+    const batch = firestore.batch();
+
+    const updatePayload: Record<string, any> = {
+      status: targetStatus,
+    };
+
+    // Automatically log timestamps if the status shifts to ANSWERED
+    if (targetStatus === PlayerStatus.ANSWERED) {
+      updatePayload.lastScoreUpdateTime = Timestamp.now();
+    }
+
+    batch.update(playerRef, updatePayload);
+
+    // Commit all operations atomically
+    await batch.commit();
 
     return { success: true };
   } catch (error: any) {
-    // Senior Move: Wrap raw errors cleanly so client components don't crash
     if (error instanceof HttpsError) throw error;
-    throw new HttpsError('internal', error.message || 'Transaction failed.');
+    console.error('Error updating player status:', error);
+    throw new HttpsError('internal', error.message || 'Batch update failed.');
   }
 });
 
@@ -345,7 +389,8 @@ export const updatePlayerScore = onCall(async (request) => {
 
     const firestore = getFirestore();
     const roomRef = firestore.collection('rooms').doc(roomId);
-    const playerRef = roomRef.collection('players').doc(playerName);
+    const cleanName = playerName.trim().toLowerCase();
+    const playerRef = roomRef.collection('players').doc(cleanName);
 
     // Use a transaction to prevent race conditions
     await firestore.runTransaction(async (transaction) => {

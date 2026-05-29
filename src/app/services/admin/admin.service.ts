@@ -52,12 +52,23 @@ export class AdminService {
       'disconnectThinkingPlayers',
     );
     const nextQuestionFn = httpsCallable<{ roomId: string }, any>(this.functions, 'nextQuestion');
+    const transitionPlayersFn = httpsCallable<{ roomId: string }, any>(
+      this.functions,
+      'transitionWaitingToThinking',
+    );
 
-    // Convert the Promises returned by httpsCallable into RxJS Observables
+    // Step 1: Clean up idle players (Thinking -> Offline)
     return from(disconnectPlayersFn({ roomId })).pipe(
       concatMap((disconnectResult) => {
         console.log('Player cleanup complete:', disconnectResult.data);
-        // Execute the second function only after the first one completes successfully
+
+        // Step 2: Push waiting players into active state (Waiting -> Thinking)
+        return from(transitionPlayersFn({ roomId }));
+      }),
+      concatMap((transitionResult) => {
+        console.log('Players transitioned to thinking:', transitionResult.data);
+
+        // Step 3: Securely advance the room state to the next question
         return from(nextQuestionFn({ roomId }));
       }),
     );
