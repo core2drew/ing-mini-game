@@ -102,6 +102,6 @@ export class RoomPage {
   }
 
   nextQuestion() {
-    this.adminService.nextQuestion(this.roomId);
+    this.adminService.nextQuestion(this.roomId!);
   }
 }

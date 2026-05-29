@@ -233,6 +233,43 @@ export const nextQuestion = onCall(async (request) => {
   }
 });
 
+export const disconnectThinkingPlayers = onCall(async (request) => {
+  try {
+    const { roomId } = request.data;
+    if (!roomId) {
+      throw new HttpsError('invalid-argument', 'Room ID is required.');
+    }
+
+    const firestore = getFirestore();
+    const playersRef = firestore.collection('rooms').doc(roomId).collection('players');
+
+    // Fetch players who didn't submit an answer in time (Status = 2)
+    const snapshot = await playersRef.where('status', '==', PlayerStatus.THINKING).get();
+
+    if (snapshot.empty) {
+      return { success: true, message: 'No idle players found.' };
+    }
+
+    // Initialize a WriteBatch for high-speed concurrent updates
+    const batch = firestore.batch();
+
+    snapshot.forEach((doc) => {
+      batch.update(doc.ref, { status: PlayerStatus.OFFLINE });
+    });
+
+    // Commit all changes simultaneously
+    await batch.commit();
+
+    return {
+      success: true,
+      disconnectedCount: snapshot.size,
+    };
+  } catch (error) {
+    console.error('Error disconnecting idle players:', error);
+    throw new HttpsError('internal', 'Failed to update player statuses.');
+  }
+});
+
 export const updatePlayerStatus = onCall(async (request) => {
   const { roomId, playerName, targetStatus } = request.data as UpdateStatusPayload;
 

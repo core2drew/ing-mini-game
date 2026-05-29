@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { Functions, httpsCallable } from '@angular/fire/functions';
+import { concatMap, from, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -45,19 +46,20 @@ export class AdminService {
     return await endSessionFn({ roomId });
   }
 
-  async nextQuestion(roomId: string | null): Promise<any> {
-    if (!roomId) {
-      throw new Error('roomId is required');
-    }
-    try {
-      const nextQuestionFn = httpsCallable<{ roomId: string }, { success: boolean }>(
-        this.functions,
-        'nextQuestion',
-      );
-      return await nextQuestionFn({ roomId });
-    } catch (error) {
-      console.error('Error in nextQuestion:', error);
-      throw error;
-    }
+  nextQuestion(roomId: string): Observable<any> {
+    const disconnectPlayersFn = httpsCallable<{ roomId: string }, any>(
+      this.functions,
+      'disconnectThinkingPlayers',
+    );
+    const nextQuestionFn = httpsCallable<{ roomId: string }, any>(this.functions, 'nextQuestion');
+
+    // Convert the Promises returned by httpsCallable into RxJS Observables
+    return from(disconnectPlayersFn({ roomId })).pipe(
+      concatMap((disconnectResult) => {
+        console.log('Player cleanup complete:', disconnectResult.data);
+        // Execute the second function only after the first one completes successfully
+        return from(nextQuestionFn({ roomId }));
+      }),
+    );
   }
 }
