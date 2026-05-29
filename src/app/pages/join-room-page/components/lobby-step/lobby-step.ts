@@ -47,7 +47,6 @@ export class LobbyStep {
       next: (isStarted) => {
         if (isStarted) {
           console.log('Game has started! Redirecting to arena...');
-          this.gameService.setPlayerStatus(PlayerStatus.THINKING);
           this.router.navigate(['/quiz-blitz']);
         }
       },
