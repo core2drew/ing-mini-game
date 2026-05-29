@@ -65,6 +65,7 @@ export class QuestionScreen {
   }
 
   onSelectOption(idx: number): void {
+    if (this.selected() !== null) return;
     this.selected.set(idx);
     this.gameService.setPlayerStatus(PlayerStatus.ANSWERED);
   }
