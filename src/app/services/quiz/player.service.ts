@@ -13,6 +13,7 @@ import { from, map, Observable, switchMap, take, throwError } from 'rxjs';
 import { query, Firestore } from '@angular/fire/firestore';
 import { Player, PlayerStatus } from '@models/quiz/player.model';
 import { sessionStore } from '../../stores/session.store';
+import { getDoc } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root',
@@ -70,21 +71,28 @@ export class PlayerService {
     );
   }
 
-  getPlayer(id: string): Observable<Player | undefined> {
-    return new Observable((observer) => {
-      const collRef = collection(this.fireStore, 'players');
+  /**
+   * Fetches a single player's status from a specific room's subcollection.
+   */
+  async getPlayer(roomId: string, playerId: string): Promise<Player | undefined> {
+    // 1. Guard against missing IDs
+    if (!roomId || !playerId) return undefined;
 
-      const unsubscribe = onSnapshot(collRef, (snapshot: QuerySnapshot) => {
-        const doc = snapshot.docs.find((d) => d.id === id);
-        if (doc) {
-          observer.next(this.mapDocToPlayer(doc.data(), doc.id));
-        } else {
-          observer.next(undefined);
-        }
-      });
+    try {
+      // 2. Direct pathing to the subcollection document: rooms/{roomId}/players/{playerId}
+      const playerDocRef = doc(this.fireStore, 'rooms', roomId, 'players', playerId);
+      const docSnap = await getDoc(playerDocRef);
 
-      return () => unsubscribe();
-    });
+      // 3. Resolve if the player document exists
+      if (docSnap.exists()) {
+        return this.mapDocToPlayer(docSnap.data(), docSnap.id);
+      }
+
+      return undefined;
+    } catch (error) {
+      console.error(`Error fetching player ${playerId} status in room ${roomId}:`, error);
+      return undefined;
+    }
   }
 
   subscribeToPlayers(): Observable<Player[]> {
@@ -126,6 +134,7 @@ export class PlayerService {
       id,
       name: data.name,
       score: data.score,
+      status: data.status,
     };
   }
 }
