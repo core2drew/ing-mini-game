@@ -128,14 +128,30 @@ export const startQuiz = onCall(async (request) => {
   const { roomId } = request.data;
   const firestore = getFirestore();
   const roomRef = firestore.collection('rooms').doc(roomId);
-  const durationInSeconds = 20;
+  const playersRef = roomRef.collection('players'); // As
 
-  await roomRef.update({
+  // 1. Fetch all players currently in the room
+  const playersSnapshot = await playersRef.get();
+
+  // 2. Initialize a Firestore Write Batch
+  const batch = firestore.batch();
+
+  // 3. Queue up the Room updates
+  const durationInSeconds = 20;
+  batch.update(roomRef, {
     isEnded: false,
     isStarted: true,
     'quizSession.currentQuestionIndex': 0,
     'quizSession.questionTimerExpiresAt': getFirestoreTimeoutTimestamp(durationInSeconds),
   });
+
+  // 4. Queue up status updates for every player found in the room
+  playersSnapshot.forEach((playerDoc) => {
+    batch.update(playerDoc.ref, { status: PlayerStatus.THINKING });
+  });
+
+  // 5. Commit the batch atomically
+  await batch.commit();
 
   // Kick off the automated background loop for index 0
   // await scheduleNextQuestionTask(roomId, firstExpiry);
