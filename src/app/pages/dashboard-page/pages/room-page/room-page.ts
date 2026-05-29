@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, Signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, Signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { AdminService } from '@services/admin/admin.service';
 import { ButtonModule } from 'primeng/button';
@@ -54,7 +54,9 @@ export class RoomPage {
     this.currentQuestion = toSignal(this.questionService.watchActiveQuestion(this.roomId!));
     this.questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.roomId!));
     this.players = toSignal(this.gameService.getPlayersInRoom(this.roomId!));
-    this.questionLength = toSignal(from(this.questionService.getQuestionsLength(this.roomId!)));
+    this.questionLength = toSignal(from(this.questionService.getQuestionsLength(this.roomId!)), {
+      initialValue: 0,
+    });
     this.isGameStarted = toSignal(
       this.roomService.waitUntilGameStarts(this.roomId!, {
         once: false,
@@ -65,6 +67,26 @@ export class RoomPage {
         once: false,
       }),
     );
+
+    effect(() => {
+      const timer = this.questionTimer();
+      const currentQuestionNumber = this.currentQuestion()?.questionNumber;
+      const questionLength = this.questionLength();
+
+      if (timer === undefined || currentQuestionNumber === undefined) {
+        return;
+      }
+
+      // 3. Evaluate your business rules
+      const isTimeUp = timer === 0;
+      const isLastQuestion = currentQuestionNumber === questionLength;
+
+      if (isTimeUp && isLastQuestion) {
+        // Untrack side-effects if you want to ensure the effect doesn't get stuck
+        // calling this multiple times rapidly if other signals keep changing.
+        this.adminService.endQuizSession(this.roomId!);
+      }
+    });
   }
 
   startQuiz() {
