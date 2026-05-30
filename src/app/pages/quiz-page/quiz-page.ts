@@ -116,6 +116,10 @@ export class QuizPage {
       }
 
       if (player && player.status === PlayerStatus.CORRECT) {
+        if (this.questionLength() === question?.questionNumber) {
+          this.endScreenActive.set(true);
+          return;
+        }
         this.correctScreenActive.set(true);
         return;
       }
