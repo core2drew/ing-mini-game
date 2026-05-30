@@ -56,7 +56,6 @@ export class LobbyStep {
     this.gameEndSub = this.roomService.waitUntilGameEnds(roomId).subscribe({
       next: (isEnded) => {
         if (isEnded) {
-          this.gameService.setPlayerStatus(PlayerStatus.OFFLINE);
           this.sessionService.leaveRoom();
           console.log('Game has ended! Redirecting to home...');
           location.reload();
