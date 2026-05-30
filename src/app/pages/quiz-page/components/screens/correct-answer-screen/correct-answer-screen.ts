@@ -9,7 +9,7 @@ import { getCorrectRandomInspirationalMessage } from '@utils/inspirational-messa
   styleUrl: './correct-answer-screen.css',
 })
 export class CorrectAnswerScreen {
-  @Input() score: number = 0;
+  @Input() points: number = 0;
 
   confetti = signal<{ x: number; delay: number; color: string; size: number; dur: number }[]>([]);
   showContent = signal(false);
