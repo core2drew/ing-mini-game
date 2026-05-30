@@ -5,8 +5,10 @@
       [questionLength]="questionLength()"
       [progress]="progressPercent"
     ></app-quiz-progress>
-    <app-quiz-timer [timeLeft]="timer() ?? 0" (onZeroReached)="timerRanOut()"></app-quiz-timer>
 
+    @if (timer() !== undefined) {
+      <app-quiz-timer [timeLeft]="timer()!" (onZeroReached)="timerRanOut()"></app-quiz-timer>
+    }
     <app-question-text [question]="activeQuestion()?.text"></app-question-text>
     <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-3 mb-6">
       @for (option of activeQuestion()?.options; track $index; let i = $index) {

@@ -2,14 +2,13 @@ import { Component, computed, inject, input, output, signal, Signal } from '@ang
 import { QuizTimer } from '../../quiz-timer/quiz-timer';
 import { QuizProgress } from '../../quiz-progress/quiz-progress';
 
-import { BehaviorSubject, from } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Question } from '@models/quiz/question.model';
 
 import { CommonModule } from '@angular/common';
 import { QuestionOptionButton } from '../../../../../components/question-option-button/question-option-button';
 import { QuestionText } from '../../question-text/question-text';
 import { GameService } from '@services/quiz/game.service';
-import { PlayerStatus } from '@models/quiz/player.model';
 @Component({
   selector: 'app-question-screen',
   imports: [QuizTimer, QuizProgress, QuestionText, QuestionOptionButton, CommonModule],
@@ -21,8 +20,8 @@ export class QuestionScreen {
   private gameService = inject(GameService);
 
   revealed$ = new BehaviorSubject(false);
-  activeQuestion = input<Question | undefined>(undefined);
-  timer = input<number | undefined>(0);
+  activeQuestion = input<Question | null | undefined>(undefined);
+  timer = input<number | undefined>(undefined);
   questionLength = input<number | undefined>(0);
   wrongAnswer = output<void>();
   correctAnswer = output<void>();
@@ -56,6 +55,9 @@ export class QuestionScreen {
   }
 
   timerRanOut() {
+    // 2. Extra safety guard: If the timer hasn't loaded yet, ignore the trigger
+    if (this.timer() === undefined) return;
+
     if (this.activeQuestion()) {
       this.revealed$.next(true);
       setTimeout(() => {
@@ -67,6 +69,6 @@ export class QuestionScreen {
   onSelectOption(idx: number): void {
     if (this.selected() !== null) return;
     this.selected.set(idx);
-    this.gameService.setPlayerStatus(PlayerStatus.ANSWERED);
+    this.gameService.submitAnswer(idx);
   }
 }
