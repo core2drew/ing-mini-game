@@ -75,42 +75,23 @@ export class GameService {
     );
   }
 
-  // Create a reusable caller instance
-  private updateStatusCall = httpsCallable<
-    { roomId: string; playerName: string; targetStatus: PlayerStatus },
+  // Submit answer
+  private submitAnswerCall = httpsCallable<
+    { roomId: string; playerName: string; chosenAnswer: number },
     any
-  >(this.functions, 'updatePlayerStatus');
+  >(this.functions, 'submitAnswer');
 
-  async setPlayerStatus(targetStatus: PlayerStatus) {
+  async submitAnswer(chosenAnswer: number) {
     // Read directly from the Elf signals synchronously
     const roomId = this.sessionService.roomId();
     const playerName = this.sessionService.playerName();
 
     if (!roomId || !playerName) throw new Error('No active game session found.');
 
-    return this.updateStatusCall({
+    return this.submitAnswerCall({
       roomId,
       playerName,
-      targetStatus,
-    });
-  }
-
-  // Create a reusable caller instance
-  private updateScoreCall = httpsCallable<{ roomId: string; playerName: string }, any>(
-    this.functions,
-    'updatePlayerScore',
-  );
-
-  async updatePlayerScore() {
-    // Read directly from the Elf signals synchronously
-    const roomId = this.sessionService.roomId();
-    const playerName = this.sessionService.playerName();
-
-    if (!roomId || !playerName) throw new Error('No active game session found.');
-
-    return this.updateScoreCall({
-      roomId,
-      playerName,
+      chosenAnswer,
     });
   }
 }
