@@ -23,7 +23,7 @@ import { CommonModule } from '@angular/common';
 export class QuestionView {
   nextQuestion = output<void>();
 
-  currentQuestion = input<Question>();
+  currentQuestion = input<Question | null>();
   questionTimer = input<number>();
   questionLength = input<number>();
   isGameStarted = input<boolean>();

@@ -8,8 +8,8 @@ import { Question } from '@models/quiz/question.model';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { GameService } from '@services/quiz/game.service';
 import { PlayerList } from './components/player-list/player-list';
-import { Player, PlayerStatus } from '@models/quiz/player.model';
-import { getAvatarColorByName, getPlayerStatusLabel } from '@utils/player-utils';
+import { Player } from '@models/quiz/player.model';
+import { getPlayerStatusLabel } from '@utils/player-utils';
 import { Leaderboard } from './components/leaderboard/leaderboard';
 import { getTopLeaderboardPlayers } from '@utils/leaderboard.utils';
 import { from, Subject, takeUntil } from 'rxjs';
@@ -31,7 +31,7 @@ export class RoomPage {
   private questionService = inject(QuestionService);
 
   questionTimer: Signal<number | undefined> = signal(0);
-  currentQuestion: Signal<Question | undefined> = signal(undefined);
+  currentQuestion: Signal<Question | null | undefined> = signal(null);
   players: Signal<Player[] | undefined> = signal([]);
   questionLength: Signal<number | undefined> = signal(0);
   isGameStarted: Signal<boolean | undefined> = signal(false);
