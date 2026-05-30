@@ -7,6 +7,7 @@ import { Player, PlayerStatus } from '@models/quiz/player.model';
 import { httpsCallable } from 'firebase/functions';
 import { Functions } from '@angular/fire/functions';
 import { SessionService } from '@services/session/session.service';
+import { QuizSessionStatus, QuizSessionStatusLabel } from '@models/quiz/quiz-session.model';
 
 @Injectable({
   providedIn: 'root',
@@ -73,6 +74,35 @@ export class GameService {
         );
       }),
     );
+  }
+
+  watchQuizSessionStatus(roomId: string): Observable<QuizSessionStatus> {
+    const roomDocRef = doc(this.fireStore, 'rooms', roomId);
+
+    const gameStream$ = new Observable<QuizSessionStatus>((observer) => {
+      console.log(`📡 Opening real-time listener for Quiz session status: ${roomId}`);
+
+      const unsubscribe = onSnapshot(
+        roomDocRef,
+        (snapshot) => {
+          const data = snapshot.data();
+
+          if (data) {
+            const status = data['quizSession']['status'] as QuizSessionStatus;
+            console.log(`🔄 Quiz session status: ${QuizSessionStatusLabel[status]}`);
+            observer.next(status);
+          }
+        },
+        (error) => observer.error(error),
+      );
+
+      return () => {
+        console.log(`🔌 Closing listener for Quiz session status: ${roomId}`);
+        unsubscribe();
+      };
+    });
+
+    return gameStream$;
   }
 
   // Submit answer
