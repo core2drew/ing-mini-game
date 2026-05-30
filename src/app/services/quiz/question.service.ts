@@ -10,11 +10,11 @@ import { Observable } from 'rxjs';
 export class QuestionService {
   private fireStore = inject(Firestore);
 
-  watchActiveQuestion(roomId: string): Observable<Question> {
+  watchActiveQuestion(roomId: string): Observable<Question | null> {
     if (!roomId) {
       throw new Error('roomId is required');
     }
-    return new Observable<Question>((subscriber) => {
+    return new Observable<Question | null>((subscriber) => {
       const roomRef = doc(this.fireStore, `rooms/${roomId}`);
       let unsubscribeQuestion: (() => void) | null = null;
       let lastQuestionIndex: number | null | undefined = undefined;
@@ -37,6 +37,10 @@ export class QuestionService {
             if (unsubscribeQuestion) {
               unsubscribeQuestion();
             }
+
+            // 2. WIPE STALE DATA IMMEDIATELY
+            // This ensures activeQuestion() becomes null while waiting for the network
+            subscriber.next(null);
 
             const questionRef = doc(
               this.fireStore,
