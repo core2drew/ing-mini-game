@@ -46,6 +46,17 @@ export class AdminService {
     return await endSessionFn({ roomId });
   }
 
+  async purgePlayers(roomId: string | null): Promise<any> {
+    if (!roomId) {
+      throw new Error('roomId is required');
+    }
+    const purgePlayerFn = httpsCallable<{ roomId: string }, { success: boolean }>(
+      this.functions,
+      'purgePlayer',
+    );
+    return await purgePlayerFn({ roomId });
+  }
+
   nextQuestion(roomId: string): Observable<any> {
     const purgeIdlePlayers = httpsCallable<{ roomId: string }, any>(
       this.functions,
