@@ -47,9 +47,9 @@ export class AdminService {
   }
 
   nextQuestion(roomId: string): Observable<any> {
-    const disconnectPlayersFn = httpsCallable<{ roomId: string }, any>(
+    const purgeIdlePlayers = httpsCallable<{ roomId: string }, any>(
       this.functions,
-      'disconnectThinkingPlayers',
+      'purgeIdlePlayers',
     );
     const nextQuestionFn = httpsCallable<{ roomId: string }, any>(this.functions, 'nextQuestion');
     const transitionPlayersFn = httpsCallable<{ roomId: string }, any>(
@@ -58,7 +58,7 @@ export class AdminService {
     );
 
     // Step 1: Clean up idle players (Thinking -> Offline)
-    return from(disconnectPlayersFn({ roomId })).pipe(
+    return from(purgeIdlePlayers({ roomId })).pipe(
       concatMap((disconnectResult) => {
         console.log('Player cleanup complete:', disconnectResult.data);
 
