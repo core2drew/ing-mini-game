@@ -1,19 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 
-import {
-  collection,
-  orderBy,
-  updateDoc,
-  doc,
-  onSnapshot,
-  QuerySnapshot,
-  runTransaction,
-} from '@angular/fire/firestore';
-import { from, map, Observable, switchMap, take, throwError } from 'rxjs';
-import { query, Firestore } from '@angular/fire/firestore';
+import { updateDoc, doc, runTransaction, docData } from '@angular/fire/firestore';
+import { from, map, Observable, of, switchMap, take, throwError } from 'rxjs';
+import { Firestore } from '@angular/fire/firestore';
 import { Player, PlayerStatus } from '@models/quiz/player.model';
 import { sessionStore } from '../../stores/session.store';
-import { getDoc } from 'firebase/firestore';
 
 @Injectable({
   providedIn: 'root',
@@ -74,67 +65,14 @@ export class PlayerService {
   /**
    * Fetches a single player's status from a specific room's subcollection.
    */
-  async getPlayer(roomId: string, playerId: string): Promise<Player | undefined> {
+  getPlayer(roomId: string, playerName: string): Observable<Player | undefined> {
     // 1. Guard against missing IDs
-    if (!roomId || !playerId) return undefined;
+    if (!roomId || !playerName) return of(undefined);
 
-    try {
-      // 2. Direct pathing to the subcollection document: rooms/{roomId}/players/{playerId}
-      const playerDocRef = doc(this.fireStore, 'rooms', roomId, 'players', playerId);
-      const docSnap = await getDoc(playerDocRef);
-
-      // 3. Resolve if the player document exists
-      if (docSnap.exists()) {
-        return this.mapDocToPlayer(docSnap.data(), docSnap.id);
-      }
-
-      return undefined;
-    } catch (error) {
-      console.error(`Error fetching player ${playerId} status in room ${roomId}:`, error);
-      return undefined;
-    }
-  }
-
-  subscribeToPlayers(): Observable<Player[]> {
-    const q = query(
-      collection(this.fireStore, 'players'),
-      orderBy('score', 'desc'),
-      orderBy('joined_at', 'asc'),
-    );
-
-    return new Observable((observer) => {
-      const unsubscribe = onSnapshot(q, (snapshot: QuerySnapshot) => {
-        const players = snapshot.docs.map((doc) => this.mapDocToPlayer(doc.data(), doc.id));
-        observer.next(players);
-      });
-
-      return () => unsubscribe();
-    });
-  }
-
-  updatePlayerScore(playerId: string, score: number, answers: number[]): Observable<void> {
-    return new Observable((observer) => {
-      const playerRef = doc(this.fireStore, 'players', playerId);
-
-      updateDoc(playerRef, {
-        score,
-        answers,
-        completed_at: new Date(),
-      })
-        .then(() => {
-          observer.next();
-          observer.complete();
-        })
-        .catch((err: any) => observer.error(err));
-    });
-  }
-
-  private mapDocToPlayer(data: any, id: string): Player {
-    return {
-      id,
-      name: data.name,
-      score: data.score,
-      status: data.status,
-    };
+    // 2. Direct pathing to the subcollection document: rooms/{roomId}/players/{playerId}
+    const cleanName = playerName.trim().toLowerCase();
+    const playerDocRef = doc(this.fireStore, 'rooms', roomId, 'players', cleanName);
+    // docData keeps the connection alive and emits whenever the doc changes
+    return docData(playerDocRef) as Observable<Player>;
   }
 }
