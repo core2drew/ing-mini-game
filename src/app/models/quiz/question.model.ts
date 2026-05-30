@@ -3,5 +3,5 @@ export interface Question {
   options: string[];
   correctIndex: number;
   questionNumber?: number;
-  score: number;
+  points: number;
 }
