@@ -7,6 +7,7 @@ import { setGlobalOptions } from 'firebase-functions/options';
 import { PlayerStatus, UpdateStatusPayload } from './models/player.model';
 import { google } from '@google-cloud/tasks/build/protos';
 import { ScheduleRoomTimeoutPayload } from './models/schedule-room-timeout.model';
+import { QuizSessionStatus } from './models/room.model';
 
 initializeApp();
 setGlobalOptions({ region: 'asia-east2' });
@@ -172,16 +173,15 @@ export const startQuiz = onCall(async (request) => {
   // 3. Queue up the Room updates
   const questionTimerExpiresAt = getFirestoreTimeoutTimestamp(QUIZ_TIMER_DURATION);
 
-  batch.update(roomRef, {
-    isEnded: false,
-    isStarted: true,
-    'quizSession.currentQuestionIndex': 0,
-    'quizSession.questionTimerExpiresAt': questionTimerExpiresAt,
-  });
-
   // 4. Queue up status updates for every player found in the room
   playersSnapshot.forEach((playerDoc) => {
     batch.update(playerDoc.ref, { status: PlayerStatus.THINKING });
+  });
+
+  batch.update(roomRef, {
+    'quizSession.status': QuizSessionStatus.STARTED,
+    'quizSession.currentQuestionIndex': 0,
+    'quizSession.questionTimerExpiresAt': questionTimerExpiresAt,
   });
 
   // 5. Commit the batch atomically
@@ -201,18 +201,26 @@ export const restartQuiz = onCall(async (request) => {
   const { roomId } = request.data;
   const firestore = getFirestore();
   const roomRef = firestore.collection('rooms').doc(roomId);
-  const playerRef = roomRef.collection('players');
+  const playersRef = roomRef.collection('players');
 
-  await roomRef.update({
-    isEnded: false,
-    isStarted: false,
-    'quizSession.currentQuestionIndex': 0,
-    'quizSession.questionTimerExpiresAt': null,
-    'quizSession.isEnded': false,
+  // 1. Fetch all players currently in the room
+  const playersSnapshot = await playersRef.get();
+
+  // Initialize a WriteBatch for high-speed concurrent updates
+  const batch = firestore.batch();
+
+  playersSnapshot.forEach((doc) => {
+    batch.update(doc.ref, { score: 0, status: PlayerStatus.WAITING });
   });
 
-  // Delete all player collection
-  await firestore.recursiveDelete(playerRef);
+  batch.update(roomRef, {
+    'quizSession.currentQuestionIndex': 0,
+    'quizSession.questionTimerExpiresAt': null,
+    'quizSession.status': QuizSessionStatus.WAITING,
+  });
+
+  // Commit all changes simultaneously
+  await batch.commit();
 
   return { success: true };
 });
@@ -223,12 +231,21 @@ export const endQuiz = onCall(async (request) => {
   const roomRef = firestore.collection('rooms').doc(roomId);
 
   await roomRef.update({
-    isEnded: true,
-    isStarted: false,
-    'quizSession.isEnded': true,
+    'quizSession.currentQuestionIndex': 0,
+    'quizSession.questionTimerExpiresAt': null,
+    'quizSession.status': QuizSessionStatus.ENDED,
   });
 
   return { success: true };
+});
+
+export const purgePlayers = onCall(async (request) => {
+  const { roomId } = request.data;
+  const firestore = getFirestore();
+  const roomRef = firestore.collection('rooms').doc(roomId);
+  const playerRef = roomRef.collection('players');
+  // Delete all player collection
+  await firestore.recursiveDelete(playerRef);
 });
 
 export const nextQuestion = onCall(async (request) => {
