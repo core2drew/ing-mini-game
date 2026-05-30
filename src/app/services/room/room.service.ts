@@ -89,7 +89,7 @@ export class RoomService {
   ): Observable<boolean> {
     const roomDocRef = doc(this.fireStore, 'rooms', roomId);
 
-    return new Observable<boolean>((observer) => {
+    const gameStream$ = new Observable<boolean>((observer) => {
       console.log(`📡 Opening real-time listener for Game to start: ${roomId}`);
 
       const unsubscribe = onSnapshot(
@@ -97,8 +97,9 @@ export class RoomService {
         (snapshot) => {
           const data = snapshot.data();
           const isStarted = data ? !!data['isStarted'] : false;
+
           if (isStarted) {
-            console.log(`🔄 Game started`);
+            console.log(`🔄 Game started event received`);
           }
 
           observer.next(isStarted);
@@ -110,15 +111,17 @@ export class RoomService {
         console.log(`🔌 Closing listener for Game to start: ${roomId}`);
         unsubscribe();
       };
-    }).pipe(
-      switchMap((isStarted) =>
-        iif(
-          () => !!options.once,
-          of(isStarted).pipe(take(1)), // If once is true, take 1 and complete
-          of(isStarted), // If once is false, keep passing values through
-        ),
-      ),
-    );
+    });
+
+    // Handle the conditional "once" logic elegantly using RxJS operators
+    if (options.once) {
+      return gameStream$.pipe(
+        filter((isStarted) => isStarted === true), // 👈 Ignore 'false'. Only let 'true' pass.
+        take(1), // 👈 Complete the stream as soon as 'true' happens.
+      );
+    }
+
+    return gameStream$;
   }
 
   waitUntilQuizEndedResults(roomId: string): Observable<boolean> {
