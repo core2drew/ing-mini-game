@@ -20,11 +20,27 @@
 }
 
 .player-status.answered {
-  background-color: var(--color-green-100);
+  background-color: var(--color-cyan-100);
 }
 
 .player-status.answered p-chip {
+  background: var(--color-cyan-500) !important;
+}
+
+.player-status.correct {
+  background-color: var(--color-green-100);
+}
+
+.player-status.correct p-chip {
   background: var(--color-green-500) !important;
+}
+
+.player-status.wrong {
+  background-color: var(--color-red-100);
+}
+
+.player-status.wrong p-chip {
+  background: var(--color-red-500) !important;
 }
 
 .player-status.offline {
@@ -32,7 +48,7 @@
 }
 
 .player-status.offline p-chip {
-  background: var(--color-red-500) !important;
+  background: var(--color-red-900) !important;
 }
 
 .player-status.unknown {

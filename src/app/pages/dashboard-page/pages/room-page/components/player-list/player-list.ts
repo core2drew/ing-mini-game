@@ -24,6 +24,8 @@ export class PlayerList {
       waiting: 0,
       thinking: 0,
       answered: 0,
+      correct: 0,
+      wrong: 0,
       offline: 0,
       total: currentPlayers.length,
     };
@@ -39,6 +41,12 @@ export class PlayerList {
           break;
         case PlayerStatus.ANSWERED:
           counts.answered++;
+          break;
+        case PlayerStatus.CORRECT:
+          counts.correct++;
+          break;
+        case PlayerStatus.WRONG:
+          counts.wrong++;
           break;
         case PlayerStatus.OFFLINE:
           counts.offline++;

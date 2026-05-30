@@ -7,11 +7,19 @@ p-chip.thinking {
 }
 
 p-chip.answered {
+  background: var(--text-cyan-500) !important;
+}
+
+p-chip.correct {
   background: var(--color-green-600) !important;
 }
 
+p-chip.wrong {
+  background: var(--color-red-600) !important;
+}
+
 p-chip.offline {
-  background: var(--color-red-500) !important;
+  background: var(--color-red-900) !important;
 }
 
 p-chip.unknown {
@@ -35,11 +43,19 @@ p-chip.thinking.text-only {
 }
 
 p-chip.answered.text-only {
+  color: var(--text-cyan-500);
+}
+
+p-chip.correct.text-only {
   color: var(--color-green-600);
 }
 
+p-chip.wrong.text-only {
+  color: var(--color-red-600);
+}
+
 p-chip.offline.text-only {
-  color: var(--color-red-500);
+  color: var(--color-red-900);
 }
 
 p-chip.unknown.text-only {
