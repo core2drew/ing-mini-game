@@ -4,14 +4,18 @@ export enum PlayerStatus {
   WAITING = 1,
   THINKING = 2,
   ANSWERED = 3,
-  OFFLINE = 4,
+  CORRECT = 4,
+  WRONG = 5,
+  OFFLINE = 6,
 }
 
 export const PlayerStatusLabel: Record<PlayerStatus, string> = {
-  [PlayerStatus.WAITING]: 'Waiting',
-  [PlayerStatus.THINKING]: 'Thinking',
-  [PlayerStatus.ANSWERED]: 'Answered',
-  [PlayerStatus.OFFLINE]: 'Offline',
+  [PlayerStatus.WAITING]: 'Waiting', // Lobby
+  [PlayerStatus.THINKING]: 'Thinking', // Quiz
+  [PlayerStatus.ANSWERED]: 'Answered', // Quiz
+  [PlayerStatus.CORRECT]: 'Correct', // Quiz
+  [PlayerStatus.WRONG]: 'Wrong', // Quiz
+  [PlayerStatus.OFFLINE]: 'Offline', // Admin player status
 };
 
 export interface Player {
