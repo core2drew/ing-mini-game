@@ -1,29 +1,32 @@
 <div class="min-h-screen flex items-center justify-center">
-  @if (!wrongScreenActive() && !correctScreenActive() && !endScreenActive()) {
-    <app-question-screen
-      class="w-full"
-      [activeQuestion]="activeQuestion()"
-      [questionLength]="questionLength()"
-      [timer]="questionTimer()"
-      (wrongAnswer)="handleWrongAnswer()"
-      (correctAnswer)="handleCorrectAnswer()"
-    ></app-question-screen>
-  }
+  @if (isLoading()) {
+    <div class="text-xl font-semibold animate-pulse">Loading game state...</div>
+  } @else {
+    @if (!wrongScreenActive() && !correctScreenActive() && !endScreenActive()) {
+      <app-question-screen
+        class="w-full"
+        [activeQuestion]="activeQuestion()"
+        [questionLength]="questionLength()"
+        [timer]="questionTimer()"
+      ></app-question-screen>
+    }
 
-  @if (wrongScreenActive() && !endScreenActive()) {
-    <app-wrong-answer-screen
-      class="w-full"
-      [correctAnswer]="lastQuestionCorrectAnswer"
-    ></app-wrong-answer-screen>
-  }
-  @if (correctScreenActive() && !endScreenActive()) {
-    <app-correct-answer-screen
-      class="w-full"
-      [score]="lastQuestionScore"
-    ></app-correct-answer-screen>
-  }
+    @if (wrongScreenActive() && !endScreenActive()) {
+      <app-wrong-answer-screen
+        class="w-full"
+        [correctAnswer]="lastQuestionCorrectAnswer"
+      ></app-wrong-answer-screen>
+    }
 
-  @if (endScreenActive()) {
-    <app-end-screen class="w-full"></app-end-screen>
+    @if (correctScreenActive() && !endScreenActive()) {
+      <app-correct-answer-screen
+        class="w-full"
+        [points]="lastQuestionScore()"
+      ></app-correct-answer-screen>
+    }
+
+    @if (endScreenActive()) {
+      <app-end-screen class="w-full"></app-end-screen>
+    }
   }
 </div>

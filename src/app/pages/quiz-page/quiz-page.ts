@@ -1,9 +1,8 @@
-import { Component, effect, inject, Signal, signal } from '@angular/core';
+import { Component, computed, effect, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { combineLatest, from, of, Subscription, switchMap } from 'rxjs';
 import { sessionStore } from '@stores/session.store';
 import { Router } from '@angular/router';
-import { RoomService } from '@services/room/room.service';
 import { QuestionScreen } from './components/screens/question-screen/question-screen';
 import { WrongAnswerScreen } from './components/screens/wrong-answer-screen/wrong-answer-screen';
 import { CorrectAnswerScreen } from './components/screens/correct-answer-screen/correct-answer-screen';
@@ -14,6 +13,7 @@ import { Question } from '@models/quiz/question.model';
 import { SessionService } from '@services/session/session.service';
 import { PlayerStatus } from '@models/quiz/player.model';
 import { EndScreen } from './components/screens/end-screen/end-screen';
+import { PlayerService } from '@services/quiz/player.service';
 @Component({
   selector: 'app-quiz-page',
   imports: [CommonModule, QuestionScreen, WrongAnswerScreen, CorrectAnswerScreen, EndScreen],
@@ -23,31 +23,56 @@ import { EndScreen } from './components/screens/end-screen/end-screen';
 })
 export class QuizPage {
   private router = inject(Router);
-  private roomService = inject(RoomService);
   private questionService = inject(QuestionService);
   private gameService = inject(GameService);
   private sessionService = inject(SessionService);
+  private playerService = inject(PlayerService);
 
   private gameEndSub!: Subscription;
   private quizEndSub!: Subscription;
   private currentRoomId = sessionStore.getValue().roomId;
+  private roomId = this.sessionService.roomId();
+  private playerName = this.sessionService.playerName();
 
-  playerId: string = '';
-  secondsLeft = 0;
-  questionTimer: Signal<number | undefined> = signal(0);
-  activeQuestion: Signal<Question | undefined> = signal(undefined);
+  activeQuestion: Signal<Question | undefined | null> = signal(null);
   quizCompleted: Signal<boolean | undefined> = signal(undefined);
 
-  readonly questionLength = toSignal(
-    from(this.questionService.getQuestionsLength(this.sessionService.roomId()!)),
-  );
+  readonly questionLength = toSignal(from(this.questionService.getQuestionsLength(this.roomId!)));
+  readonly player = toSignal(this.playerService.getPlayer(this.roomId!, this.playerName!));
+  readonly questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.currentRoomId!));
 
   lastQuestionCorrectAnswer: string | undefined;
-  lastQuestionScore: number = 0;
+  lastQuestionScore = signal<number>(0);
 
   wrongScreenActive = signal(false);
   correctScreenActive = signal(false);
   endScreenActive = signal(false);
+
+  // 1. Create a isolated computed property for the condition
+  isPlayerOffline = computed(() => this.player()?.status === PlayerStatus.OFFLINE);
+
+  // Add this inside your QuizPage class, right below your other signals
+  isLoading = computed(() => {
+    const player = this.player();
+    const qLength = this.questionLength();
+    const timer = this.questionTimer();
+    const question = this.activeQuestion();
+
+    // 1. Wait for initial player and quiz metadata to arrive from Firestore/Backend
+    if (player === undefined || qLength === undefined) {
+      return true;
+    }
+    // 2. If the player is actively taking the quiz, ensure the question has loaded
+    // (Prevents the question screen from flashing blank before the question data arrives)
+    if (player.status === PlayerStatus.THINKING && !question) {
+      if (!question || timer === undefined) {
+        return true;
+      }
+    }
+
+    // Data is loaded, safe to render the screens
+    return false;
+  });
 
   constructor() {
     if (!this.currentRoomId) {
@@ -59,14 +84,15 @@ export class QuizPage {
       combineLatest([
         toObservable(this.wrongScreenActive),
         toObservable(this.endScreenActive),
+        toObservable(this.isPlayerOffline),
       ]).pipe(
-        switchMap(([isWrongActive, isEndScreenActive]) => {
-          const isAnyScreenLocked = isWrongActive || isEndScreenActive;
+        switchMap(([isWrongActive, isEndScreenActive, isOffline]) => {
+          const isAnyScreenLocked = isWrongActive || isEndScreenActive || isOffline;
 
           if (isAnyScreenLocked) {
             console.log('🔒 Screen is locked by an overlay. Pausing active question sync.');
             // Tear down the active snapshot connection and emit an undefined state holder
-            return of(undefined);
+            return of(null);
           }
 
           // No screens are blocking, safely watch the live question feed
@@ -75,65 +101,30 @@ export class QuizPage {
       ),
     );
 
-    this.questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.currentRoomId!));
-
-    this.quizCompleted = toSignal(
-      toObservable(this.wrongScreenActive).pipe(
-        switchMap((isScreenLocked) => {
-          if (isScreenLocked) {
-            // Tear down the active snapshot connection and emit a null state holder
-            return of(false);
-          }
-          return this.roomService.waitUntilQuizEndedResults(this.currentRoomId!);
-        }),
-      ),
-    );
-
     effect(async () => {
       const question = this.activeQuestion();
-      const quizCompleted = this.quizCompleted();
+      const player = this.player();
 
       if (question) {
         this.lastQuestionCorrectAnswer = question?.options[question?.correctIndex];
-        this.lastQuestionScore = question.score;
-
-        // 1. A new question has landed! Clear the previous screen UI states immediately
-        this.correctScreenActive.set(false);
-
-        // 2. Set the player status to THINKING on the backend via your Cloud Function
-        if (this.sessionService.playerName() && !quizCompleted) {
-          try {
-            await this.gameService.setPlayerStatus(PlayerStatus.THINKING);
-          } catch (error) {
-            console.error('Failed to sync player status on new question:', error);
-          }
-        }
+        this.lastQuestionScore.set(question.points);
       }
-      if (quizCompleted) {
-        this.endScreenActive.set(true);
+
+      if (player && player.status === PlayerStatus.THINKING) {
+        this.correctScreenActive.set(false);
+        return;
+      }
+
+      if (player && player.status === PlayerStatus.CORRECT) {
+        this.correctScreenActive.set(true);
+        return;
+      }
+
+      if (player && player.status === PlayerStatus.WRONG) {
+        this.wrongScreenActive.set(true);
+        return;
       }
     });
-  }
-
-  handleWrongAnswer() {
-    this.gameService.setPlayerStatus(PlayerStatus.OFFLINE);
-    this.gameService.updatePlayerScore();
-    this.wrongScreenActive.set(true);
-    this.correctScreenActive.set(false);
-  }
-
-  handleCorrectAnswer() {
-    this.gameService.setPlayerStatus(PlayerStatus.WAITING);
-    this.gameService.updatePlayerScore();
-    // 2. Extract current values from your signals
-    const totalQuestions = this.questionLength();
-    const currentQuestionNumber = this.activeQuestion()?.questionNumber;
-
-    if (totalQuestions !== currentQuestionNumber) {
-      this.correctScreenActive.set(true);
-    }
-
-    this.wrongScreenActive.set(false);
   }
 
   ngOnDestroy(): void {
