@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { filter, iif, Observable, of, switchMap, take } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
+import { QuizSessionStatus } from '@models/quiz/quiz-session.model';
 
 @Injectable({
   providedIn: 'root',
@@ -18,16 +19,14 @@ export class RoomService {
     }
     const roomData = roomSnap.data();
 
-    // 2. Condition: If the game has already started, block the player from joining
-    if (roomData && roomData['isStarted'] === true) {
-      throw new Error(`Room ${roomCode} has already started.`);
+    if (roomData) {
+      if (roomData['quizSession']['status'] === QuizSessionStatus.STARTED) {
+        throw new Error(`Room ${roomCode} has already started.`);
+      }
+      if (roomData['quizSession']['status'] === QuizSessionStatus.ENDED) {
+        throw new Error(`Room ${roomCode} has already ended.`);
+      }
     }
-
-    if (roomData && roomData['isEnded'] === true) {
-      throw new Error(`Room ${roomCode} has already ended.`);
-    }
-
-    // 3. Room exists and hasn't started yet, allow entry
     return true;
   }
 
@@ -42,7 +41,7 @@ export class RoomService {
     const roomData = roomSnap.data();
 
     // Returns true if the status is anything other than 'LOBBY'
-    return roomData['isStarted'];
+    return roomData['quizSession']['status'] === QuizSessionStatus.STARTED;
   }
 
   waitUntilGameEnds(
@@ -58,7 +57,8 @@ export class RoomService {
         roomDocRef,
         (snapshot) => {
           const data = snapshot.data();
-          const isEnded = data ? !!data['isEnded'] : false;
+          const isEnded = data ? data['quizSession']['status'] === QuizSessionStatus.ENDED : false;
+
           if (isEnded) {
             console.log(`🔄 Game ended`);
           }
@@ -96,7 +96,9 @@ export class RoomService {
         roomDocRef,
         (snapshot) => {
           const data = snapshot.data();
-          const isStarted = data ? !!data['isStarted'] : false;
+          const isStarted = data
+            ? data['quizSession']['status'] === QuizSessionStatus.STARTED
+            : false;
 
           if (isStarted) {
             console.log(`🔄 Game started event received`);
@@ -122,39 +124,5 @@ export class RoomService {
     }
 
     return gameStream$;
-  }
-
-  waitUntilQuizEndedResults(roomId: string): Observable<boolean> {
-    const roomDocRef = doc(this.fireStore, 'rooms', roomId);
-
-    return new Observable<boolean>((observer) => {
-      console.log(`📡 Opening real-time listener for quiz to end: ${roomId}`);
-
-      const unsubscribe = onSnapshot(
-        roomDocRef,
-        (snapshot) => {
-          const data = snapshot.data();
-          const isEnded = data ? !!data['quizSession']['isEnded'] : false;
-
-          // Debug log to see exactly when and what Firestore emits
-          if (isEnded) {
-            console.log(`🔄 Quiz is ended`);
-          }
-
-          observer.next(isEnded);
-        },
-        (error) => observer.error(error),
-      );
-
-      return () => {
-        console.log(`🔌 Closing listener for quiz to end: ${roomId}`);
-        unsubscribe();
-      };
-    }).pipe(
-      // 1. Only let the stream pass if it hits our target condition
-      filter((isEnded) => isEnded === true),
-      // 2. Shut down the pipeline only AFTER the true value escapes
-      take(1),
-    );
   }
 }
