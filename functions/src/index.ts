@@ -12,7 +12,7 @@ initializeApp();
 setGlobalOptions({ region: 'asia-east2' });
 
 const tasksClient = new CloudTasksClient();
-const QUIZ_TIMER_DURATION = 5;
+const QUIZ_TIMER_DURATION = 20;
 
 export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
   const { roomId, questionId } = req.body;
