@@ -60,6 +60,8 @@ export const getPlayerStatusStyleClass = (status: PlayerStatus | undefined) => {
       waiting: status === PlayerStatus.WAITING,
       thinking: status === PlayerStatus.THINKING,
       answered: status === PlayerStatus.ANSWERED,
+      correct: status === PlayerStatus.CORRECT,
+      wrong: status === PlayerStatus.WRONG,
       offline: status === PlayerStatus.OFFLINE,
     };
   }
