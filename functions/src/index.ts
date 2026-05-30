@@ -12,6 +12,7 @@ initializeApp();
 setGlobalOptions({ region: 'asia-east2' });
 
 const tasksClient = new CloudTasksClient();
+const QUIZ_TIMER_DURATION = 5;
 
 export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
   const { roomId, questionId } = req.body;
@@ -169,8 +170,7 @@ export const startQuiz = onCall(async (request) => {
   const batch = firestore.batch();
 
   // 3. Queue up the Room updates
-  const durationInSeconds = 5;
-  const questionTimerExpiresAt = getFirestoreTimeoutTimestamp(durationInSeconds);
+  const questionTimerExpiresAt = getFirestoreTimeoutTimestamp(QUIZ_TIMER_DURATION);
 
   batch.update(roomRef, {
     isEnded: false,
@@ -235,65 +235,87 @@ export const nextQuestion = onCall(async (request) => {
   try {
     const { roomId } = request.data;
     const firestore = getFirestore();
+
     const roomRef = firestore.collection('rooms').doc(roomId);
+    const playersRef = roomRef.collection('players');
 
-    // Use a transaction to prevent race conditions
-    await firestore.runTransaction(async (transaction) => {
-      const roomDoc = await transaction.get(roomRef);
+    const playersSnapshot = await playersRef.get();
 
-      if (!roomDoc.exists) {
-        throw new Error('Room not found');
-      }
+    // 1. Fetch data OUTSIDE the batch (Batches cannot perform reads)
+    const roomDoc = await roomRef.get();
 
-      const roomData = roomDoc.data()!;
+    if (!roomDoc.exists) {
+      throw new HttpsError('not-found', 'Room not found');
+    }
 
-      const session = roomData.quizSession || {};
+    const roomData = roomDoc.data()!;
+    const session = roomData.quizSession || {};
 
-      // If currentQuestionIndex is null/undefined, start at 0. Otherwise increment.
-      const currentQuestionIndex =
-        session.currentQuestionIndex !== undefined ? session.currentQuestionIndex + 1 : 0;
+    // Calculate index based on the static snapshot we just read
+    const nextQuestionIndex =
+      session.currentQuestionIndex !== undefined ? session.currentQuestionIndex + 1 : 0;
 
-      const questionRef = roomRef.collection('questions').doc(currentQuestionIndex.toString());
-      const questionDoc = await transaction.get(questionRef);
+    const nextQuestionDocId = nextQuestionIndex.toString();
 
-      // Fetch the next question ID from your quiz definition
-      if (questionDoc.exists) {
-        console.log(`Question index ${currentQuestionIndex} data:`, questionDoc.data());
-        const durationInSeconds = 5;
-        const nextExpiryDate = getFirestoreTimeoutTimestamp(durationInSeconds);
+    const questionRef = roomRef.collection('questions').doc(nextQuestionDocId);
+    const questionDoc = await questionRef.get();
 
-        transaction.update(roomRef, {
-          'quizSession.currentQuestionIndex': currentQuestionIndex,
-          'quizSession.questionTimerExpiresAt': nextExpiryDate,
-        });
+    // 2. Initialize the write batch
+    const batch = firestore.batch();
 
-        await scheduleRoomTimeout({
-          roomId,
-          questionId: currentQuestionIndex,
-          scheduleTime: nextExpiryDate.toDate(),
-        });
+    if (questionDoc.exists) {
+      console.log(`Question index ${nextQuestionDocId} data:`, questionDoc.data());
 
-        return {
-          roomId,
-          nextExpiryDate,
-        };
-      }
+      playersSnapshot.forEach((playerDoc) => {
+        const playerData = playerDoc.data();
+        if (playerData.status === PlayerStatus.CORRECT) {
+          batch.update(playerDoc.ref, {
+            status: PlayerStatus.THINKING,
+            chosenAnswer: null,
+          });
+        }
+      });
+
+      const nextExpiryDate = getFirestoreTimeoutTimestamp(QUIZ_TIMER_DURATION);
+
+      // Stage the update in the batch
+      batch.update(roomRef, {
+        'quizSession.currentQuestionIndex': nextQuestionIndex,
+        'quizSession.questionTimerExpiresAt': nextExpiryDate,
+      });
+
+      // 3. Commit the batch writes atomically
+      await batch.commit();
+
+      // Side effects like scheduling can happen after successful commit
+      await scheduleRoomTimeout({
+        roomId,
+        questionId: nextQuestionDocId,
+        scheduleTime: nextExpiryDate.toDate(),
+      });
 
       return {
-        message: 'No more questions available',
+        success: true,
+        roomId,
+        nextExpiryDate,
       };
-    });
+    }
 
-    return { success: true };
+    // If no more questions, we commit nothing and just return
+    return {
+      success: true,
+      message: 'No more questions available',
+    };
   } catch (error) {
     if (error instanceof HttpsError) {
-      throw error; // Re-throw known HttpsErrors
+      throw error;
     }
+    console.error('Error advancing to next question:', error);
     throw new HttpsError('internal', 'Error advancing to next question');
   }
 });
 
-export const disconnectThinkingPlayers = onCall(async (request) => {
+export const purgeIdlePlayers = onCall(async (request) => {
   try {
     const { roomId } = request.data;
     if (!roomId) {
@@ -304,7 +326,14 @@ export const disconnectThinkingPlayers = onCall(async (request) => {
     const playersRef = firestore.collection('rooms').doc(roomId).collection('players');
 
     // Fetch players who didn't submit an answer in time (Status = 2)
-    const snapshot = await playersRef.where('status', '==', PlayerStatus.THINKING).get();
+    const snapshot = await playersRef
+      .where('status', 'in', [
+        PlayerStatus.THINKING,
+        PlayerStatus.WRONG,
+        PlayerStatus.WAITING,
+        PlayerStatus.ANSWERED,
+      ])
+      .get();
 
     if (snapshot.empty) {
       return { success: true, message: 'No idle players found.' };
@@ -368,133 +397,12 @@ export const transitionWaitingToThinking = onCall(async (request) => {
   }
 });
 
-export const updatePlayerStatus = onCall(async (request) => {
-  const { roomId, playerName, targetStatus } = request.data as UpdateStatusPayload;
-
-  // 1. Defend the Gate: Validate incoming input types
-  if (!roomId || !playerName || targetStatus === undefined) {
-    throw new HttpsError('invalid-argument', 'Missing required parameters.');
-  }
-
-  // 2. Prevent malicious inputs (Ensure the passed status actually exists in your enum)
-  if (!Object.values(PlayerStatus).includes(targetStatus)) {
-    throw new HttpsError('invalid-argument', 'Invalid player status provided.');
-  }
-  const cleanName = playerName.trim().toLowerCase();
-  const firestore = getFirestore();
-  const roomRef = firestore.collection('rooms').doc(roomId);
-  const playerRef = roomRef.collection('players').doc(cleanName);
-
-  try {
-    // 3. Document Verification (Reads are done outside of batches)
-    const [roomDoc, playerDoc] = await Promise.all([roomRef.get(), playerRef.get()]);
-
-    if (!roomDoc.exists) {
-      throw new HttpsError('not-found', 'Room not found.');
-    }
-
-    if (!playerDoc.exists) {
-      throw new HttpsError('not-found', 'Player not found.');
-    }
-
-    // 4. Initialize and execute the Batch
-    const batch = firestore.batch();
-
-    const updatePayload: Record<string, any> = {
-      status: targetStatus,
-    };
-
-    // Automatically log timestamps if the status shifts to ANSWERED
-    if (targetStatus === PlayerStatus.ANSWERED) {
-      updatePayload.lastScoreUpdateTime = Timestamp.now();
-    }
-
-    batch.update(playerRef, updatePayload);
-
-    // Commit all operations atomically
-    await batch.commit();
-
-    return { success: true };
-  } catch (error: any) {
-    if (error instanceof HttpsError) throw error;
-    console.error('Error updating player status:', error);
-    throw new HttpsError('internal', error.message || 'Batch update failed.');
-  }
-});
-
-export const updatePlayerScore = onCall(async (request) => {
-  try {
-    const { roomId, playerName } = request.data;
-
-    // 1. Defend the Gate: Validate incoming input types
-    if (!roomId || !playerName) {
-      throw new HttpsError('invalid-argument', 'Missing required parameters.');
-    }
-
-    const firestore = getFirestore();
-    const roomRef = firestore.collection('rooms').doc(roomId);
-    const cleanName = playerName.trim().toLowerCase();
-    const playerRef = roomRef.collection('players').doc(cleanName);
-
-    // Use a transaction to prevent race conditions
-    await firestore.runTransaction(async (transaction) => {
-      // Execute reads concurrently to optimize transaction speed
-      const [roomDoc, playerDoc] = await Promise.all([
-        transaction.get(roomRef),
-        transaction.get(playerRef),
-      ]);
-
-      if (!roomDoc.exists) {
-        throw new HttpsError('not-found', 'Room not found.');
-      }
-
-      if (!playerDoc.exists) {
-        throw new HttpsError('not-found', 'Player not found.');
-      }
-
-      const roomData = roomDoc.data()!;
-      const session = roomData.quizSession || {};
-
-      const currentQuestionIndex =
-        session.currentQuestionIndex !== undefined ? session.currentQuestionIndex : 0;
-
-      const questionRef = roomRef.collection('questions').doc(currentQuestionIndex.toString());
-      const questionDoc = await transaction.get(questionRef);
-
-      if (!questionDoc.exists) {
-        throw new Error('Question not found');
-      }
-
-      const playerData = playerDoc.data();
-      const questionData = questionDoc.data();
-
-      const currentScore = playerData?.score;
-      const currentQuestionScore = questionData?.score;
-
-      transaction.update(playerRef, {
-        score: currentScore + currentQuestionScore,
-      });
-    });
-    return { success: true };
-  } catch (error) {
-    if (error instanceof HttpsError) {
-      throw error; // Re-throw known HttpsErrors
-    }
-    throw new HttpsError('internal', 'Error updating player scrore');
-  }
-});
-
 export const submitAnswer = onCall(async (request) => {
   const { roomId, playerName, chosenAnswer } = request.data as UpdateStatusPayload;
 
   // 1. Defend the Gate: Validate incoming input types
   if (!roomId || !playerName || chosenAnswer === undefined) {
     throw new HttpsError('invalid-argument', 'Missing required parameters.');
-  }
-
-  // 2. Prevent malicious inputs (Ensure the passed status actually exists in your enum)
-  if (!Object.values(PlayerStatus).includes(chosenAnswer)) {
-    throw new HttpsError('invalid-argument', 'Invalid player status provided.');
   }
 
   const cleanName = playerName.trim().toLowerCase();
