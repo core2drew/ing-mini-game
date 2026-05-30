@@ -103,6 +103,10 @@ export class RoomPage {
     this.adminService.endQuizSession(this.roomId);
   }
 
+  purgePlayers() {
+    this.adminService.purgePlayers(this.roomId);
+  }
+
   nextQuestion() {
     if (this.isProcessing()) return;
 
