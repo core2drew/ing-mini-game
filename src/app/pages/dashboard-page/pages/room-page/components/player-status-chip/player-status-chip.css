@@ -7,7 +7,7 @@ p-chip.thinking {
 }
 
 p-chip.answered {
-  background: var(--text-cyan-500) !important;
+  background: var(--color-lime-500) !important;
 }
 
 p-chip.correct {
@@ -43,7 +43,7 @@ p-chip.thinking.text-only {
 }
 
 p-chip.answered.text-only {
-  color: var(--text-cyan-500);
+  color: var(--color-lime-500);
 }
 
 p-chip.correct.text-only {
