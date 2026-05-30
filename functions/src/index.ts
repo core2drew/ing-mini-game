@@ -5,114 +5,146 @@ import { initializeApp } from 'firebase-admin/app';
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { setGlobalOptions } from 'firebase-functions/options';
 import { PlayerStatus, UpdateStatusPayload } from './models/player.model';
+import { google } from '@google-cloud/tasks/build/protos';
+import { ScheduleRoomTimeoutPayload } from './models/schedule-room-timeout.model';
 
 initializeApp();
 setGlobalOptions({ region: 'asia-east2' });
 
-const firestore = getFirestore();
 const tasksClient = new CloudTasksClient();
 
-export const advanceQuestion = onRequest(async (req, res) => {
-  try {
-    const { roomId } = req.body;
+export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
+  const { roomId, questionId } = req.body;
 
-    if (!roomId) {
-      res.status(400).send('Missing roomId');
+  if (!roomId || !questionId) {
+    res.status(400).send('Missing roomId or questionId in task body.');
+    return;
+  }
+
+  const firestore = getFirestore();
+  const roomRef = firestore.collection('rooms').doc(roomId);
+  const questionRef = roomRef.collection('questions').doc(questionId);
+  const playersCollectionRef = roomRef.collection('players');
+
+  try {
+    // 1. Fetch Room and Question details in parallel to get the correct answer key
+    const [roomDoc, questionDoc] = await Promise.all([roomRef.get(), questionRef.get()]);
+
+    if (!roomDoc.exists) {
+      res.status(200).send('Room no longer exists.');
       return;
     }
 
-    const roomRef = firestore.collection('rooms').doc(roomId);
-
-    // Use a transaction to prevent race conditions
-    const nextTaskData = await firestore.runTransaction(async (transaction) => {
-      const roomDoc = await transaction.get(roomRef);
-
-      if (!roomDoc.exists) {
-        throw new Error('Room not found');
-      }
-
-      const roomData = roomDoc.data()!;
-
-      const session = roomData.quizSession || {};
-
-      // If currentQuestionIndex is null/undefined, start at 0. Otherwise increment.
-      const currentQuestionIndex =
-        session.currentQuestionIndex !== undefined ? session.currentQuestionIndex + 1 : 0;
-
-      const questionRef = roomRef.collection('questions').doc(currentQuestionIndex.toString());
-      const questionDoc = await transaction.get(questionRef);
-
-      // Fetch the next question ID from your quiz definition
-      if (questionDoc.exists) {
-        console.log(`Question index ${currentQuestionIndex} data:`, questionDoc.data());
-        const durationInSeconds = 10;
-        const nextExpiryDate = new Date(Date.now() + durationInSeconds * 1000);
-
-        transaction.update(roomRef, {
-          'quizSession.currentQuestionIndex': currentQuestionIndex,
-          'quizSession.questionTimerExpiresAt': Timestamp.fromDate(nextExpiryDate),
-        });
-
-        return {
-          roomId,
-          nextExpiryDate,
-        };
-      }
-
-      // No more questions left, end the quiz
-      console.log(`No question found at index ${currentQuestionIndex}. Ending quiz.`);
-      transaction.update(roomRef, {
-        isEnded: true,
-        isStarted: false,
-      });
-      return null;
-    });
-
-    if (nextTaskData) {
-      await scheduleNextQuestionTask(nextTaskData.roomId, nextTaskData.nextExpiryDate);
+    if (!questionDoc.exists) {
+      res.status(200).send(`Question ${questionId} not found. Cannot evaluate answers.`);
+      return;
     }
 
-    res.status(200).send({ success: true });
-  } catch (error: any) {
-    console.error('Error advancing question:', error);
-    res.status(500).send({ error: error.message });
+    const questionData = questionDoc.data();
+    const correctAnswer = questionData?.correctIndex;
+
+    // 2. Fetch all players in the room
+    const playersSnapshot = await playersCollectionRef.get();
+    if (playersSnapshot.empty) {
+      res.status(200).send('No players found in this room.');
+      return;
+    }
+
+    const batch = firestore.batch();
+    let updatedCount = 0;
+
+    // 3. Loop through all players and decide status based on the answer key
+    playersSnapshot.forEach((doc) => {
+      const playerData = doc.data();
+      const playerRef = doc.ref;
+      const { chosenAnswer } = playerData;
+
+      console.log('playerRef', playerRef);
+      // CASE A: Player completely missed the question (No answer object exists)
+      if (!chosenAnswer) {
+        batch.update(playerRef, {
+          status: PlayerStatus.WRONG,
+          chosenAnswer: null,
+        });
+        updatedCount++;
+        return;
+      }
+
+      // CASE B: Answer exists, but status is hanging/unprocessed or left as 'ANSWERED'
+      // We process the evaluation on the server as a safety backup
+      if (
+        playerData.status === PlayerStatus.ANSWERED ||
+        playerData.status === PlayerStatus.CORRECT ||
+        playerData.status === PlayerStatus.WAITING
+      ) {
+        const isCorrect = chosenAnswer === correctAnswer;
+
+        const updatePayload: Record<string, any> = {};
+
+        // Award points if they were correct but the frontend process got cut off
+        if (isCorrect) {
+          updatePayload.status = PlayerStatus.CORRECT;
+          updatePayload.score = playerData.score + questionData?.points; // Adjust score increment logic as needed
+        } else {
+          updatePayload.status = PlayerStatus.WRONG;
+        }
+        updatePayload.chosenAnswer = null;
+        batch.update(playerRef, updatePayload);
+        updatedCount++;
+      }
+    });
+
+    // 4. Commit all evaluations atomically
+    if (updatedCount > 0) {
+      await batch.commit();
+      console.log(`Evaluated and updated ${updatedCount} players for question ${questionId}.`);
+    } else {
+      console.log(`All players already safely processed for question ${questionId}.`);
+    }
+
+    res
+      .status(200)
+      .send(`Successfully processed room timeout evaluation for ${updatedCount} players.`);
+  } catch (error) {
+    console.error('Error executing master answer evaluation loop:', error);
+    res.status(500).send('Internal server error during answer verification loop.');
   }
 });
 
 /**
  * Helper to queue up the next Cloud Task
  */
-async function scheduleNextQuestionTask(roomId: string, scheduleTime: Date) {
-  const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT;
+export async function scheduleRoomTimeout(payload: ScheduleRoomTimeoutPayload) {
+  const { roomId, questionId, scheduleTime } = payload;
+
+  const projectId = process.env.GCP_PROJECT || process.env.GCLOUD_PROJECT;
   const location = 'asia-east2';
-  const queue = 'quiz-timer-queue'; // Must be created in Google Cloud Console
-  const serviceAccountEmail = '718485456752-compute@developer.gserviceaccount.com';
-  if (!projectId) {
-    throw new Error('Missing GCLOUD_PROJECT environment variable');
-  }
+  const queueName = 'quiz-timeout-queue';
 
-  const queuePath = tasksClient.queuePath(projectId, location, queue);
-  const url = process.env.ADVANCE_QUESTION_URL;
-  if (!url) {
-    throw new Error('Missing ADVANCE_QUESTION_URL environment variable');
-  }
+  const queuePath = tasksClient.queuePath(projectId!, location, queueName);
+  const url = `https://${location}-${projectId}.cloudfunctions.net/onPlayerTimeoutWorker`;
 
-  const task = {
+  // Only pass room and question details now
+  const workerPayload = { roomId, questionId };
+
+  const task: google.cloud.tasks.v2.ITask = {
     httpRequest: {
-      httpMethod: 'POST' as const,
-      url,
+      httpMethod: 'POST',
+      url: url,
       headers: { 'Content-Type': 'application/json' },
-      body: Buffer.from(JSON.stringify({ roomId })).toString('base64'),
-      oidcToken: {
-        serviceAccountEmail,
-      },
+      body: Buffer.from(JSON.stringify(workerPayload)).toString('base64'),
     },
-    scheduleTime: {
-      seconds: Math.floor(scheduleTime.getTime() / 1000),
-    },
+    scheduleTime: { seconds: Math.floor(scheduleTime.getTime() / 1000) },
   };
 
-  await tasksClient.createTask({ parent: queuePath, task });
+  try {
+    const [response] = await tasksClient.createTask({ parent: queuePath, task });
+    console.log(`Room timeout task created for room ${roomId}: ${response.name}`);
+    return response.name;
+  } catch (error) {
+    console.error('Failed to create room task:', error);
+    throw error;
+  }
 }
 
 function getFirestoreTimeoutTimestamp(durationInSeconds: number): Timestamp {
@@ -137,12 +169,14 @@ export const startQuiz = onCall(async (request) => {
   const batch = firestore.batch();
 
   // 3. Queue up the Room updates
-  const durationInSeconds = 20;
+  const durationInSeconds = 5;
+  const questionTimerExpiresAt = getFirestoreTimeoutTimestamp(durationInSeconds);
+
   batch.update(roomRef, {
     isEnded: false,
     isStarted: true,
     'quizSession.currentQuestionIndex': 0,
-    'quizSession.questionTimerExpiresAt': getFirestoreTimeoutTimestamp(durationInSeconds),
+    'quizSession.questionTimerExpiresAt': questionTimerExpiresAt,
   });
 
   // 4. Queue up status updates for every player found in the room
@@ -154,7 +188,11 @@ export const startQuiz = onCall(async (request) => {
   await batch.commit();
 
   // Kick off the automated background loop for index 0
-  // await scheduleNextQuestionTask(roomId, firstExpiry);
+  await scheduleRoomTimeout({
+    roomId,
+    questionId: '0',
+    scheduleTime: questionTimerExpiresAt.toDate(),
+  });
 
   return { success: true };
 });
@@ -221,12 +259,18 @@ export const nextQuestion = onCall(async (request) => {
       // Fetch the next question ID from your quiz definition
       if (questionDoc.exists) {
         console.log(`Question index ${currentQuestionIndex} data:`, questionDoc.data());
-        const durationInSeconds = 20;
+        const durationInSeconds = 5;
         const nextExpiryDate = getFirestoreTimeoutTimestamp(durationInSeconds);
 
         transaction.update(roomRef, {
           'quizSession.currentQuestionIndex': currentQuestionIndex,
           'quizSession.questionTimerExpiresAt': nextExpiryDate,
+        });
+
+        await scheduleRoomTimeout({
+          roomId,
+          questionId: currentQuestionIndex,
+          scheduleTime: nextExpiryDate.toDate(),
         });
 
         return {
@@ -437,5 +481,57 @@ export const updatePlayerScore = onCall(async (request) => {
       throw error; // Re-throw known HttpsErrors
     }
     throw new HttpsError('internal', 'Error updating player scrore');
+  }
+});
+
+export const submitAnswer = onCall(async (request) => {
+  const { roomId, playerName, chosenAnswer } = request.data as UpdateStatusPayload;
+
+  // 1. Defend the Gate: Validate incoming input types
+  if (!roomId || !playerName || chosenAnswer === undefined) {
+    throw new HttpsError('invalid-argument', 'Missing required parameters.');
+  }
+
+  // 2. Prevent malicious inputs (Ensure the passed status actually exists in your enum)
+  if (!Object.values(PlayerStatus).includes(chosenAnswer)) {
+    throw new HttpsError('invalid-argument', 'Invalid player status provided.');
+  }
+
+  const cleanName = playerName.trim().toLowerCase();
+  const firestore = getFirestore();
+  const roomRef = firestore.collection('rooms').doc(roomId);
+  const playerRef = roomRef.collection('players').doc(cleanName);
+
+  try {
+    // 3. Document Verification (Reads are done outside of batches)
+    const [roomDoc, playerDoc] = await Promise.all([roomRef.get(), playerRef.get()]);
+
+    if (!roomDoc.exists) {
+      throw new HttpsError('not-found', 'Room not found.');
+    }
+
+    if (!playerDoc.exists) {
+      throw new HttpsError('not-found', 'Player not found.');
+    }
+
+    // 4. Initialize and execute the Batch
+    const batch = firestore.batch();
+
+    const updatePayload: Record<string, any> = {
+      status: PlayerStatus.ANSWERED,
+      lastScoreUpdateTime: Timestamp.now(),
+      chosenAnswer,
+    };
+
+    batch.update(playerRef, updatePayload);
+
+    // Commit all operations atomically
+    await batch.commit();
+
+    return { success: true };
+  } catch (error: any) {
+    if (error instanceof HttpsError) throw error;
+    console.error('Error updating player status:', error);
+    throw new HttpsError('internal', error.message || 'Batch update failed.');
   }
 });
