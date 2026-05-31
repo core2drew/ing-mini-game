@@ -118,7 +118,6 @@ export class QuizPage {
 
       if (player && player.status === PlayerStatus.CORRECT) {
         this.lastQuestionBonusPoints.set(player.lastQuestionBonusPoints);
-
         this.correctScreenActive.set(true);
         return;
       }
