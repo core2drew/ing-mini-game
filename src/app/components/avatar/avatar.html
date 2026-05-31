@@ -15,6 +15,11 @@
   </div>
 
   @if (showName()) {
-    <span class="player-name">{{ player()?.name }}</span>
+    <div class="flex gap-4">
+      <span class="player-name">{{ player()?.name }}</span>
+      @if (showStar()) {
+        <svg lucideStar color="oklch(82.8% 0.189 84.429)" fill="oklch(82.8% 0.189 84.429)"></svg>
+      }
+    </div>
   }
 </div>

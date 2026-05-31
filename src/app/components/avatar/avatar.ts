@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, input } from '@angular/core';
-import { Player, PlayerWithUIData } from '@models/quiz/player.model';
+import { LucideStar } from '@lucide/angular';
+import { Player } from '@models/quiz/player.model';
 import { getAvatarColorByName } from '@utils/player-utils';
 
 @Component({
   selector: 'app-avatar',
-  imports: [CommonModule],
+  imports: [CommonModule, LucideStar],
   templateUrl: './avatar.html',
   styleUrl: './avatar.css',
   standalone: true,
@@ -13,6 +14,7 @@ import { getAvatarColorByName } from '@utils/player-utils';
 export class Avatar {
   player = input<Player | undefined>();
   showName = input<boolean>(true);
+  showStar = input<boolean>(false);
   horizontal = input<boolean>(false);
 
   get avatarColor() {

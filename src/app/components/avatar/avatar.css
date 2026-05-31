@@ -35,7 +35,7 @@
 }
 
 .player-name {
-  color: #acacac;
+  color: inherit;
   font-weight: 500;
 }
 
