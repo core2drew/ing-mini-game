@@ -13,6 +13,7 @@ import { getAvatarColorByName } from '@utils/player-utils';
 export class Avatar {
   player = input<Player | undefined>();
   showName = input<boolean>(true);
+  horizontal = input<boolean>(false);
 
   get avatarColor() {
     const { name } = this.player() || {};

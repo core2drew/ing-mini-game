@@ -1,4 +1,9 @@
-<div class="avatar-item">
+<div
+  class="avatar-item"
+  [ngClass]="{
+    'flex-row! gap-4!': horizontal,
+  }"
+>
   <div
     class="avatar-bubble"
     [style.background]="hasEmoji ? null : avatarColor"
