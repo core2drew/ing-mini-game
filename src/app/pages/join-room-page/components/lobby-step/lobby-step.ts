@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Player } from '@models/quiz/player.model';
 
 import { TableModule } from 'primeng/table';
-import { filter, switchMap } from 'rxjs';
+import { filter, map, switchMap } from 'rxjs';
 import { LogoTitle } from '../logo-title/logo-title';
 import { IdleTextDot } from '../../../../components/idle-text-dot/idle-text-dot';
 import { GameService } from '@services/quiz/game.service';
@@ -24,11 +24,22 @@ export class LobbyStep {
   private readonly sessionService = inject(SessionService);
   private readonly router = inject(Router);
   private readonly gameService = inject(GameService);
+  readonly playerName = this.sessionService.playerName();
 
   players: Signal<Player[] | undefined> = signal(undefined);
 
   constructor() {
-    this.players = toSignal(this.gameService.getPlayersInRoom(this.sessionService.roomId()!));
+    this.players = toSignal(
+      this.gameService.getPlayersInRoom(this.sessionService.roomId()!).pipe(
+        map((players) => {
+          return [...players].sort((a, b) => {
+            if (a.name === this.playerName) return -1;
+            if (b.name === this.playerName) return 1;
+            return a.name.localeCompare(b.name); // Sort the rest alphabetically
+          });
+        }),
+      ),
+    );
     this.listenToGameEvents();
   }
 
