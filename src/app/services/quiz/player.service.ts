@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 
-import { updateDoc, doc, runTransaction, docData } from '@angular/fire/firestore';
+import { updateDoc, doc, runTransaction, docData, Timestamp } from '@angular/fire/firestore';
 import { from, map, Observable, of, switchMap, take, throwError } from 'rxjs';
 import { Firestore } from '@angular/fire/firestore';
 import { Player, PlayerStatus } from '@models/quiz/player.model';
@@ -31,9 +31,10 @@ export class PlayerService {
         const playerData = {
           name: name.trim(), // Keep original casing for display
           score: 0,
-          joined_at: new Date(),
+          joined_at: Timestamp.now(),
           hasAnswered: false,
           status: PlayerStatus.WAITING,
+          lastScoreUpdateTime: null,
         };
 
         // 3. Wrap the Firestore Transaction in an RxJS Observable using from()
