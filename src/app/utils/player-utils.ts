@@ -63,6 +63,7 @@ export const getPlayerStatusStyleClass = (status: PlayerStatus | undefined) => {
       correct: status === PlayerStatus.CORRECT,
       wrong: status === PlayerStatus.WRONG,
       offline: status === PlayerStatus.OFFLINE,
+      completed: status === PlayerStatus.COMPLETED,
     };
   }
   return {

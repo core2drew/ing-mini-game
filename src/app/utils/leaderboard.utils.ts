@@ -30,7 +30,6 @@ export function getTopLeaderboardPlayers<T extends LeaderboardPlayer>(
 
 export function getRankConfig(index: number, score: number | undefined | null = null) {
   // If there is no valid score, return a neutral fallback styling
-  console.log(index);
   if (!score || score <= 0) {
     return {
       bg: 'bg-slate-800/30 border border-slate-700/50',
