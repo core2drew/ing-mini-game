@@ -21,8 +21,7 @@
       [currentQuestion]="currentQuestion()"
       [questionTimer]="questionTimer()"
       (nextQuestion)="nextQuestion()"
-      [isGameStarted]="isGameStarted()"
-      [isGameEnded]="isGameEnded()"
+      [quizSessionStatus]="quizSessionStatus()"
       [isProcessing]="isProcessing()"
     ></app-question-view>
     <app-player-list [players]="playersWithUIData()"></app-player-list>

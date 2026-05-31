@@ -14,6 +14,7 @@ import { Leaderboard } from './components/leaderboard/leaderboard';
 import { getTopLeaderboardPlayers } from '@utils/leaderboard.utils';
 import { from, Subject, takeUntil } from 'rxjs';
 import { RoomService } from '@services/room/room.service';
+import { QuizSessionStatus } from '@models/quiz/quiz-session.model';
 
 @Component({
   selector: 'app-room-page',
@@ -34,8 +35,7 @@ export class RoomPage {
   currentQuestion: Signal<Question | null | undefined> = signal(null);
   players: Signal<Player[] | undefined> = signal([]);
   questionLength: Signal<number | undefined> = signal(0);
-  isGameStarted: Signal<boolean | undefined> = signal(false);
-  isGameEnded: Signal<boolean | undefined> = signal(false);
+  quizSessionStatus: Signal<QuizSessionStatus | undefined> = signal(undefined);
   isProcessing = signal(false);
   private destroy$ = new Subject<void>();
 
@@ -59,16 +59,7 @@ export class RoomPage {
     this.questionLength = toSignal(from(this.questionService.getQuestionsLength(this.roomId!)), {
       initialValue: 0,
     });
-    this.isGameStarted = toSignal(
-      this.roomService.waitUntilGameStarts(this.roomId!, {
-        once: false,
-      }),
-    );
-    this.isGameEnded = toSignal(
-      this.roomService.waitUntilGameEnds(this.roomId!, {
-        once: false,
-      }),
-    );
+    this.quizSessionStatus = toSignal(this.gameService.watchQuizSessionStatus(this.roomId!));
 
     effect(() => {
       const timer = this.questionTimer();
