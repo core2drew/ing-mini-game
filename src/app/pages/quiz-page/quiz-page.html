@@ -21,7 +21,8 @@
     @if (correctScreenActive() && !endScreenActive()) {
       <app-correct-answer-screen
         class="w-full"
-        [points]="lastQuestionScore()"
+        [points]="lastQuestionPoints()"
+        [bonusPoints]="lastQuestionBonusPoints()!"
       ></app-correct-answer-screen>
     }
 

@@ -42,7 +42,8 @@ export class QuizPage {
   readonly questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.currentRoomId!));
 
   lastQuestionCorrectAnswer: string | undefined;
-  lastQuestionScore = signal<number>(0);
+  lastQuestionPoints = signal<number>(0);
+  lastQuestionBonusPoints = signal<number | undefined>(0);
 
   wrongScreenActive = signal(false);
   correctScreenActive = signal(false);
@@ -107,7 +108,7 @@ export class QuizPage {
 
       if (question) {
         this.lastQuestionCorrectAnswer = question?.options[question?.correctIndex];
-        this.lastQuestionScore.set(question.points);
+        this.lastQuestionPoints.set(question.points);
       }
 
       if (player && player.status === PlayerStatus.THINKING) {
@@ -116,7 +117,9 @@ export class QuizPage {
       }
 
       if (player && player.status === PlayerStatus.CORRECT) {
-        if (this.questionLength() === question?.questionNumber) {
+        this.lastQuestionBonusPoints.set(player.lastQuestionBonusPoints);
+
+        if (this.questionLength() && this.questionLength() === question?.questionNumber) {
           this.endScreenActive.set(true);
           return;
         }
