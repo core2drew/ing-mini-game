@@ -23,16 +23,15 @@ function getFirestoreTimeoutTimestamp(durationInSeconds: number): Timestamp {
   return Timestamp.fromDate(futureDate);
 }
 
-function computeLinearBonus(timeTakenSeconds: number): number {
+function computeLinearBonus(timeRemainingSeconds: number): number {
   const MAX_BONUS = 100; // Max points possible
+  if (timeRemainingSeconds <= 0) return 0;
+  if (timeRemainingSeconds >= QUIZ_TIMER_DURATION) return MAX_BONUS;
 
-  if (timeTakenSeconds >= QUIZ_TIMER_DURATION) return 0;
+  // More time remaining = larger score factor
+  const scoreFactor = timeRemainingSeconds / QUIZ_TIMER_DURATION;
 
-  // Calculate points: Subtract a proportion of points based on time used
-  const scoreFactor = (QUIZ_TIMER_DURATION - timeTakenSeconds) / QUIZ_TIMER_DURATION;
-  const bonusPoints = Math.round(MAX_BONUS * scoreFactor);
-
-  return Math.max(0, bonusPoints); // Ensure it never goes negative
+  return Math.round(MAX_BONUS * scoreFactor);
 }
 
 export const onPlayerTimeoutWorker = onRequest(async (req, res) => {

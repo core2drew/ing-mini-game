@@ -10,6 +10,7 @@ import { getCorrectRandomInspirationalMessage } from '@utils/inspirational-messa
 })
 export class CorrectAnswerScreen {
   @Input() points: number = 0;
+  @Input() bonusPoints: number = 0;
 
   confetti = signal<{ x: number; delay: number; color: string; size: number; dur: number }[]>([]);
   showContent = signal(false);

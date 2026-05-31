@@ -46,6 +46,12 @@
       <span class="score-label">Points earned</span>
       <span class="score-value">+{{ points }}</span>
     </div>
+    @if (bonusPoints > 0) {
+      <div class="score-box">
+        <span class="score-label">Bonus points earned</span>
+        <span class="score-value">+{{ bonusPoints }}</span>
+      </div>
+    }
 
     <div class="action-row">
       <app-idle-text-dot
