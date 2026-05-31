@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { collection, doc, getDoc, onSnapshot } from 'firebase/firestore';
-import { filter, iif, Observable, of, switchMap, take } from 'rxjs';
+import { doc, getDoc } from 'firebase/firestore';
 import { Firestore } from '@angular/fire/firestore';
 import { QuizSessionStatus } from '@models/quiz/quiz-session.model';
 
