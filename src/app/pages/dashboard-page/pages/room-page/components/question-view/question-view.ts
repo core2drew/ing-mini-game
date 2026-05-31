@@ -6,6 +6,7 @@ import { ChipModule } from 'primeng/chip';
 import { Question } from '@models/quiz/question.model';
 import { QuestionOptionButton } from '../../../../../../components/question-option-button/question-option-button';
 import { CommonModule } from '@angular/common';
+import { QuizSessionStatus } from '@models/quiz/quiz-session.model';
 
 @Component({
   selector: 'app-question-view',
@@ -26,11 +27,14 @@ export class QuestionView {
   currentQuestion = input<Question | null>();
   questionTimer = input<number>();
   questionLength = input<number>();
-  isGameStarted = input<boolean>();
-  isGameEnded = input<boolean>();
+  quizSessionStatus = input<QuizSessionStatus>();
   isProcessing = input<boolean>();
 
   get questionNumber() {
     return this.currentQuestion()?.questionNumber || 1;
+  }
+
+  get isGameStarted() {
+    return this.quizSessionStatus() === QuizSessionStatus.STARTED;
   }
 }

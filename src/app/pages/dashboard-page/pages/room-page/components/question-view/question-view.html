@@ -12,7 +12,7 @@
           </p>
         </div>
       </div>
-      @if (isGameStarted() && !isGameEnded()) {
+      @if (isGameStarted) {
         <p-chip class="px-0! py-0! w-15">
           <span
             class="bg-primary text-primary-contrast rounded-full h-8 w-full flex items-center justify-center gap-2"
@@ -51,21 +51,22 @@
         ></app-question-option-button>
       }
     </div>
-
-    <p-button
-      severity="info"
-      (click)="nextQuestion.emit()"
-      class="self-end"
-      icon
-      [pt]="{
-        root: {
-          style: 'bg-blue-600',
-        },
-      }"
-      [loading]="isProcessing()"
-    >
-      <span pButtonLabel>Next question</span>
-      <i class="pi pi-chevron-right"></i>
-    </p-button>
+    @if (isGameStarted) {
+      <p-button
+        severity="info"
+        (click)="nextQuestion.emit()"
+        class="self-end"
+        icon
+        [pt]="{
+          root: {
+            style: 'bg-blue-600',
+          },
+        }"
+        [loading]="isProcessing()"
+      >
+        <span pButtonLabel>Next question</span>
+        <i class="pi pi-chevron-right"></i>
+      </p-button>
+    }
   </div>
 </p-card>
