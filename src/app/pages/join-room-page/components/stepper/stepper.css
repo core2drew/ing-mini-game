@@ -1,0 +1,3 @@
+:host ::ng-deep p-stepper p-step-panels p-step-panel {
+  background-color: none;
+}
