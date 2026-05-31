@@ -15,6 +15,26 @@ setGlobalOptions({ region: 'asia-east2' });
 const tasksClient = new CloudTasksClient();
 const QUIZ_TIMER_DURATION = 20;
 
+function getFirestoreTimeoutTimestamp(durationInSeconds: number): Timestamp {
+  // 1. Create the JS Date object using millisecond math
+  const futureDate = new Date(Date.now() + durationInSeconds * 1000);
+
+  // 2. Convert that Date safely into a Firestore Timestamp
+  return Timestamp.fromDate(futureDate);
+}
+
+function computeLinearBonus(timeTakenSeconds: number): number {
+  const MAX_BONUS = 100; // Max points possible
+
+  if (timeTakenSeconds >= QUIZ_TIMER_DURATION) return 0;
+
+  // Calculate points: Subtract a proportion of points based on time used
+  const scoreFactor = (QUIZ_TIMER_DURATION - timeTakenSeconds) / QUIZ_TIMER_DURATION;
+  const bonusPoints = Math.round(MAX_BONUS * scoreFactor);
+
+  return Math.max(0, bonusPoints); // Ensure it never goes negative
+}
+
 export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
   const { roomId, questionId } = req.body;
 
@@ -90,8 +110,28 @@ export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
 
         // Award points if they were correct but the frontend process got cut off
         if (isCorrect) {
+          const roomData = roomDoc.data();
+          const session = roomData?.quizSession || {};
+          const questionTimerExpiresAt = session?.questionTimerExpiresAt as Timestamp;
+          const lastScoreUpdateTime = playerData.lastScoreUpdateTime as Timestamp;
+
+          let bonusPoints = 0;
+
+          if (questionTimerExpiresAt && lastScoreUpdateTime) {
+            // Direct subtraction of the seconds property
+            const timeRemainingSeconds =
+              questionTimerExpiresAt.seconds - lastScoreUpdateTime.seconds;
+
+            // Make sure it's not a negative number if they answered exactly as the timer expired
+            const executionTime = Math.max(0, timeRemainingSeconds);
+
+            // Pass the seconds into your bonus function
+            bonusPoints = computeLinearBonus(executionTime);
+          }
+
           updatePayload.status = PlayerStatus.CORRECT;
-          updatePayload.score = playerData.score + questionData?.points; // Adjust score increment logic as needed
+          updatePayload.score = playerData.score + questionData?.points + bonusPoints;
+          updatePayload.lastQuestionBonusPoints = bonusPoints;
         } else {
           updatePayload.status = PlayerStatus.WRONG;
         }
@@ -152,14 +192,6 @@ export async function scheduleRoomTimeout(payload: ScheduleRoomTimeoutPayload) {
     console.error('Failed to create room task:', error);
     throw error;
   }
-}
-
-function getFirestoreTimeoutTimestamp(durationInSeconds: number): Timestamp {
-  // 1. Create the JS Date object using millisecond math
-  const futureDate = new Date(Date.now() + durationInSeconds * 1000);
-
-  // 2. Convert that Date safely into a Firestore Timestamp
-  return Timestamp.fromDate(futureDate);
 }
 
 // Re-use the scheduling helper we wrote earlier

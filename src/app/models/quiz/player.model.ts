@@ -25,6 +25,7 @@ export interface Player {
   hasAnswered?: boolean;
   status?: PlayerStatus;
   lastScoreUpdateTime?: Timestamp | null;
+  lastQuestionBonusPoints?: number;
 }
 
 export interface PlayerWithUIData extends Player {

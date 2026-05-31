@@ -10,6 +10,7 @@ export enum PlayerStatus {
 export interface UpdateStatusPayload {
   roomId: string;
   playerName: string;
-  targetStatus: PlayerStatus; // Pass the status dynamically
+  targetStatus: PlayerStatus;
   chosenAnswer?: number;
+  lastQuestionBonusPoints?: number;
 }
