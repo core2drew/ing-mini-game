@@ -52,7 +52,7 @@ export class AdminService {
     }
     const purgePlayerFn = httpsCallable<{ roomId: string }, { success: boolean }>(
       this.functions,
-      'purgePlayer',
+      'purgePlayers',
     );
     return await purgePlayerFn({ roomId });
   }
@@ -63,7 +63,7 @@ export class AdminService {
       'purgeIdlePlayers',
     );
     const nextQuestionFn = httpsCallable<{ roomId: string }, any>(this.functions, 'nextQuestion');
-    const transitionPlayersFn = httpsCallable<{ roomId: string }, any>(
+    const transitionWaitingToThinking = httpsCallable<{ roomId: string }, any>(
       this.functions,
       'transitionWaitingToThinking',
     );
@@ -74,7 +74,7 @@ export class AdminService {
         console.log('Player cleanup complete:', disconnectResult.data);
 
         // Step 2: Push waiting players into active state (Waiting -> Thinking)
-        return from(transitionPlayersFn({ roomId }));
+        return from(transitionWaitingToThinking({ roomId }));
       }),
       concatMap((transitionResult) => {
         console.log('Players transitioned to thinking:', transitionResult.data);
