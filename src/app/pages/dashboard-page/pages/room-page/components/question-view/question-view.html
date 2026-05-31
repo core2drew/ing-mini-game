@@ -51,7 +51,7 @@
         ></app-question-option-button>
       }
     </div>
-    @if (isGameStarted) {
+    @if (isGameStarted && questionTimer() == 0) {
       <p-button
         severity="info"
         (click)="nextQuestion.emit()"

@@ -27,3 +27,43 @@ export function getTopLeaderboardPlayers<T extends LeaderboardPlayer>(
     })
     .slice(0, limit); // Using slice() instead of splice() because it preserves intent without unexpected mutations
 }
+
+export function getRankConfig(index: number, score: number | undefined | null = null) {
+  // If there is no valid score, return a neutral fallback styling
+  console.log(index);
+  if (!score || score <= 0) {
+    return {
+      bg: 'bg-slate-800/30 border border-slate-700/50',
+      text: 'text-slate-500 font-normal text-sm',
+      content: '-',
+    };
+  }
+
+  // Medal configurations for top 3 positions
+  const topRanks: Record<number, { bg: string; text: string; content: string }> = {
+    0: {
+      bg: 'bg-gradient-to-r from-amber-400 to-amber-600 shadow-lg',
+      text: 'text-lg',
+      content: '🥇',
+    },
+    1: {
+      bg: 'bg-gradient-to-r from-slate-400 to-slate-600 shadow-lg',
+      text: 'text-lg',
+      content: '🥈',
+    },
+    2: {
+      bg: 'bg-gradient-to-r from-orange-400 to-orange-600 shadow-lg',
+      text: 'text-lg',
+      content: '🥉',
+    },
+  };
+
+  // Return the medal configuration, or the fallback for rank 4+ with a score
+  return (
+    topRanks[index] ?? {
+      bg: 'bg-slate-700/50',
+      text: 'text-slate-300 font-medium text-sm',
+      content: `#${index + 1}`,
+    }
+  );
+}
