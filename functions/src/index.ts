@@ -60,9 +60,14 @@ export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
       const playerData = doc.data();
       const playerRef = doc.ref;
       const { chosenAnswer } = playerData;
+      const playerStatus = playerData.status;
 
-      console.log('playerRef', playerRef);
-      // CASE A: Player completely missed the question (No answer object exists)
+      // CASE A: Skip players who are already offline
+      if (playerStatus === PlayerStatus.OFFLINE) {
+        return;
+      }
+
+      // CASE B: Player completely missed the question (No answer object exists)
       if (!chosenAnswer) {
         batch.update(playerRef, {
           status: PlayerStatus.WRONG,
@@ -72,12 +77,12 @@ export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
         return;
       }
 
-      // CASE B: Answer exists, but status is hanging/unprocessed or left as 'ANSWERED'
+      // CASE C: Answer exists, but status is hanging/unprocessed or left as 'ANSWERED'
       // We process the evaluation on the server as a safety backup
       if (
-        playerData.status === PlayerStatus.ANSWERED ||
-        playerData.status === PlayerStatus.CORRECT ||
-        playerData.status === PlayerStatus.WAITING
+        playerStatus === PlayerStatus.ANSWERED ||
+        playerStatus === PlayerStatus.CORRECT ||
+        playerStatus === PlayerStatus.WAITING
       ) {
         const isCorrect = chosenAnswer === correctAnswer;
 
