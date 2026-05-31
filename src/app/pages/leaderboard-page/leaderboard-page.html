@@ -111,18 +111,11 @@
                   </div>
                 </div>
               </td>
-              <td class="px-6 py-4 text-right!">
-                <span
-                  class="text-2xl font-bold"
-                  [ngClass]="{
-                    'text-amber-400': rowIndex === 0 && row.score,
-                    'text-slate-300': rowIndex === 1 && row.score,
-                    'text-orange-400': rowIndex === 2 && row.score,
-                    'text-white': rowIndex > 3,
-                  }"
-                >
+              <td [class]="'px-6 py-4 text-right! ' + config.text">
+                <span class="text-2xl! font-bold">
                   {{ row.score | number }}
                 </span>
+                <span class="text-xs self-end">pts</span>
               </td>
             </tr>
           </ng-template>

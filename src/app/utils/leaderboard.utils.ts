@@ -34,7 +34,7 @@ export function getRankConfig(index: number, score: number | undefined | null = 
   if (!score || score <= 0) {
     return {
       bg: 'bg-slate-800/30 border border-slate-700/50',
-      text: 'text-slate-500 font-normal text-sm',
+      text: 'text-slate-500',
       content: '-',
     };
   }
@@ -43,17 +43,17 @@ export function getRankConfig(index: number, score: number | undefined | null = 
   const topRanks: Record<number, { bg: string; text: string; content: string }> = {
     0: {
       bg: 'bg-gradient-to-r from-amber-400 to-amber-600 shadow-lg',
-      text: 'text-lg',
+      text: 'text-amber-400',
       content: '🥇',
     },
     1: {
       bg: 'bg-gradient-to-r from-slate-400 to-slate-600 shadow-lg',
-      text: 'text-lg',
+      text: 'text-slate-300',
       content: '🥈',
     },
     2: {
       bg: 'bg-gradient-to-r from-orange-400 to-orange-600 shadow-lg',
-      text: 'text-lg',
+      text: 'text-orange-400',
       content: '🥉',
     },
   };
@@ -62,7 +62,7 @@ export function getRankConfig(index: number, score: number | undefined | null = 
   return (
     topRanks[index] ?? {
       bg: 'bg-slate-700/50',
-      text: 'text-slate-300 font-medium text-sm',
+      text: 'text-white font-medium text-sm',
       content: `#${index + 1}`,
     }
   );

@@ -11,7 +11,7 @@
       <app-player-status-chip [status]="player?.status" [textOnly]="true"></app-player-status-chip>
     </div>
 
-    <div class="flex gap-1 ml-auto">
+    <div [class]="'flex gap-1 ml-auto ' + config.text">
       <span class="font-bold leading-none">{{ player?.score }}</span>
       <span class="text-xs self-end">pts</span>
     </div>
