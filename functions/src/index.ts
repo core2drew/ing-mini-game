@@ -277,11 +277,17 @@ export const nextQuestion = onCall(async (request) => {
     const questionRef = roomRef.collection('questions').doc(nextQuestionDocId);
     const questionDoc = await questionRef.get();
 
-    // 2. Initialize the write batch
-    const batch = firestore.batch();
+    if (session.status !== QuizSessionStatus.STARTED) {
+      return {
+        success: true,
+        message: `Can't proceed the quiz session is not started yet.`,
+      };
+    }
 
     if (questionDoc.exists) {
       console.log(`Question index ${nextQuestionDocId} data:`, questionDoc.data());
+      // 2. Initialize the write batch
+      const batch = firestore.batch();
 
       playersSnapshot.forEach((playerDoc) => {
         const playerData = playerDoc.data();
@@ -340,7 +346,18 @@ export const purgeIdlePlayers = onCall(async (request) => {
     }
 
     const firestore = getFirestore();
-    const playersRef = firestore.collection('rooms').doc(roomId).collection('players');
+    const roomRef = firestore.collection('rooms').doc(roomId);
+    const playersRef = roomRef.collection('players');
+
+    const roomDoc = await roomRef.get();
+    const roomData = roomDoc.data()!;
+
+    if (roomData['quizSession']['status'] !== QuizSessionStatus.STARTED) {
+      return {
+        success: true,
+        message: `Can't proceed the quiz session is not started yet.`,
+      };
+    }
 
     // Fetch players who didn't submit an answer in time (Status = 2)
     const snapshot = await playersRef
@@ -384,7 +401,18 @@ export const transitionWaitingToThinking = onCall(async (request) => {
     }
 
     const firestore = getFirestore();
-    const playersRef = firestore.collection('rooms').doc(roomId).collection('players');
+    const roomRef = firestore.collection('rooms').doc(roomId);
+    const playersRef = roomRef.collection('players');
+
+    const roomDoc = await roomRef.get();
+    const roomData = roomDoc.data()!;
+
+    if (roomData['quizSession.status'] !== QuizSessionStatus.STARTED) {
+      return {
+        success: true,
+        message: `Can't proceed the quiz session is not started yet.`,
+      };
+    }
 
     // Fetch all players who are currently waiting (Status = WAITING)
     const snapshot = await playersRef.where('status', '==', PlayerStatus.WAITING).get();
