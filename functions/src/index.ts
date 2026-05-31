@@ -44,7 +44,8 @@ export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
 
   const firestore = getFirestore();
   const roomRef = firestore.collection('rooms').doc(roomId);
-  const questionRef = roomRef.collection('questions').doc(questionId);
+  const questionsCollectionRef = roomRef.collection('questions');
+  const questionRef = questionsCollectionRef.doc(questionId);
   const playersCollectionRef = roomRef.collection('players');
 
   try {
@@ -71,8 +72,15 @@ export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
       return;
     }
 
+    const questionsSnapshot = await playersCollectionRef.get();
+    if (questionsSnapshot.empty) {
+      res.status(200).send('No questions found in this room.');
+      return;
+    }
+
     const batch = firestore.batch();
     let updatedCount = 0;
+    let questionLength = questionsSnapshot.size;
 
     // 3. Loop through all players and decide status based on the answer key
     playersSnapshot.forEach((doc) => {
@@ -113,7 +121,7 @@ export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
           const session = roomData?.quizSession || {};
           const questionTimerExpiresAt = session?.questionTimerExpiresAt as Timestamp;
           const lastScoreUpdateTime = playerData.lastScoreUpdateTime as Timestamp;
-
+          const isPlayerComplete = questionLength === questionId + 1;
           let bonusPoints = 0;
 
           if (questionTimerExpiresAt && lastScoreUpdateTime) {
@@ -128,7 +136,7 @@ export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
             bonusPoints = computeLinearBonus(executionTime);
           }
 
-          updatePayload.status = PlayerStatus.CORRECT;
+          updatePayload.status = isPlayerComplete ? PlayerStatus.COMPLETED : PlayerStatus.CORRECT;
           updatePayload.score = playerData.score + questionData?.points + bonusPoints;
           updatePayload.lastQuestionBonusPoints = bonusPoints;
         } else {
