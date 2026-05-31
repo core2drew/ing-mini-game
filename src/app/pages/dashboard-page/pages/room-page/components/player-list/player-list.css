@@ -15,7 +15,8 @@
   background-color: var(--color-lime-100);
 }
 
-.player-status.correct {
+.player-status.correct,
+.player-status.completed {
   background-color: var(--color-green-100);
 }
 

@@ -5,6 +5,7 @@ export enum PlayerStatus {
   CORRECT = 4,
   WRONG = 5,
   OFFLINE = 6,
+  COMPLETED = 7,
 }
 
 export interface UpdateStatusPayload {

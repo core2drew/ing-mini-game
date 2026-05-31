@@ -10,7 +10,8 @@ p-chip.answered {
   background: var(--color-lime-500) !important;
 }
 
-p-chip.correct {
+p-chip.correct,
+p-chip.completed {
   background: var(--color-green-600) !important;
 }
 
@@ -46,7 +47,8 @@ p-chip.answered.text-only {
   color: var(--color-lime-500);
 }
 
-p-chip.correct.text-only {
+p-chip.correct.text-only,
+p-chip.completed.text-only {
   color: var(--color-green-600);
 }
 

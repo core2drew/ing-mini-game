@@ -119,11 +119,12 @@ export class QuizPage {
       if (player && player.status === PlayerStatus.CORRECT) {
         this.lastQuestionBonusPoints.set(player.lastQuestionBonusPoints);
 
-        if (this.questionLength() && this.questionLength() === question?.questionNumber) {
-          this.endScreenActive.set(true);
-          return;
-        }
         this.correctScreenActive.set(true);
+        return;
+      }
+
+      if (player && player.status === PlayerStatus.COMPLETED) {
+        this.endScreenActive.set(true);
         return;
       }
 
