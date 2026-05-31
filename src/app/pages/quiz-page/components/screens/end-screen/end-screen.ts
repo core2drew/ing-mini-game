@@ -33,7 +33,6 @@ export class EndScreen {
   }
 
   close() {
-    this.sessionService.clearSession();
     this.router.navigate(['/join']);
   }
 }

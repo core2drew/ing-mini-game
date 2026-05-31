@@ -74,11 +74,11 @@ export class RoomPage {
       const isTimeUp = timer === 0;
       const isLastQuestion = currentQuestionNumber === questionLength;
 
-      if (isTimeUp && isLastQuestion) {
-        // Untrack side-effects if you want to ensure the effect doesn't get stuck
-        // calling this multiple times rapidly if other signals keep changing.
-        this.adminService.endQuizSession(this.roomId!);
-      }
+      // if (isTimeUp && isLastQuestion) {
+      //   // Untrack side-effects if you want to ensure the effect doesn't get stuck
+      //   // calling this multiple times rapidly if other signals keep changing.
+      //   this.adminService.endQuizSession(this.roomId!);
+      // }
     });
   }
 
