@@ -10,6 +10,9 @@ import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
 import { sessionStore } from '@stores/session.store';
 import { LogoTitle } from '../logo-title/logo-title';
+import { ActivatedRoute } from '@angular/router';
+import { filter, takeUntil } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 @Component({
   selector: 'app-room-step',
   imports: [
@@ -33,6 +36,11 @@ export class RoomStep {
 
   private messageService = inject(MessageService);
   private roomService = inject(RoomService);
+  private route = inject(ActivatedRoute);
+
+  constructor() {
+    this.checkAutoSubmit();
+  }
 
   joinRoom() {
     if (this.roomId) {
@@ -62,5 +70,26 @@ export class RoomStep {
           this.loading = false;
         });
     }
+  }
+
+  private checkAutoSubmit(): void {
+    this.route.queryParams
+      .pipe(
+        // Extract parameters safely
+        filter((params) => {
+          // Optional: You could also ensure a roomId exists before auto-submitting
+          return params['autoSubmit'] === 'true' && !!params['roomId'];
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((params) => {
+        // 3. Extract the roomId from the URL and patch it into the form
+        const roomIdFromUrl = params['roomId'];
+
+        this.roomId = roomIdFromUrl;
+
+        // 4. Trigger submission
+        this.joinRoom();
+      });
   }
 }
