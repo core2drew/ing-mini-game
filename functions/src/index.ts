@@ -288,8 +288,14 @@ export const purgePlayers = onCall(async (request) => {
   const firestore = getFirestore();
   const roomRef = firestore.collection('rooms').doc(roomId);
   const playerRef = roomRef.collection('players');
+
   // Delete all player collection
   await firestore.recursiveDelete(playerRef);
+
+  await roomRef.update({
+    'quizSession.currentQuestionIndex': 0,
+    'quizSession.status': QuizSessionStatus.WAITING,
+  });
 });
 
 export const nextQuestion = onCall(async (request) => {
