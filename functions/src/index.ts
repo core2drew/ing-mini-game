@@ -8,6 +8,7 @@ import { PlayerStatus, UpdateStatusPayload } from './models/player.model';
 import { google } from '@google-cloud/tasks/build/protos';
 import { ScheduleRoomTimeoutPayload } from './models/schedule-room-timeout.model';
 import { QuizSessionStatus } from './models/room.model';
+import questionData from './question-bank/question-bank.json';
 
 initializeApp();
 setGlobalOptions({ region: 'asia-east2' });
@@ -532,3 +533,17 @@ export const submitAnswer = onCall(async (request) => {
     throw new HttpsError('internal', error.message || 'Batch update failed.');
   }
 });
+
+async function uploadData() {
+  const roomId = '976-281-331'; // Replace with your actual room ID
+  const firestore = getFirestore();
+  const roomRef = firestore.collection('rooms').doc(roomId);
+  const questionRef = roomRef.collection('questions');
+  // Assuming your JSON file contains an array of objects
+  for (const item of questionData) {
+    await questionRef.doc(item.idx.toString()).set(item);
+    console.log(`Added: ${item.text}`);
+  }
+}
+
+uploadData();

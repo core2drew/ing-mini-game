@@ -1,0 +1,122 @@
+[
+  {
+    "idx": 0,
+    "correctIndex": 2,
+    "options": ["Jose Rizal", "Emilio Aguinaldo", "Andres Bonifacio", "Apolinario Mabini"],
+    "points": 50,
+    "category": "History",
+    "text": "Who is known as the \"Father of the Philippine Revolution\"?"
+  },
+  {
+    "idx": 1,
+    "correctIndex": 1,
+    "options": ["Sandy soil", "Clay soil", "Loam soil", "Rocky soil"],
+    "points": 50,
+    "category": "Science",
+    "text": "Which type of soil is best for planting rice?"
+  },
+  {
+    "idx": 2,
+    "correctIndex": 1,
+    "options": ["Thousands", "Ten Thousands", "Hundreds", "Hundred Thousands"],
+    "points": 50,
+    "category": "Math",
+    "text": "What is the place value of 5 in 154,320?"
+  },
+  {
+    "idx": 3,
+    "correctIndex": 2,
+    "options": ["Rock", "Water", "Bacteria", "Sunlight"],
+    "points": 50,
+    "category": "Science",
+    "text": "Which of the following is a living thing?"
+  },
+  {
+    "idx": 4,
+    "correctIndex": 0,
+    "options": ["45", "50", "4.5", "4500"],
+    "points": 50,
+    "category": "Math",
+    "text": "What is the quotient of 450 ÷ 10?"
+  },
+  {
+    "idx": 5,
+    "correctIndex": 1,
+    "options": ["December 30, 1896", "June 12, 1898", "July 4, 1946", "August 21, 1983"],
+    "points": 100,
+    "category": "History",
+    "text": "On what date did the Philippines declare independence from Spain?"
+  },
+  {
+    "idx": 6,
+    "correctIndex": 1,
+    "options": ["Respiration", "Photosynthesis", "Digestion", "Germination"],
+    "points": 100,
+    "category": "Science",
+    "text": "What is the process by which plants make their own food?"
+  },
+  {
+    "idx": 7,
+    "correctIndex": 2,
+    "options": ["4.00", "4.50", "4.75", "5.00"],
+    "points": 100,
+    "category": "Math",
+    "text": "What is the sum of 1.25 and 3.50?"
+  },
+  {
+    "idx": 8,
+    "correctIndex": 1,
+    "options": ["Venus", "Mars", "Jupiter", "Saturn"],
+    "points": 100,
+    "category": "Science",
+    "text": "Which planet is known as the \"Red Planet\"?"
+  },
+  {
+    "idx": 9,
+    "correctIndex": 1,
+    "options": ["15 cm", "30 cm", "50 cm", "25 cm"],
+    "points": 100,
+    "category": "Math",
+    "text": "If a rectangle has a length of 10 cm and a width of 5 cm, what is its perimeter?"
+  },
+  {
+    "idx": 10,
+    "correctIndex": 1,
+    "options": ["Sergio Osmeña", "Manuel L. Quezon", "Emilio Aguinaldo", "Jose P. Laurel"],
+    "points": 150,
+    "category": "History",
+    "text": "Who was the first President of the Commonwealth of the Philippines?"
+  },
+  {
+    "idx": 11,
+    "correctIndex": 1,
+    "options": ["The Sun's gravity", "The Moon's gravity", "Ocean winds", "Earth's rotation"],
+    "points": 150,
+    "category": "Science",
+    "text": "What is the main cause of tides on Earth?"
+  },
+  {
+    "idx": 12,
+    "correctIndex": 1,
+    "options": ["25", "50", "75", "100"],
+    "points": 150,
+    "category": "Math",
+    "text": "What is 25% of 200?"
+  },
+  {
+    "idx": 13,
+    "correctIndex": 3,
+    "options": ["July 19, 1861", "November 30, 1896", "December 30, 1896", "June 19, 1861"],
+    "points": 150,
+    "category": "History",
+    "text": "When is the birthday of Dr Jose Rizal?"
+  },
+  {
+    "idx": 14,
+    "correctIndex": 2,
+    "options": ["522", "402", "512", "642"],
+    "points": 150,
+    "category": "Math",
+    "text": "What is the next number in the sequence: 32, 64, 128, 256, _?"
+  }
+]
