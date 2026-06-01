@@ -7,12 +7,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { PlayerService } from '@services/quiz/player.service';
 
 @Component({
-  selector: 'app-end-screen',
+  selector: 'app-complete-screen',
   imports: [Avatar],
-  templateUrl: './end-screen.html',
-  styleUrl: './end-screen.css',
+  templateUrl: './complete-screen.html',
+  styleUrl: './complete-screen.css',
 })
-export class EndScreen {
+export class CompleteScreen {
   private playerService = inject(PlayerService);
   private readonly sessionService = inject(SessionService);
   private router = inject(Router);

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EndScreen } from './end-screen';
+import { CompleteScreen } from './complete-screen';
 
-describe('EndScreen', () => {
-  let component: EndScreen;
-  let fixture: ComponentFixture<EndScreen>;
+describe('CompleteScreen', () => {
+  let component: CompleteScreen;
+  let fixture: ComponentFixture<CompleteScreen>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EndScreen],
+      imports: [CompleteScreen],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(EndScreen);
+    fixture = TestBed.createComponent(CompleteScreen);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

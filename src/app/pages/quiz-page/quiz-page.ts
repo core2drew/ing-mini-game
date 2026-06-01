@@ -12,11 +12,11 @@ import { GameService } from '@services/quiz/game.service';
 import { Question } from '@models/quiz/question.model';
 import { SessionService } from '@services/session/session.service';
 import { PlayerStatus } from '@models/quiz/player.model';
-import { EndScreen } from './components/screens/end-screen/end-screen';
+import { CompleteScreen } from './components/screens/complete-screen/complete-screen';
 import { PlayerService } from '@services/quiz/player.service';
 @Component({
   selector: 'app-quiz-page',
-  imports: [CommonModule, QuestionScreen, WrongAnswerScreen, CorrectAnswerScreen, EndScreen],
+  imports: [CommonModule, QuestionScreen, WrongAnswerScreen, CorrectAnswerScreen, CompleteScreen],
   templateUrl: './quiz-page.html',
   styleUrl: './quiz-page.css',
   standalone: true,
