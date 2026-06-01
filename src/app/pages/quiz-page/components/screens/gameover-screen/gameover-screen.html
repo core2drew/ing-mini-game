@@ -1,0 +1,46 @@
+<div class="screen wrong-bg">
+  <!-- Background radial burst -->
+  <div class="burst-overlay" aria-hidden="true"></div>
+
+  <div class="result-card" [class.visible]="showContent()" [class.shake]="shakeActive()">
+    <!-- X icon -->
+    <div class="icon-ring">
+      <div class="pulse-ring"></div>
+      <div class="icon-circle">
+        <svg class="x-svg" viewBox="0 0 52 52" fill="none">
+          <circle cx="26" cy="26" r="25" stroke="#ef4444" stroke-width="2" fill="none" />
+          <line
+            class="x-line"
+            x1="16"
+            y1="16"
+            x2="36"
+            y2="36"
+            stroke="#ef4444"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+          <line
+            class="x-line"
+            x1="36"
+            y1="16"
+            x2="16"
+            y2="36"
+            stroke="#ef4444"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <h1 class="result-title">Game over!</h1>
+    <p class="result-subtitle">{{ inspirationalMessage() }}</p>
+
+    <div class="action-row">
+      <button class="btn-retry" (click)="exitQuiz()">
+        <svg lucideX color="#fff"></svg>
+        Exit
+      </button>
+    </div>
+  </div>
+</div>

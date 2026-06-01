@@ -2,7 +2,12 @@
   @if (isLoading()) {
     <div class="text-xl font-semibold animate-pulse">Loading game state...</div>
   } @else {
-    @if (!wrongScreenActive() && !correctScreenActive() && !endScreenActive()) {
+    @if (
+      !wrongScreenActive() &&
+      !correctScreenActive() &&
+      !endScreenActive() &&
+      !gameOverScreenActive()
+    ) {
       <app-question-screen
         class="w-full"
         [activeQuestion]="activeQuestion()"
@@ -11,14 +16,14 @@
       ></app-question-screen>
     }
 
-    @if (wrongScreenActive() && !endScreenActive()) {
+    @if (wrongScreenActive() && !endScreenActive() && !gameOverScreenActive()) {
       <app-wrong-answer-screen
         class="w-full"
         [correctAnswer]="lastQuestionCorrectAnswer"
       ></app-wrong-answer-screen>
     }
 
-    @if (correctScreenActive() && !endScreenActive()) {
+    @if (correctScreenActive() && !endScreenActive() && !gameOverScreenActive()) {
       <app-correct-answer-screen
         class="w-full"
         [points]="lastQuestionPoints()"
@@ -27,7 +32,11 @@
     }
 
     @if (endScreenActive()) {
-      <app-end-screen class="w-full"></app-end-screen>
+      <app-complete-screen class="w-full"></app-complete-screen>
+    }
+
+    @if (gameOverScreenActive()) {
+      <app-gameover-screen class="w-full"></app-gameover-screen>
     }
   }
 </div>

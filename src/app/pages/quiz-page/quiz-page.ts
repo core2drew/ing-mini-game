@@ -14,9 +14,17 @@ import { SessionService } from '@services/session/session.service';
 import { PlayerStatus } from '@models/quiz/player.model';
 import { CompleteScreen } from './components/screens/complete-screen/complete-screen';
 import { PlayerService } from '@services/quiz/player.service';
+import { GameoverScreen } from './components/screens/gameover-screen/gameover-screen';
 @Component({
   selector: 'app-quiz-page',
-  imports: [CommonModule, QuestionScreen, WrongAnswerScreen, CorrectAnswerScreen, CompleteScreen],
+  imports: [
+    CommonModule,
+    QuestionScreen,
+    WrongAnswerScreen,
+    CorrectAnswerScreen,
+    CompleteScreen,
+    GameoverScreen,
+  ],
   templateUrl: './quiz-page.html',
   styleUrl: './quiz-page.css',
   standalone: true,
@@ -46,6 +54,7 @@ export class QuizPage {
   wrongScreenActive = signal(false);
   correctScreenActive = signal(false);
   endScreenActive = signal(false);
+  gameOverScreenActive = signal(false);
 
   // 1. Create a isolated computed property for the condition
   isPlayerOffline = computed(() => this.player()?.status === PlayerStatus.OFFLINE);
@@ -127,6 +136,10 @@ export class QuizPage {
 
       if (player && player.status === PlayerStatus.WRONG) {
         this.wrongScreenActive.set(true);
+        return;
+      }
+      if (player && player.status === PlayerStatus.OFFLINE) {
+        this.gameOverScreenActive.set(true);
         return;
       }
     });
