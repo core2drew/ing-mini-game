@@ -91,14 +91,20 @@ export class LobbyStep {
         return;
       }
 
-      if (
-        status === QuizSessionStatus.ENDED &&
-        (player?.status === PlayerStatus.COMPLETED || player?.status === PlayerStatus.OFFLINE)
-      ) {
-        this.router.navigate(['/quiz-blitz']);
-        return;
+      if (status === QuizSessionStatus.ENDED) {
+        // Navigate to results if player finished or went offline
+        if (player?.status === PlayerStatus.COMPLETED || player?.status === PlayerStatus.OFFLINE) {
+          this.router.navigate(['/quiz-blitz']);
+          return;
+        }
+
+        // Clear session if player is still waiting
+        if (player?.status === PlayerStatus.WAITING) {
+          this.sessionService.clearSession();
+        }
       }
 
+      // Default: return to join room
       this.router.navigate(['/join']);
     });
   }
