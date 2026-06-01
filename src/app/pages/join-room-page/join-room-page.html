@@ -1,21 +1,7 @@
 <div
-  class="min-h-screen bg-comic-glow flex items-center justify-center p-4 bg-size-[400%_400%] animate-gradient"
+  class="bg-comic-glow flex items-center justify-center p-4 bg-size-[400%_400%] animate-gradient"
 >
-  <div class="orbit-stage" aria-hidden="true">
-    <div class="orbit-ring ring-1">
-      <span class="orbit-dot d1"></span>
-    </div>
-    <div class="orbit-ring ring-2">
-      <span class="orbit-dot d2"></span>
-    </div>
-    <div class="orbit-ring ring-3">
-      <span class="orbit-dot d3"></span>
-    </div>
-  </div>
   <div class="w-full max-w-md">
-    <div class="text-center mb-10">
-      <!-- <p class="text-white mt-2 text-sm">Live trivia, real-time results</p> -->
-    </div>
     <app-stepper [currentStep]="currentStep()"></app-stepper>
   </div>
 </div>

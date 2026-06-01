@@ -1,14 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, effect, inject, signal, Signal } from '@angular/core';
+import { Component, computed, effect, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { Player, PlayerStatus } from '@models/quiz/player.model';
+import { PlayerStatus } from '@models/quiz/player.model';
 
 import { TableModule } from 'primeng/table';
 import { filter, map, switchMap } from 'rxjs';
 import { LogoTitle } from '../logo-title/logo-title';
 import { IdleTextDot } from '../../../../components/idle-text-dot/idle-text-dot';
 import { GameService } from '@services/quiz/game.service';
-import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { Avatar } from '../../../../components/avatar/avatar';
 import { SessionService } from '@services/session/session.service';
 import { QuizSessionStatus } from '@models/quiz/quiz-session.model';
@@ -31,20 +31,41 @@ export class LobbyStep {
   private readonly roomId = this.sessionService.roomId();
   readonly player = toSignal(this.playerService.getPlayer(this.roomId!, this.playerName!));
 
-  players: Signal<Player[] | undefined> = signal(undefined);
+  players = toSignal(
+    this.gameService.getPlayersInRoom(this.sessionService.roomId()!).pipe(
+      map((players) => {
+        return [...players].sort((a, b) => {
+          if (a.name === this.playerName) return -1;
+          if (b.name === this.playerName) return 1;
+          return a.name.localeCompare(b.name); // Sort the rest alphabetically
+        });
+      }),
+    ),
+  );
+
+  // Add this inside your QuizPage class, right below your other signals
+  isLoading = computed(() => {
+    const players = this.players();
+    const player = this.player();
+
+    // 1. Wait for initial player and quiz metadata to arrive from Firestore/Backend
+    if (players === undefined) {
+      return true;
+    }
+
+    if (
+      !player?.status ||
+      player?.status === PlayerStatus.OFFLINE ||
+      player?.status === PlayerStatus.WRONG
+    ) {
+      return true;
+    }
+
+    // Data is loaded, safe to render the screens
+    return false;
+  });
 
   constructor() {
-    this.players = toSignal(
-      this.gameService.getPlayersInRoom(this.sessionService.roomId()!).pipe(
-        map((players) => {
-          return [...players].sort((a, b) => {
-            if (a.name === this.playerName) return -1;
-            if (b.name === this.playerName) return 1;
-            return a.name.localeCompare(b.name); // Sort the rest alphabetically
-          });
-        }),
-      ),
-    );
     this.listenToGameEvents();
   }
 

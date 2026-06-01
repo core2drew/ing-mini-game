@@ -1,26 +1,32 @@
-<div class="waiting-card">
-  <app-logo-title></app-logo-title>
+<div class="min-h-[90vh] flex items-center justify-center">
+  @if (isLoading()) {
+    <div class="text-xl font-semibold animate-pulse">Loading game state...</div>
+  } @else {
+    <div class="waiting-card">
+      <app-logo-title></app-logo-title>
 
-  <!-- Animated heading -->
-  <app-idle-text-dot [text]="'Waiting for players'"></app-idle-text-dot>
-  <p class="text-slate-300 text-sm mb-6 text-center">
-    Sit back and relax while the lobby fills up.
-  </p>
+      <!-- Animated heading -->
+      <app-idle-text-dot [text]="'Waiting for players'"></app-idle-text-dot>
+      <p class="text-slate-300 text-sm mb-6 text-center">
+        Sit back and relax while the lobby fills up.
+      </p>
 
-  <!-- Player avatars grid -->
-  <div
-    class="grid lg:grid-cols-[repeat(4,max-content)] md:grid-cols-[repeat(4,max-content)] sm:grid-cols-[repeat(2,auto)] gap-4 max-h-100 overflow-y-auto p-5"
-  >
-    @for (player of players(); track player.name; let i = $index) {
-      <app-avatar
-        class="bg-slate-800 p-2 rounded-full"
-        [ngClass]="{
-          'border-2 border-amber-400!': playerName === player.name,
-        }"
-        [player]="player"
-        [horizontal]="true"
-        [showStar]="playerName === player.name"
-      ></app-avatar>
-    }
-  </div>
+      <!-- Player avatars grid -->
+      <div
+        class="grid lg:grid-cols-[repeat(4,max-content)] md:grid-cols-[repeat(4,max-content)] sm:grid-cols-[repeat(2,auto)] gap-4 max-h-100 overflow-y-auto p-5"
+      >
+        @for (player of players(); track player.name; let i = $index) {
+          <app-avatar
+            class="bg-slate-800 p-2 rounded-full"
+            [ngClass]="{
+              'border-2 border-amber-400!': playerName === player.name,
+            }"
+            [player]="player"
+            [horizontal]="true"
+            [showStar]="playerName === player.name"
+          ></app-avatar>
+        }
+      </div>
+    </div>
+  }
 </div>
