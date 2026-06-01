@@ -99,7 +99,11 @@ export class LobbyStep {
         }
 
         // Clear session if player is still waiting
-        if (player?.status === PlayerStatus.WAITING || player?.status === PlayerStatus.WRONG) {
+        if (
+          player?.status === PlayerStatus.WAITING ||
+          player?.status === PlayerStatus.WRONG ||
+          !player?.status
+        ) {
           this.sessionService.clearSession();
         }
       }
