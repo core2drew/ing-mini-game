@@ -118,5 +118,37 @@
     "points": 150,
     "category": "Math",
     "text": "What is the next number in the sequence: 32, 64, 128, 256, _?"
+  },
+  {
+    "idx": 15,
+    "correctIndex": 1,
+    "options": ["Bubalus bubalis", "Bubalus mindorensis", "Bos taurus", "Anisodon cebuensis"],
+    "points": 200,
+    "category": "Science",
+    "text": "What is the scientific name for the Tamaraw?"
+  },
+  {
+    "idx": 16,
+    "correctIndex": 0,
+    "options": ["Hibiscus rosa-sinensis", "Rosa damascena", "Bougainvillea glabra", "Hibiscus sambac-sinensis"],
+    "points": 200,
+    "category": "Science",
+    "text": "What is the scientific name for the Gumamela?"
+  },
+  {
+    "idx": 17,
+    "correctIndex": 2,
+    "options": ["Taraxacum officinale", "Helianthus tuberosus", "Helianthus annuus", "Helianthus lycopersicum"],
+    "points": 200,
+    "category": "Science",
+    "text": "What is the scientific name for the common Sunflower?"
+  },
+  {
+    "idx": 18,
+    "correctIndex": 3,
+    "options": ["Alohomora", "Incendio", "Metolojinx", "Cistem Aperio", "Confringo"],
+    "points": 200,
+    "category": "Entertainment",
+    "text": "What spell in Harry Potter movies was used to blast open chests and boxes?"
   }
 ]
