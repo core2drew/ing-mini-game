@@ -277,7 +277,6 @@ export const endQuiz = onCall(async (request) => {
 
   await roomRef.update({
     'quizSession.currentQuestionIndex': 0,
-    'quizSession.questionTimerExpiresAt': null,
     'quizSession.status': QuizSessionStatus.ENDED,
   });
 
