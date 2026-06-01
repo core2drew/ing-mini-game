@@ -25,10 +25,15 @@
     </div>
   </ng-template>
   <p-divider />
-  <div class="flex mb-5">
+  <div class="flex mb-5 gap-2">
     <p-chip class="px-0! py-0! w-10">
       <div class="bg-blue-600 rounded-full h-8 w-full flex items-center justify-center">
         <span class="text-sm font-bold"> Q{{ questionNumber }} </span>
+      </div>
+    </p-chip>
+    <p-chip class="px-0! py-0!">
+      <div class="bg-blue-600 p-4 rounded-xl h-8 w-full flex items-center justify-center">
+        <span class="text-sm font-bold"> {{ questionCategory }} </span>
       </div>
     </p-chip>
     <p-chip class="flex ml-auto justify-center">

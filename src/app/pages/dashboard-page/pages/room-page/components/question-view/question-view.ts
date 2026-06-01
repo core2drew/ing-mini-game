@@ -25,6 +25,7 @@ export class QuestionView {
   nextQuestion = output<void>();
 
   currentQuestion = input<Question | null>();
+  currentCategory = input<string>('');
   questionTimer = input<number>();
   questionLength = input<number>();
   quizSessionStatus = input<QuizSessionStatus>();
@@ -32,6 +33,10 @@ export class QuestionView {
 
   get questionNumber() {
     return this.currentQuestion()?.questionNumber || 1;
+  }
+
+  get questionCategory() {
+    return this.currentQuestion()?.category || 'General';
   }
 
   get isGameStarted() {

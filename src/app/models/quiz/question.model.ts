@@ -4,4 +4,5 @@ export interface Question {
   correctIndex: number;
   questionNumber?: number;
   points: number;
+  category?: string;
 }
