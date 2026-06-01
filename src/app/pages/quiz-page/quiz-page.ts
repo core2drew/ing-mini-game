@@ -123,38 +123,36 @@ export class QuizPage {
         this.lastQuestionPoints.set(question.points);
       }
 
-      if (player && player.status === PlayerStatus.THINKING) {
-        this.correctScreenActive.set(false);
+      if (!player) {
         return;
       }
 
-      if (
-        player &&
-        player.status === PlayerStatus.CORRECT &&
-        quizSessionStatus === QuizSessionStatus.STARTED
-      ) {
-        this.lastQuestionBonusPoints.set(player.lastQuestionBonusPoints);
-        this.correctScreenActive.set(true);
-        return;
-      }
+      switch (player.status) {
+        case PlayerStatus.THINKING:
+          this.correctScreenActive.set(false);
+          break;
 
-      if (
-        player &&
-        player.status === PlayerStatus.WRONG &&
-        quizSessionStatus === QuizSessionStatus.STARTED
-      ) {
-        this.wrongScreenActive.set(true);
-        return;
-      }
+        case PlayerStatus.CORRECT:
+          if (quizSessionStatus === QuizSessionStatus.STARTED) {
+            this.lastQuestionBonusPoints.set(player.lastQuestionBonusPoints);
+            this.correctScreenActive.set(true);
+          } else if (quizSessionStatus === QuizSessionStatus.ENDED) {
+            this.completeScreenActive.set(true);
+          }
+          break;
 
-      if (player && player.status === PlayerStatus.COMPLETED) {
-        this.completeScreenActive.set(true);
-        return;
-      }
+        case PlayerStatus.WRONG:
+          if (quizSessionStatus === QuizSessionStatus.STARTED) {
+            this.wrongScreenActive.set(true);
+          } else if (quizSessionStatus === QuizSessionStatus.ENDED) {
+            this.gameOverScreenActive.set(true);
+          }
+          break;
 
-      if (player && player.status === PlayerStatus.OFFLINE) {
-        this.gameOverScreenActive.set(true);
-        return;
+        case PlayerStatus.COMPLETED:
+        case PlayerStatus.OFFLINE:
+          this.gameOverScreenActive.set(true);
+          break;
       }
     });
   }
