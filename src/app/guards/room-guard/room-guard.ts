@@ -8,9 +8,8 @@ export const roomGuard: CanActivateFn = async (route, state) => {
   const roomService = inject(RoomService);
 
   const hasRoomId = !!localStorage.getItem('roomId') || !!sessionStore.getValue().roomId;
-  const isStarted = await roomService.checkIsRoomStarted(sessionStore.getValue()?.roomId);
 
-  if (!hasRoomId || !isStarted) {
+  if (!hasRoomId) {
     router.navigate(['/join']);
     return false;
   }
