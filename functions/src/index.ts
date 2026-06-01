@@ -96,7 +96,7 @@ export const onPlayerTimeoutWorker = onRequest(async (req, res) => {
       }
 
       // CASE B: Player completely missed the question (No answer object exists)
-      if (!chosenAnswer) {
+      if (chosenAnswer == null) {
         batch.update(playerRef, {
           status: PlayerStatus.WRONG,
           chosenAnswer: null,

@@ -18,7 +18,7 @@
     {
         "idx": 2,
         "correctIndex": 1,
-        "options": ["Thousands", "Ten Thousands", "Hundreds", "Hundred Thousands"],
+        "options": ["Ten Thousandths", "Ten Thousands", "Hundreds", "Hundred Thousands"],
         "points": 50,
         "category": "Math",
         "text": "What is the place value of 5 in 154,320?"
@@ -34,10 +34,10 @@
     {
         "idx": 4,
         "correctIndex": 0,
-        "options": ["45", "50", "4.5", "4500"],
+        "options": ["76", "67", "86", "74"],
         "points": 50,
         "category": "Math",
-        "text": "What is the quotient of 450 ÷ 10?"
+        "text": "What is the quotient of 456 ÷ 6?"
     },
     {
         "idx": 5,
