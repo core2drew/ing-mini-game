@@ -12,6 +12,7 @@ import { ChipModule } from 'primeng/chip';
 })
 export class RoomCard {
   private router = inject(Router);
+
   roomId = input<string>('');
 
   navigateToRoom() {

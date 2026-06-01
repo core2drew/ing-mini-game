@@ -4,19 +4,12 @@
       <div class="text-xl flex justify-between">
         <span>Room</span> <span>{{ roomId() }}</span>
       </div>
-      <p-chip label="Waiting for players" class="bg-amber-600! text-xs self-baseline"></p-chip>
+      <!-- <p-chip label="Waiting for players" class="bg-amber-600! text-xs self-baseline"></p-chip> -->
     </div>
   </ng-template>
   <div class="flex flex-col gap-4">
     <div class="flex justify-between items-center"></div>
-    <div class="flex justify-between items-center">
-      <span class="text-sm font-medium">Players joined </span>
-      <p-chip label="0 / 100" class="bg-blue-600! text-sm"></p-chip>
-    </div>
-    <div class="flex justify-between items-center">
-      <span class="text-sm font-medium">Questions</span>
-      <p-chip label="0 / 20" class="bg-blue-600! text-sm"></p-chip>
-    </div>
+
     <p-button severity="info" class="w-full font-medium" (click)="navigateToRoom()"
       >Manage</p-button
     >
