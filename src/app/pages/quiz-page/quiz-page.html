@@ -23,7 +23,7 @@
       ></app-wrong-answer-screen>
     }
 
-    @if (correctScreenActive() && !endScreenActive() && !gameOverScreenActive()) {
+    @if (correctScreenActive() && !completeScreenActive() && !gameOverScreenActive()) {
       <app-correct-answer-screen
         class="w-full"
         [points]="lastQuestionPoints()"
@@ -31,7 +31,7 @@
       ></app-correct-answer-screen>
     }
 
-    @if (endScreenActive()) {
+    @if (completeScreenActive()) {
       <app-complete-screen class="w-full"></app-complete-screen>
     }
 
