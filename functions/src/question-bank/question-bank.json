@@ -9,11 +9,11 @@
   },
   {
     "idx": 1,
-    "correctIndex": 1,
-    "options": ["Sandy soil", "Clay soil", "Loam soil", "Rocky soil"],
+    "correctIndex": 0,
+    "options": ["Topsoil", "Subsoil", "Bedrock", "Sand layer"],
     "points": 50,
     "category": "Science",
-    "text": "Which type of soil is best for planting rice?"
+    "text": "Which layer of soil is richest in nutrients for plants?"
   },
   {
     "idx": 2,
@@ -25,11 +25,11 @@
   },
   {
     "idx": 3,
-    "correctIndex": 2,
-    "options": ["Rock", "Water", "Bacteria", "Sunlight"],
+    "correctIndex": 1,
+    "options": ["One", "Two", "Three", "Four"],
     "points": 50,
     "category": "Science",
-    "text": "Which of the following is a living thing?"
+    "text": "How many body segments does a spider have?"
   },
   {
     "idx": 4,
@@ -65,11 +65,11 @@
   },
   {
     "idx": 8,
-    "correctIndex": 1,
-    "options": ["Venus", "Mars", "Jupiter", "Saturn"],
+    "correctIndex": 2,
+    "options": ["Zero", "One", "Two", "Four"],
     "points": 100,
     "category": "Science",
-    "text": "Which planet is known as the \"Red Planet\"?"
+    "text": "How many moons does Mars have?"
   },
   {
     "idx": 9,
