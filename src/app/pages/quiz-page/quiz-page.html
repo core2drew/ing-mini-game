@@ -5,7 +5,7 @@
     @if (
       !wrongScreenActive() &&
       !correctScreenActive() &&
-      !endScreenActive() &&
+      !completeScreenActive() &&
       !gameOverScreenActive()
     ) {
       <app-question-screen
@@ -16,7 +16,7 @@
       ></app-question-screen>
     }
 
-    @if (wrongScreenActive() && !endScreenActive() && !gameOverScreenActive()) {
+    @if (wrongScreenActive() && !completeScreenActive() && !gameOverScreenActive()) {
       <app-wrong-answer-screen
         class="w-full"
         [correctAnswer]="lastQuestionCorrectAnswer"
