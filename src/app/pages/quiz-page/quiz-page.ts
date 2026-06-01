@@ -28,8 +28,6 @@ export class QuizPage {
   private sessionService = inject(SessionService);
   private playerService = inject(PlayerService);
 
-  private gameEndSub!: Subscription;
-  private quizEndSub!: Subscription;
   private currentRoomId = sessionStore.getValue().roomId;
   private roomId = this.sessionService.roomId();
   private playerName = this.sessionService.playerName();
@@ -132,14 +130,5 @@ export class QuizPage {
         return;
       }
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.gameEndSub) {
-      this.gameEndSub.unsubscribe();
-    }
-    if (this.quizEndSub) {
-      this.quizEndSub.unsubscribe();
-    }
   }
 }
