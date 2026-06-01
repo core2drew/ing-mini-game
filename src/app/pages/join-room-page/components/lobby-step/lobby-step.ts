@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, Signal } from '@angular/core';
+import { Component, effect, inject, signal, Signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Player } from '@models/quiz/player.model';
+import { Player, PlayerStatus } from '@models/quiz/player.model';
 
 import { TableModule } from 'primeng/table';
 import { filter, map, switchMap } from 'rxjs';
@@ -12,6 +12,7 @@ import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-i
 import { Avatar } from '../../../../components/avatar/avatar';
 import { SessionService } from '@services/session/session.service';
 import { QuizSessionStatus } from '@models/quiz/quiz-session.model';
+import { PlayerService } from '@services/quiz/player.service';
 
 @Component({
   selector: 'app-lobby-step',
@@ -24,7 +25,11 @@ export class LobbyStep {
   private readonly sessionService = inject(SessionService);
   private readonly router = inject(Router);
   private readonly gameService = inject(GameService);
+  private playerService = inject(PlayerService);
+
   readonly playerName = this.sessionService.playerName();
+  private readonly roomId = this.sessionService.roomId();
+  readonly player = toSignal(this.playerService.getPlayer(this.roomId!, this.playerName!));
 
   players: Signal<Player[] | undefined> = signal(undefined);
 
@@ -45,34 +50,35 @@ export class LobbyStep {
 
   private listenToGameEvents(): void {
     // Convert the roomId Signal to an Observable that reacts if the ID changes
-    const roomId$ = toObservable(this.sessionService.roomId).pipe(
-      filter((id): id is string => !!id), // Only proceed if id is truthy
+
+    const sessionStatus = toSignal(
+      toObservable(this.sessionService.roomId).pipe(
+        filter((id): id is string => !!id),
+        switchMap((id) => this.gameService.watchQuizSessionStatus(id)),
+      ),
     );
 
     // 1. Handle Game Start
-    roomId$
-      .pipe(
-        switchMap((id) => this.gameService.watchQuizSessionStatus(id)),
-        takeUntilDestroyed(), // Automatically cleans up when component destroys
-      )
-      .subscribe({
-        next: (status) => {
-          if (status === QuizSessionStatus.WAITING) {
-            this.router.navigate(['/join']);
-            return;
-          }
-          if (status === QuizSessionStatus.STARTED) {
-            this.router.navigate(['/quiz-blitz']);
+    effect(() => {
+      const status = sessionStatus();
+      const player = this.player(); // Reacts automatically if player updates too
 
-            return;
-          }
-          if (status === QuizSessionStatus.ENDED) {
-            this.router.navigate(['/']);
-            this.sessionService.clearSession();
-            return;
-          }
-        },
-        error: (err) => console.error('Error listening to game start:', err),
-      });
+      if (!status) return; // Handle initial undefined state from toSignal
+
+      if (status === QuizSessionStatus.STARTED) {
+        this.router.navigate(['/quiz-blitz']);
+        return;
+      }
+
+      if (
+        status === QuizSessionStatus.ENDED &&
+        (player?.status === PlayerStatus.COMPLETED || player?.status === PlayerStatus.OFFLINE)
+      ) {
+        this.router.navigate(['/quiz-blitz']);
+        return;
+      }
+
+      this.router.navigate(['/join']);
+    });
   }
 }
