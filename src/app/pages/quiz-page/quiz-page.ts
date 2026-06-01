@@ -53,7 +53,7 @@ export class QuizPage {
 
   wrongScreenActive = signal(false);
   correctScreenActive = signal(false);
-  endScreenActive = signal(false);
+  completeScreenActive = signal(false);
   gameOverScreenActive = signal(false);
 
   // 1. Create a isolated computed property for the condition
@@ -91,11 +91,13 @@ export class QuizPage {
     this.activeQuestion = toSignal(
       combineLatest([
         toObservable(this.wrongScreenActive),
-        toObservable(this.endScreenActive),
+        toObservable(this.completeScreenActive),
+        toObservable(this.gameOverScreenActive),
         toObservable(this.isPlayerOffline),
       ]).pipe(
-        switchMap(([isWrongActive, isEndScreenActive, isOffline]) => {
-          const isAnyScreenLocked = isWrongActive || isEndScreenActive || isOffline;
+        switchMap(([isWrongActive, isCompleteScreenActive, isGameOverScreenActive, isOffline]) => {
+          const isAnyScreenLocked =
+            isWrongActive || isCompleteScreenActive || isGameOverScreenActive || isOffline;
 
           if (isAnyScreenLocked) {
             console.log('🔒 Screen is locked by an overlay. Pausing active question sync.');
@@ -130,7 +132,7 @@ export class QuizPage {
       }
 
       if (player && player.status === PlayerStatus.COMPLETED) {
-        this.endScreenActive.set(true);
+        this.completeScreenActive.set(true);
         return;
       }
 
