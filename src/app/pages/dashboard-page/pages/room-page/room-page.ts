@@ -26,7 +26,6 @@ export class RoomPage {
   private adminService = inject(AdminService);
   private route = inject(ActivatedRoute);
   private gameService = inject(GameService);
-  private roomService = inject(RoomService);
 
   private roomId: string | null = null;
   private questionService = inject(QuestionService);
@@ -48,6 +47,7 @@ export class RoomPage {
   });
 
   leaderboardPlayers = computed(() => getTopLeaderboardPlayers(this.players() || []));
+  isQuizStarted = computed(() => this.quizSessionStatus() === QuizSessionStatus.ENDED);
 
   constructor() {
     this.route.paramMap.subscribe((params) => {

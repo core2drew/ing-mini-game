@@ -8,12 +8,14 @@
 
         <p-button severity="danger" (click)="endQuiz()" label="End Quiz"></p-button>
       </div>
-      <p-button
-        class="ml-auto"
-        severity="danger"
-        (click)="purgePlayers()"
-        label="Purge players"
-      ></p-button>
+      @if (isQuizStarted()) {
+        <p-button
+          class="ml-auto"
+          severity="danger"
+          (click)="purgePlayers()"
+          label="Purge players"
+        ></p-button>
+      }
     </div>
     <app-question-view
       class="w-full"
