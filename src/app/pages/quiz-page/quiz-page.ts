@@ -15,6 +15,7 @@ import { PlayerStatus } from '@models/quiz/player.model';
 import { CompleteScreen } from './components/screens/complete-screen/complete-screen';
 import { PlayerService } from '@services/quiz/player.service';
 import { GameoverScreen } from './components/screens/gameover-screen/gameover-screen';
+import { QuizSessionStatus } from '@models/quiz/quiz-session.model';
 @Component({
   selector: 'app-quiz-page',
   imports: [
@@ -46,6 +47,7 @@ export class QuizPage {
   readonly questionLength = toSignal(from(this.questionService.getQuestionsLength(this.roomId!)));
   readonly player = toSignal(this.playerService.getPlayer(this.roomId!, this.playerName!));
   readonly questionTimer = toSignal(this.gameService.streamGameRoomTimer(this.currentRoomId!));
+  readonly quizSessionStatus = toSignal(this.gameService.watchQuizSessionStatus(this.roomId!));
 
   lastQuestionCorrectAnswer: string | undefined;
   lastQuestionPoints = signal<number>(0);
@@ -114,6 +116,7 @@ export class QuizPage {
     effect(async () => {
       const question = this.activeQuestion();
       const player = this.player();
+      const quizSessionStatus = this.quizSessionStatus();
 
       if (question) {
         this.lastQuestionCorrectAnswer = question?.options[question?.correctIndex];
@@ -125,9 +128,22 @@ export class QuizPage {
         return;
       }
 
-      if (player && player.status === PlayerStatus.CORRECT) {
+      if (
+        player &&
+        player.status === PlayerStatus.CORRECT &&
+        quizSessionStatus === QuizSessionStatus.STARTED
+      ) {
         this.lastQuestionBonusPoints.set(player.lastQuestionBonusPoints);
         this.correctScreenActive.set(true);
+        return;
+      }
+
+      if (
+        player &&
+        player.status === PlayerStatus.WRONG &&
+        quizSessionStatus === QuizSessionStatus.STARTED
+      ) {
+        this.wrongScreenActive.set(true);
         return;
       }
 
@@ -136,10 +152,6 @@ export class QuizPage {
         return;
       }
 
-      if (player && player.status === PlayerStatus.WRONG) {
-        this.wrongScreenActive.set(true);
-        return;
-      }
       if (player && player.status === PlayerStatus.OFFLINE) {
         this.gameOverScreenActive.set(true);
         return;
