@@ -30,12 +30,15 @@
     </div>
 
     <h1 class="result-title">Quiz Complete!</h1>
+
     <p class="result-subtitle">{{ inspirationalMessage() }}</p>
-    <button
-      class="w-full rounded-xl bg-slate-800/80 px-5 py-3 font-semibold text-slate-200 border border-slate-700/50 backdrop-blur-sm transition-all duration-200 ease-in-out hover:bg-slate-700 hover:text-white active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:ring-offset-2 focus:ring-offset-slate-900 cursor-pointer"
-      (click)="close()"
-    >
-      Close
-    </button>
+
+    <div class="score-box">
+      <app-avatar [player]="player()" [horizontal]="true"></app-avatar>
+      <div class="flex items-center gap-2">
+        <span class="score-value">{{ player()?.score }}</span>
+        <span class="score-label text-xs! pt-2">pts</span>
+      </div>
+    </div>
   </div>
 </div>
