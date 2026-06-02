@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, Signal, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { combineLatest, from, of, Subscription, switchMap } from 'rxjs';
+import { combineLatest, from, of, switchMap } from 'rxjs';
 import { sessionStore } from '@stores/session.store';
 import { Router } from '@angular/router';
 import { QuestionScreen } from './components/screens/question-screen/question-screen';
