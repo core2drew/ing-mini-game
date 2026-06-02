@@ -150,6 +150,8 @@ export class QuizPage {
           break;
 
         case PlayerStatus.COMPLETED:
+          this.completeScreenActive.set(true);
+          break;
         case PlayerStatus.OFFLINE:
           this.gameOverScreenActive.set(true);
           break;
