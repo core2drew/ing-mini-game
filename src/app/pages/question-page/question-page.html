@@ -1,0 +1,26 @@
+<div class="min-h-screen bg-linear-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div class="min-h-screen max-w-4xl container mx-auto py-8 items-center justify-center flex">
+
+        @if((loading() || !isQuizStarted())) {
+          <p class="text-gray-300 text-center text-2xl animate-pulse">Loading question...</p>
+        }
+        @else {
+          <div class="bg-slate-700 rounded-lg p-6  mx-auto">
+              @if (questionTimer() !== undefined && questionTimer() > 0) {
+                <app-quiz-timer [timeLeft]="questionTimer()!"></app-quiz-timer>
+              }
+              <p class="text-gray-300 mb-6 text-3xl">{{ activeQuestion()?.text }}</p>
+              <div class="grid md:grid-cols-2 sm:grid-cols-1 gap-3 mb-6">
+                @for (option of activeQuestion()?.options; track $index; let i = $index) {
+                  <app-question-option-button
+                    [option]="option"
+                    [index]="i"
+                    [isCorrect]="i === activeQuestion()?.correctIndex"
+                    [isRevealed]="(revealed$ | async)!"
+                  ></app-question-option-button>
+                }
+              </div>
+          </div>
+        }
+    </div>
+</div>

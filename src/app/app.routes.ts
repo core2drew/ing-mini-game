@@ -50,6 +50,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import(`./pages/leaderboard-page/leaderboard-page`).then((m) => m.LeaderboardPage),
       },
+      {
+        path: 'room/:roomId/question',
+        loadComponent: () =>
+          import(`./pages/question-page/question-page`).then((m) => m.QuestionPage),
+      }
     ],
   },
   {
